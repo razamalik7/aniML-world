@@ -1,0 +1,479 @@
+=== Root layer: C:/Users/nars7/Downloads/aniML_world/deer_standing_robot.usd
+Sublayers: []
+
+=== All prims (composed stage) ===
+/deer [Xform] xform=[('xformOp:translate', '(0, 0, 0)'), ('xformOp:orient', '(0.7017914799970107, -0.7123824244067265, 0, 0)'), ('xformOp:scale', '(1, 1, 1)')]
+  children: ['pelvis', 'HL_thigh', 'joints', 'HL_shin', 'HL_foot', 'HR_thigh', 'HR_shin', 'HR_foot', 'chest', 'FL_thigh', 'FL_shin', 'FL_foot', 'FR_thigh', 'FR_shin', 'FR_foot', 'neck', 'skull', 'Looks', 'root_joint']
+  layers: ['deer_standing_robot.usd', 'deer.usd', 'deer.usd', 'deer_physics.usd', 'deer_base.usd', 'deer.usd', 'deer_sensor.usd', 'deer.usd', 'deer_robot.usd']
+/deer/pelvis [Xform] xform=[('xformOp:translate', '(0, 0, 0)'), ('xformOp:orient', '(1, 0, 0, 0)'), ('xformOp:scale', '(1, 1, 1)')]
+  children: ['visuals', 'collisions']
+  layers: ['deer_physics.usd', 'deer_base.usd', 'deer_robot.usd']
+/deer/pelvis/visuals [Xform]
+  layers: ['deer_base.usd', 'deer_base.usd']
+/deer/pelvis/collisions [Xform]
+  layers: ['deer_physics.usd', 'deer_physics.usd', 'deer_base.usd']
+/deer/HL_thigh [Xform] xform=[('xformOp:translate', '(0.12700800597667694, -0.8428410291671753, 0.4569059908390045)'), ('xformOp:orient', '(1, 0, 0, 0)'), ('xformOp:scale', '(1, 1, 1)')]
+  children: ['visuals', 'collisions']
+  layers: ['deer_physics.usd', 'deer_base.usd', 'deer_robot.usd']
+/deer/HL_thigh/visuals [Xform]
+  layers: ['deer_base.usd', 'deer_base.usd']
+/deer/HL_thigh/collisions [Xform]
+  layers: ['deer_physics.usd', 'deer_physics.usd', 'deer_base.usd']
+/deer/joints [Scope]
+  children: ['pelvis_to_HL_thigh', 'HL_thigh_to_HL_shin', 'HL_shin_to_HL_foot', 'pelvis_to_HR_thigh', 'HR_thigh_to_HR_shin', 'HR_shin_to_HR_foot', 'pelvis_to_chest', 'chest_to_FL_thigh', 'FL_thigh_to_FL_shin', 'FL_shin_to_FL_foot', 'chest_to_FR_thigh', 'FR_thigh_to_FR_shin', 'FR_shin_to_FR_foot', 'chest_to_neck', 'neck_to_skull']
+  layers: ['deer_physics.usd', 'deer_base.usd', 'deer_robot.usd']
+/deer/joints/pelvis_to_HL_thigh [PhysicsRevoluteJoint]
+  layers: ['deer_physics.usd', 'deer_robot.usd']
+/deer/joints/HL_thigh_to_HL_shin [PhysicsRevoluteJoint]
+  layers: ['deer_physics.usd', 'deer_robot.usd']
+/deer/joints/HL_shin_to_HL_foot [PhysicsRevoluteJoint]
+  layers: ['deer_physics.usd', 'deer_robot.usd']
+/deer/joints/pelvis_to_HR_thigh [PhysicsRevoluteJoint]
+  layers: ['deer_physics.usd', 'deer_robot.usd']
+/deer/joints/HR_thigh_to_HR_shin [PhysicsRevoluteJoint]
+  layers: ['deer_physics.usd', 'deer_robot.usd']
+/deer/joints/HR_shin_to_HR_foot [PhysicsRevoluteJoint]
+  layers: ['deer_physics.usd', 'deer_robot.usd']
+/deer/joints/pelvis_to_chest [PhysicsRevoluteJoint]
+  layers: ['deer_physics.usd', 'deer_robot.usd']
+/deer/joints/chest_to_FL_thigh [PhysicsRevoluteJoint]
+  layers: ['deer_physics.usd', 'deer_robot.usd']
+/deer/joints/FL_thigh_to_FL_shin [PhysicsRevoluteJoint]
+  layers: ['deer_physics.usd', 'deer_robot.usd']
+/deer/joints/FL_shin_to_FL_foot [PhysicsRevoluteJoint]
+  layers: ['deer_physics.usd', 'deer_robot.usd']
+/deer/joints/chest_to_FR_thigh [PhysicsRevoluteJoint]
+  layers: ['deer_physics.usd', 'deer_robot.usd']
+/deer/joints/FR_thigh_to_FR_shin [PhysicsRevoluteJoint]
+  layers: ['deer_physics.usd', 'deer_robot.usd']
+/deer/joints/FR_shin_to_FR_foot [PhysicsRevoluteJoint]
+  layers: ['deer_physics.usd', 'deer_robot.usd']
+/deer/joints/chest_to_neck [PhysicsRevoluteJoint]
+  layers: ['deer_physics.usd', 'deer_robot.usd']
+/deer/joints/neck_to_skull [PhysicsRevoluteJoint]
+  layers: ['deer_physics.usd', 'deer_robot.usd']
+/deer/HL_shin [Xform] xform=[('xformOp:translate', '(0.12700700759887695, -0.6038780212402344, 0.22450299561023712)'), ('xformOp:orient', '(1, 0, 0, 0)'), ('xformOp:scale', '(1, 1, 1)')]
+  children: ['visuals', 'collisions']
+  layers: ['deer_physics.usd', 'deer_base.usd', 'deer_robot.usd']
+/deer/HL_shin/visuals [Xform]
+  layers: ['deer_base.usd', 'deer_base.usd']
+/deer/HL_shin/collisions [Xform]
+  layers: ['deer_physics.usd', 'deer_physics.usd', 'deer_base.usd']
+/deer/HL_foot [Xform] xform=[('xformOp:translate', '(0.13538600504398346, -0.4352780282497406, 0.4418500065803528)'), ('xformOp:orient', '(1, 0, 0, 0)'), ('xformOp:scale', '(1, 1, 1)')]
+  children: ['visuals', 'collisions']
+  layers: ['deer_physics.usd', 'deer_base.usd', 'deer_robot.usd']
+/deer/HL_foot/visuals [Xform]
+  layers: ['deer_base.usd', 'deer_base.usd']
+/deer/HL_foot/collisions [Xform]
+  layers: ['deer_physics.usd', 'deer_physics.usd', 'deer_base.usd']
+/deer/HR_thigh [Xform] xform=[('xformOp:translate', '(-0.12700900435447693, -0.8428419828414917, 0.4569059908390045)'), ('xformOp:orient', '(1, 0, 0, 0)'), ('xformOp:scale', '(1, 1, 1)')]
+  children: ['visuals', 'collisions']
+  layers: ['deer_physics.usd', 'deer_base.usd', 'deer_robot.usd']
+/deer/HR_thigh/visuals [Xform]
+  layers: ['deer_base.usd', 'deer_base.usd']
+/deer/HR_thigh/collisions [Xform]
+  layers: ['deer_physics.usd', 'deer_physics.usd', 'deer_base.usd']
+/deer/HR_shin [Xform] xform=[('xformOp:translate', '(-0.12701000273227692, -0.6038789749145508, 0.22450299561023712)'), ('xformOp:orient', '(1, 0, 0, 0)'), ('xformOp:scale', '(1, 1, 1)')]
+  children: ['visuals', 'collisions']
+  layers: ['deer_physics.usd', 'deer_base.usd', 'deer_robot.usd']
+/deer/HR_shin/visuals [Xform]
+  layers: ['deer_base.usd', 'deer_base.usd']
+/deer/HR_shin/collisions [Xform]
+  layers: ['deer_physics.usd', 'deer_physics.usd', 'deer_base.usd']
+/deer/HR_foot [Xform] xform=[('xformOp:translate', '(-0.1353899985551834, -0.4352779686450958, 0.4418500065803528)'), ('xformOp:orient', '(1, 0, 0, 0)'), ('xformOp:scale', '(1, 1, 1)')]
+  children: ['visuals', 'collisions']
+  layers: ['deer_physics.usd', 'deer_base.usd', 'deer_robot.usd']
+/deer/HR_foot/visuals [Xform]
+  layers: ['deer_base.usd', 'deer_base.usd']
+/deer/HR_foot/collisions [Xform]
+  layers: ['deer_physics.usd', 'deer_physics.usd', 'deer_base.usd']
+/deer/chest [Xform] xform=[('xformOp:translate', '(0, -0.965179979801178, 0.5115910172462463)'), ('xformOp:orient', '(1, 0, 0, 0)'), ('xformOp:scale', '(1, 1, 1)')]
+  children: ['visuals', 'collisions']
+  layers: ['deer_physics.usd', 'deer_base.usd', 'deer_robot.usd']
+/deer/chest/visuals [Xform]
+  layers: ['deer_base.usd', 'deer_base.usd']
+/deer/chest/collisions [Xform]
+  layers: ['deer_physics.usd', 'deer_physics.usd', 'deer_base.usd']
+/deer/FL_thigh [Xform] xform=[('xformOp:translate', '(0.12220499664545059, -0.7772249579429626, -0.377748966217041)'), ('xformOp:orient', '(1, 0, 0, 0)'), ('xformOp:scale', '(1, 1, 1)')]
+  children: ['visuals', 'collisions']
+  layers: ['deer_physics.usd', 'deer_base.usd', 'deer_robot.usd']
+/deer/FL_thigh/visuals [Xform]
+  layers: ['deer_base.usd', 'deer_base.usd']
+/deer/FL_thigh/collisions [Xform]
+  layers: ['deer_physics.usd', 'deer_physics.usd', 'deer_base.usd']
+/deer/FL_shin [Xform] xform=[('xformOp:translate', '(0.12213799357414246, -0.6355189681053162, -0.19833596050739288)'), ('xformOp:orient', '(1, 0, 0, 0)'), ('xformOp:scale', '(1, 1, 1)')]
+  children: ['visuals', 'collisions']
+  layers: ['deer_physics.usd', 'deer_base.usd', 'deer_robot.usd']
+/deer/FL_shin/visuals [Xform]
+  layers: ['deer_base.usd', 'deer_base.usd']
+/deer/FL_shin/collisions [Xform]
+  layers: ['deer_physics.usd', 'deer_physics.usd', 'deer_base.usd']
+/deer/FL_foot [Xform] xform=[('xformOp:translate', '(0.12188699096441269, -0.3670969605445862, -0.2981909513473511)'), ('xformOp:orient', '(1, 0, 0, 0)'), ('xformOp:scale', '(1, 1, 1)')]
+  children: ['visuals', 'collisions']
+  layers: ['deer_physics.usd', 'deer_base.usd', 'deer_robot.usd']
+/deer/FL_foot/visuals [Xform]
+  layers: ['deer_base.usd', 'deer_base.usd']
+/deer/FL_foot/collisions [Xform]
+  layers: ['deer_physics.usd', 'deer_physics.usd', 'deer_base.usd']
+/deer/FR_thigh [Xform] xform=[('xformOp:translate', '(-0.12224499881267548, -0.7772599458694458, -0.3778259754180908)'), ('xformOp:orient', '(1, 0, 0, 0)'), ('xformOp:scale', '(1, 1, 1)')]
+  children: ['visuals', 'collisions']
+  layers: ['deer_physics.usd', 'deer_base.usd', 'deer_robot.usd']
+/deer/FR_thigh/visuals [Xform]
+  layers: ['deer_base.usd', 'deer_base.usd']
+/deer/FR_thigh/collisions [Xform]
+  layers: ['deer_physics.usd', 'deer_physics.usd', 'deer_base.usd']
+/deer/FR_shin [Xform] xform=[('xformOp:translate', '(-0.12219499796628952, -0.6355059146881104, -0.1984509825706482)'), ('xformOp:orient', '(1, 0, 0, 0)'), ('xformOp:scale', '(1, 1, 1)')]
+  children: ['visuals', 'collisions']
+  layers: ['deer_physics.usd', 'deer_base.usd', 'deer_robot.usd']
+/deer/FR_shin/visuals [Xform]
+  layers: ['deer_base.usd', 'deer_base.usd']
+/deer/FR_shin/collisions [Xform]
+  layers: ['deer_physics.usd', 'deer_physics.usd', 'deer_base.usd']
+/deer/FR_foot [Xform] xform=[('xformOp:translate', '(-0.12083899974822998, -0.36563292145729065, -0.2943049669265747)'), ('xformOp:orient', '(1, 0, 0, 0)'), ('xformOp:scale', '(1, 1, 1)')]
+  children: ['visuals', 'collisions']
+  layers: ['deer_physics.usd', 'deer_base.usd', 'deer_robot.usd']
+/deer/FR_foot/visuals [Xform]
+  layers: ['deer_base.usd', 'deer_base.usd']
+/deer/FR_foot/collisions [Xform]
+  layers: ['deer_physics.usd', 'deer_physics.usd', 'deer_base.usd']
+/deer/neck [Xform] xform=[('xformOp:translate', '(0.0000019999999949504854, -0.9892469644546509, -0.3380059599876404)'), ('xformOp:orient', '(1, 0, 0, 0)'), ('xformOp:scale', '(1, 1, 1)')]
+  children: ['visuals', 'collisions']
+  layers: ['deer_physics.usd', 'deer_base.usd', 'deer_robot.usd']
+/deer/neck/visuals [Xform]
+  layers: ['deer_base.usd', 'deer_base.usd']
+/deer/neck/collisions [Xform]
+  layers: ['deer_physics.usd', 'deer_physics.usd', 'deer_base.usd']
+/deer/skull [Xform] xform=[('xformOp:translate', '(0.000004999999873689376, -1.3576409816741943, -0.6881309747695923)'), ('xformOp:orient', '(1, 0, 0, 0)'), ('xformOp:scale', '(1, 1, 1)')]
+  children: ['visuals', 'collisions']
+  layers: ['deer_physics.usd', 'deer_base.usd', 'deer_robot.usd']
+/deer/skull/visuals [Xform]
+  layers: ['deer_base.usd', 'deer_base.usd']
+/deer/skull/collisions [Xform]
+  layers: ['deer_physics.usd', 'deer_physics.usd', 'deer_base.usd']
+/deer/Looks [Scope]
+  layers: ['deer_base.usd']
+/deer/root_joint [PhysicsFixedJoint]
+  layers: ['deer_physics.usd']
+/physicsScene [PhysicsScene]
+  layers: ['deer_standing_robot.usd']
+
+=== Checking sublayer files ===
+
+--- Layer: C:/Users/nars7/Downloads/aniML_world/deer_standing_robot.usd ---
+  /deer type=
+  /physicsScene type=PhysicsScene
+
+--- Layer: C:/Users/nars7/Downloads/aniML_world/assets/deer_urdf/deer/configuration/deer_sensor.usd ---
+  /deer type=Xform
+
+--- Layer: C:/Users/nars7/Downloads/aniML_world/assets/deer_urdf/deer/configuration/deer_base.usd ---
+  /deer type=Xform
+    /deer/Looks type=Scope
+    /deer/joints type=Scope
+    /deer/pelvis type=Xform
+      /deer/pelvis/visuals type=Xform
+    /deer/HL_thigh type=Xform
+      /deer/HL_thigh/visuals type=Xform
+    /deer/HL_shin type=Xform
+      /deer/HL_shin/visuals type=Xform
+    /deer/HL_foot type=Xform
+      /deer/HL_foot/visuals type=Xform
+    /deer/HR_thigh type=Xform
+      /deer/HR_thigh/visuals type=Xform
+    /deer/HR_shin type=Xform
+      /deer/HR_shin/visuals type=Xform
+    /deer/HR_foot type=Xform
+      /deer/HR_foot/visuals type=Xform
+    /deer/chest type=Xform
+      /deer/chest/visuals type=Xform
+    /deer/FL_thigh type=Xform
+      /deer/FL_thigh/visuals type=Xform
+    /deer/FL_shin type=Xform
+      /deer/FL_shin/visuals type=Xform
+    /deer/FL_foot type=Xform
+      /deer/FL_foot/visuals type=Xform
+    /deer/FR_thigh type=Xform
+      /deer/FR_thigh/visuals type=Xform
+    /deer/FR_shin type=Xform
+      /deer/FR_shin/visuals type=Xform
+    /deer/FR_foot type=Xform
+      /deer/FR_foot/visuals type=Xform
+    /deer/neck type=Xform
+      /deer/neck/visuals type=Xform
+    /deer/skull type=Xform
+      /deer/skull/visuals type=Xform
+  /visuals type=Scope
+    /visuals/pelvis type=
+      /visuals/pelvis/pelvis_collision type=Xform
+    /visuals/HL_thigh type=
+      /visuals/HL_thigh/HL_thigh_collision type=Xform
+    /visuals/HL_shin type=
+      /visuals/HL_shin/HL_shin_collision type=Xform
+    /visuals/HL_foot type=
+      /visuals/HL_foot/HL_foot_collision type=Xform
+    /visuals/HR_thigh type=
+      /visuals/HR_thigh/HR_thigh_collision type=Xform
+    /visuals/HR_shin type=
+      /visuals/HR_shin/HR_shin_collision type=Xform
+    /visuals/HR_foot type=
+      /visuals/HR_foot/HR_foot_collision type=Xform
+    /visuals/chest type=
+      /visuals/chest/chest_collision type=Xform
+    /visuals/FL_thigh type=
+      /visuals/FL_thigh/FL_thigh_collision type=Xform
+    /visuals/FL_shin type=
+      /visuals/FL_shin/FL_shin_collision type=Xform
+    /visuals/FL_foot type=
+      /visuals/FL_foot/FL_foot_collision type=Xform
+    /visuals/FR_thigh type=
+      /visuals/FR_thigh/FR_thigh_collision type=Xform
+    /visuals/FR_shin type=
+      /visuals/FR_shin/FR_shin_collision type=Xform
+    /visuals/FR_foot type=
+      /visuals/FR_foot/FR_foot_collision type=Xform
+    /visuals/neck type=
+      /visuals/neck/neck_collision type=Xform
+    /visuals/skull type=
+      /visuals/skull/skull_collision type=Xform
+  /colliders type=Scope
+    /colliders/pelvis type=Xform
+      /colliders/pelvis/pelvis_collision type=Xform
+    /colliders/HL_thigh type=Xform
+      /colliders/HL_thigh/HL_thigh_collision type=Xform
+    /colliders/HL_shin type=Xform
+      /colliders/HL_shin/HL_shin_collision type=Xform
+    /colliders/HL_foot type=Xform
+      /colliders/HL_foot/HL_foot_collision type=Xform
+    /colliders/HR_thigh type=Xform
+      /colliders/HR_thigh/HR_thigh_collision type=Xform
+    /colliders/HR_shin type=Xform
+      /colliders/HR_shin/HR_shin_collision type=Xform
+    /colliders/HR_foot type=Xform
+      /colliders/HR_foot/HR_foot_collision type=Xform
+    /colliders/chest type=Xform
+      /colliders/chest/chest_collision type=Xform
+    /colliders/FL_thigh type=Xform
+      /colliders/FL_thigh/FL_thigh_collision type=Xform
+    /colliders/FL_shin type=Xform
+      /colliders/FL_shin/FL_shin_collision type=Xform
+    /colliders/FL_foot type=Xform
+      /colliders/FL_foot/FL_foot_collision type=Xform
+    /colliders/FR_thigh type=Xform
+      /colliders/FR_thigh/FR_thigh_collision type=Xform
+    /colliders/FR_shin type=Xform
+      /colliders/FR_shin/FR_shin_collision type=Xform
+    /colliders/FR_foot type=Xform
+      /colliders/FR_foot/FR_foot_collision type=Xform
+    /colliders/neck type=Xform
+      /colliders/neck/neck_collision type=Xform
+    /colliders/skull type=Xform
+      /colliders/skull/skull_collision type=Xform
+  /meshes type=Scope
+    /meshes/pelvis_collision type=Xform
+      /meshes/pelvis_collision/node_STL_BINARY_ type=Xform
+        /meshes/pelvis_collision/node_STL_BINARY_/Looks type=Scope
+        /meshes/pelvis_collision/node_STL_BINARY_/mesh type=Mesh
+    /meshes/HL_thigh_collision type=Xform
+      /meshes/HL_thigh_collision/node_STL_BINARY_ type=Xform
+        /meshes/HL_thigh_collision/node_STL_BINARY_/Looks type=Scope
+        /meshes/HL_thigh_collision/node_STL_BINARY_/mesh type=Mesh
+    /meshes/HL_shin_collision type=Xform
+      /meshes/HL_shin_collision/node_STL_BINARY_ type=Xform
+        /meshes/HL_shin_collision/node_STL_BINARY_/Looks type=Scope
+        /meshes/HL_shin_collision/node_STL_BINARY_/mesh type=Mesh
+    /meshes/HL_foot_collision type=Xform
+      /meshes/HL_foot_collision/node_STL_BINARY_ type=Xform
+        /meshes/HL_foot_collision/node_STL_BINARY_/Looks type=Scope
+        /meshes/HL_foot_collision/node_STL_BINARY_/mesh type=Mesh
+    /meshes/HR_thigh_collision type=Xform
+      /meshes/HR_thigh_collision/node_STL_BINARY_ type=Xform
+        /meshes/HR_thigh_collision/node_STL_BINARY_/Looks type=Scope
+        /meshes/HR_thigh_collision/node_STL_BINARY_/mesh type=Mesh
+    /meshes/HR_shin_collision type=Xform
+      /meshes/HR_shin_collision/node_STL_BINARY_ type=Xform
+        /meshes/HR_shin_collision/node_STL_BINARY_/Looks type=Scope
+        /meshes/HR_shin_collision/node_STL_BINARY_/mesh type=Mesh
+    /meshes/HR_foot_collision type=Xform
+      /meshes/HR_foot_collision/node_STL_BINARY_ type=Xform
+        /meshes/HR_foot_collision/node_STL_BINARY_/Looks type=Scope
+        /meshes/HR_foot_collision/node_STL_BINARY_/mesh type=Mesh
+    /meshes/chest_collision type=Xform
+      /meshes/chest_collision/node_STL_BINARY_ type=Xform
+        /meshes/chest_collision/node_STL_BINARY_/Looks type=Scope
+        /meshes/chest_collision/node_STL_BINARY_/mesh type=Mesh
+    /meshes/FL_thigh_collision type=Xform
+      /meshes/FL_thigh_collision/node_STL_BINARY_ type=Xform
+        /meshes/FL_thigh_collision/node_STL_BINARY_/Looks type=Scope
+        /meshes/FL_thigh_collision/node_STL_BINARY_/mesh type=Mesh
+    /meshes/FL_shin_collision type=Xform
+      /meshes/FL_shin_collision/node_STL_BINARY_ type=Xform
+        /meshes/FL_shin_collision/node_STL_BINARY_/Looks type=Scope
+        /meshes/FL_shin_collision/node_STL_BINARY_/mesh type=Mesh
+    /meshes/FL_foot_collision type=Xform
+      /meshes/FL_foot_collision/node_STL_BINARY_ type=Xform
+        /meshes/FL_foot_collision/node_STL_BINARY_/Looks type=Scope
+        /meshes/FL_foot_collision/node_STL_BINARY_/mesh type=Mesh
+    /meshes/FR_thigh_collision type=Xform
+      /meshes/FR_thigh_collision/node_STL_BINARY_ type=Xform
+        /meshes/FR_thigh_collision/node_STL_BINARY_/Looks type=Scope
+        /meshes/FR_thigh_collision/node_STL_BINARY_/mesh type=Mesh
+    /meshes/FR_shin_collision type=Xform
+      /meshes/FR_shin_collision/node_STL_BINARY_ type=Xform
+        /meshes/FR_shin_collision/node_STL_BINARY_/Looks type=Scope
+        /meshes/FR_shin_collision/node_STL_BINARY_/mesh type=Mesh
+    /meshes/FR_foot_collision type=Xform
+      /meshes/FR_foot_collision/node_STL_BINARY_ type=Xform
+        /meshes/FR_foot_collision/node_STL_BINARY_/Looks type=Scope
+        /meshes/FR_foot_collision/node_STL_BINARY_/mesh type=Mesh
+    /meshes/neck_collision type=Xform
+      /meshes/neck_collision/node_STL_BINARY_ type=Xform
+        /meshes/neck_collision/node_STL_BINARY_/Looks type=Scope
+        /meshes/neck_collision/node_STL_BINARY_/mesh type=Mesh
+    /meshes/skull_collision type=Xform
+      /meshes/skull_collision/node_STL_BINARY_ type=Xform
+        /meshes/skull_collision/node_STL_BINARY_/Looks type=Scope
+        /meshes/skull_collision/node_STL_BINARY_/mesh type=Mesh
+
+--- Layer: C:/Users/nars7/Downloads/aniML_world/assets/deer_urdf/deer/deer.usd ---
+  /deer type=Xform
+
+--- Layer: C:/Users/nars7/Downloads/aniML_world/assets/deer_urdf/deer/configuration/deer_physics.usd ---
+  /physicsScene type=PhysicsScene
+  /deer type=
+    /deer/root_joint type=PhysicsFixedJoint
+    /deer/pelvis type=
+      /deer/pelvis/collisions type=Xform
+    /deer/HL_thigh type=
+      /deer/HL_thigh/collisions type=Xform
+    /deer/joints type=
+      /deer/joints/pelvis_to_HL_thigh type=PhysicsRevoluteJoint
+      /deer/joints/HL_thigh_to_HL_shin type=PhysicsRevoluteJoint
+      /deer/joints/HL_shin_to_HL_foot type=PhysicsRevoluteJoint
+      /deer/joints/pelvis_to_HR_thigh type=PhysicsRevoluteJoint
+      /deer/joints/HR_thigh_to_HR_shin type=PhysicsRevoluteJoint
+      /deer/joints/HR_shin_to_HR_foot type=PhysicsRevoluteJoint
+      /deer/joints/pelvis_to_chest type=PhysicsRevoluteJoint
+      /deer/joints/chest_to_FL_thigh type=PhysicsRevoluteJoint
+      /deer/joints/FL_thigh_to_FL_shin type=PhysicsRevoluteJoint
+      /deer/joints/FL_shin_to_FL_foot type=PhysicsRevoluteJoint
+      /deer/joints/chest_to_FR_thigh type=PhysicsRevoluteJoint
+      /deer/joints/FR_thigh_to_FR_shin type=PhysicsRevoluteJoint
+      /deer/joints/FR_shin_to_FR_foot type=PhysicsRevoluteJoint
+      /deer/joints/chest_to_neck type=PhysicsRevoluteJoint
+      /deer/joints/neck_to_skull type=PhysicsRevoluteJoint
+    /deer/HL_shin type=
+      /deer/HL_shin/collisions type=Xform
+    /deer/HL_foot type=
+      /deer/HL_foot/collisions type=Xform
+    /deer/HR_thigh type=
+      /deer/HR_thigh/collisions type=Xform
+    /deer/HR_shin type=
+      /deer/HR_shin/collisions type=Xform
+    /deer/HR_foot type=
+      /deer/HR_foot/collisions type=Xform
+    /deer/chest type=
+      /deer/chest/collisions type=Xform
+    /deer/FL_thigh type=
+      /deer/FL_thigh/collisions type=Xform
+    /deer/FL_shin type=
+      /deer/FL_shin/collisions type=Xform
+    /deer/FL_foot type=
+      /deer/FL_foot/collisions type=Xform
+    /deer/FR_thigh type=
+      /deer/FR_thigh/collisions type=Xform
+    /deer/FR_shin type=
+      /deer/FR_shin/collisions type=Xform
+    /deer/FR_foot type=
+      /deer/FR_foot/collisions type=Xform
+    /deer/neck type=
+      /deer/neck/collisions type=Xform
+    /deer/skull type=
+      /deer/skull/collisions type=Xform
+  /colliders type=
+    /colliders/pelvis type=
+      /colliders/pelvis/pelvis_collision type=
+        /colliders/pelvis/pelvis_collision/node_STL_BINARY_ type=
+    /colliders/HL_thigh type=
+      /colliders/HL_thigh/HL_thigh_collision type=
+        /colliders/HL_thigh/HL_thigh_collision/node_STL_BINARY_ type=
+    /colliders/HL_shin type=
+      /colliders/HL_shin/HL_shin_collision type=
+        /colliders/HL_shin/HL_shin_collision/node_STL_BINARY_ type=
+    /colliders/HL_foot type=
+      /colliders/HL_foot/HL_foot_collision type=
+        /colliders/HL_foot/HL_foot_collision/node_STL_BINARY_ type=
+    /colliders/HR_thigh type=
+      /colliders/HR_thigh/HR_thigh_collision type=
+        /colliders/HR_thigh/HR_thigh_collision/node_STL_BINARY_ type=
+    /colliders/HR_shin type=
+      /colliders/HR_shin/HR_shin_collision type=
+        /colliders/HR_shin/HR_shin_collision/node_STL_BINARY_ type=
+    /colliders/HR_foot type=
+      /colliders/HR_foot/HR_foot_collision type=
+        /colliders/HR_foot/HR_foot_collision/node_STL_BINARY_ type=
+    /colliders/chest type=
+      /colliders/chest/chest_collision type=
+        /colliders/chest/chest_collision/node_STL_BINARY_ type=
+    /colliders/FL_thigh type=
+      /colliders/FL_thigh/FL_thigh_collision type=
+        /colliders/FL_thigh/FL_thigh_collision/node_STL_BINARY_ type=
+    /colliders/FL_shin type=
+      /colliders/FL_shin/FL_shin_collision type=
+        /colliders/FL_shin/FL_shin_collision/node_STL_BINARY_ type=
+    /colliders/FL_foot type=
+      /colliders/FL_foot/FL_foot_collision type=
+        /colliders/FL_foot/FL_foot_collision/node_STL_BINARY_ type=
+    /colliders/FR_thigh type=
+      /colliders/FR_thigh/FR_thigh_collision type=
+        /colliders/FR_thigh/FR_thigh_collision/node_STL_BINARY_ type=
+    /colliders/FR_shin type=
+      /colliders/FR_shin/FR_shin_collision type=
+        /colliders/FR_shin/FR_shin_collision/node_STL_BINARY_ type=
+    /colliders/FR_foot type=
+      /colliders/FR_foot/FR_foot_collision type=
+        /colliders/FR_foot/FR_foot_collision/node_STL_BINARY_ type=
+    /colliders/neck type=
+      /colliders/neck/neck_collision type=
+        /colliders/neck/neck_collision/node_STL_BINARY_ type=
+    /colliders/skull type=
+      /colliders/skull/skull_collision type=
+        /colliders/skull/skull_collision/node_STL_BINARY_ type=
+    /colliders/robotCollisionGroup type=PhysicsCollisionGroup
+    /colliders/collidersCollisionGroup type=PhysicsCollisionGroup
+
+--- Layer: anon:00000230BD149AF0:deer_standing_robot-session.usda ---
+
+--- Layer: C:/Users/nars7/Downloads/aniML_world/assets/deer_urdf/deer/configuration/deer_robot.usd ---
+  /deer type=Xform
+    /deer/pelvis type=
+    /deer/HL_thigh type=
+    /deer/joints type=
+      /deer/joints/pelvis_to_HL_thigh type=
+      /deer/joints/HL_thigh_to_HL_shin type=
+      /deer/joints/HL_shin_to_HL_foot type=
+      /deer/joints/pelvis_to_HR_thigh type=
+      /deer/joints/HR_thigh_to_HR_shin type=
+      /deer/joints/HR_shin_to_HR_foot type=
+      /deer/joints/pelvis_to_chest type=
+      /deer/joints/chest_to_FL_thigh type=
+      /deer/joints/FL_thigh_to_FL_shin type=
+      /deer/joints/FL_shin_to_FL_foot type=
+      /deer/joints/chest_to_FR_thigh type=
+      /deer/joints/FR_thigh_to_FR_shin type=
+      /deer/joints/FR_shin_to_FR_foot type=
+      /deer/joints/chest_to_neck type=
+      /deer/joints/neck_to_skull type=
+    /deer/HL_shin type=
+    /deer/HL_foot type=
+    /deer/HR_thigh type=
+    /deer/HR_shin type=
+    /deer/HR_foot type=
+    /deer/chest type=
+    /deer/FL_thigh type=
+    /deer/FL_shin type=
+    /deer/FL_foot type=
+    /deer/FR_thigh type=
+    /deer/FR_shin type=
+    /deer/FR_foot type=
+    /deer/neck type=
+    /deer/skull type=

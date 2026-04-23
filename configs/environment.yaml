@@ -1,0 +1,14 @@
+terrain:
+  type: procedural_rough
+  size_m: [100, 100]
+  resolution: 0.1
+  roughness: 0.05
+
+weather:
+  initial_state: clear_sky
+  transition_interval_s: 60.0
+  meteor_probability_per_hour: 0.01
+
+time:
+  day_length_s: 600.0
+  start_hour: 8.0

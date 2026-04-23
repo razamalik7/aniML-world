@@ -1,0 +1,111 @@
+---
+description: YAML config file schemas for species, training, and environment.
+globs: configs/**/*.yaml
+alwaysApply: false
+---
+
+# Config File Schemas
+
+All configs use YAML. Follow these exact schemas.
+
+## Species Config (`configs/species/<name>.yaml`)
+
+```yaml
+species:
+  name: deer
+  type: herbivore        # herbivore | predator | omnivore
+
+morphology:
+  num_legs: 4
+  joints_per_leg: 3      # hip, knee, ankle
+  total_joints: 12       # num_legs * joints_per_leg
+  body_mass_kg: 70.0
+  body_length_m: 1.5
+
+observations:
+  joint_pos_dim: 12
+  joint_vel_dim: 12
+  body_orientation_dim: 4    # quaternion
+  body_angular_vel_dim: 3
+  gravity_projection_dim: 3
+  velocity_command_dim: 3
+  height_scan_points: 100
+  context_token_dim: 11
+  total_obs_dim: 148         # sum of above (without velocity_command for ecosystem)
+
+actions:
+  type: joint_position_targets
+  dim: 12
+  scale: 1.0
+
+rewards:
+  velocity_tracking_weight: 1.0
+  energy_penalty_weight: -0.001
+  feet_air_time_weight: 0.5
+  body_height_weight: -0.5
+  orientation_penalty_weight: -1.0
+  survival_bonus: 0.1
+  # Species-specific (ecosystem phase)
+  flee_predator_weight: 2.0    # herbivores only
+  forage_weight: 1.0           # herbivores only
+
+domain_randomization:
+  friction_range: [0.5, 1.5]
+  mass_variation_pct: 15
+  motor_strength_variation_pct: 10
+```
+
+## Training Config (`configs/training/<experiment>.yaml`)
+
+```yaml
+experiment:
+  name: deer_locomotion_rough
+  max_iterations: 1500
+  save_interval: 50
+
+environment:
+  num_envs: 1024          # NOT 4096 on 12GB VRAM
+  env_spacing: 2.5
+  episode_length_s: 20.0
+  decimation: 4
+  physics_dt: 0.005       # 200Hz physics, 50Hz policy
+
+policy:
+  actor_hidden_dims: [512, 256, 128]
+  critic_hidden_dims: [512, 256, 128]
+  activation: elu
+  init_noise_std: 1.0
+
+algorithm:
+  name: ppo
+  learning_rate: 0.001
+  schedule: adaptive
+  clip_param: 0.2
+  entropy_coef: 0.005
+  num_learning_epochs: 5
+  num_mini_batches: 4
+  gamma: 0.99
+  lam: 0.95
+  desired_kl: 0.01
+  max_grad_norm: 1.0
+  num_steps_per_env: 24
+```
+
+## Environment Config (`configs/environment.yaml`)
+
+```yaml
+terrain:
+  type: procedural_rough
+  size_m: [100, 100]
+  resolution: 0.1
+  roughness: 0.05
+
+weather:
+  initial_state: clear_sky
+  transition_interval_s: 60.0
+  meteor_probability_per_hour: 0.01
+
+time:
+  day_length_s: 600.0    # 10 min real = 1 day sim
+  start_hour: 8.0
+```

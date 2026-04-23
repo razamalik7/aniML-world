@@ -1,0 +1,6 @@
+HR_foot translate: Y=0.5968
+Root orient baked: Rx(-90) w=0.7071 x=-0.7071
+Rigid bodies: 16
+SPAWN_Z recommendation: 0.6268
+USD: C:\Users\nars7\Downloads\aniML_world\deer_final.usd
+Root op: xformOp:orient = (0.7071067811865476, -0.7071067811865476, 0, 0)

@@ -1,0 +1,100 @@
+---
+description: Unity 6 deployment — Sentis inference, LOD AI, batched GPU inference patterns.
+globs: unity/**/*.cs
+alwaysApply: false
+---
+
+# Unity 6 Deployment Conventions
+
+Package: `com.unity.ai.inference` (Sentis 2.5+). Namespace: `Unity.InferenceEngine`.
+
+## Sentis Batched Inference Template
+
+```csharp
+using UnityEngine;
+using Unity.InferenceEngine;
+
+public class BatchedPolicyInference : MonoBehaviour
+{
+    [SerializeField] private ModelAsset policyAsset;
+    private Model runtimeModel;
+    private Worker worker;
+
+    // obs_dim and action_dim must match the ONNX model
+    private const int OBS_DIM = 159;   // proprioception(48) + raycasts(100) + context(11)
+    private const int ACTION_DIM = 12; // joint position targets
+
+    void Start()
+    {
+        runtimeModel = ModelLoader.Load(policyAsset);
+        worker = new Worker(runtimeModel, BackendType.GPUCompute);
+    }
+
+    public float[] RunBatched(float[,] observations, int batchSize)
+    {
+        // observations shape: [batchSize, OBS_DIM]
+        var inputTensor = new Tensor<float>(new TensorShape(batchSize, OBS_DIM));
+        // Fill tensor from observations array...
+
+        var outputTensor = worker.Schedule(inputTensor).PeekOutput() as Tensor<float>;
+        var result = outputTensor.ReadbackAndClone();
+
+        inputTensor.Dispose();
+        return ExtractActions(result, batchSize);
+    }
+
+    void OnDestroy()
+    {
+        worker?.Dispose();
+    }
+}
+```
+
+## LOD AI Zone Thresholds
+
+**Do not treat “far” or “off-screen” as “no simulation.”** Only **rendering** and **inference cost** drop; ecosystem logic (hunts, births, resources, environment deltas) continues via **abstract/macro ticks** and **hydration** when the player arrives. Full spec: `ARCHITECTURE.md` §8, §13.
+
+| Zone | Distance | AI / sim method | Notes |
+|------|----------|-----------------|-------|
+| 1 | 0-50m | Full Sentis policy | Every frame; full physics |
+| 2 | 50-150m | Sentis (full or distilled) | Every 3-5 frames + interpolate |
+| 3 | 150m+ | Coarse NN and/or meso physics | Capsule/steering OK; preserve interaction ranges |
+| Off-screen | N/A | `AbstractEcosystemTick` + parcels | Macro state: predation, repro, positions; hydrate on player entry |
+
+## Future Unity modules (off-screen continuity)
+
+Placeholders under `unity/Runtime/Simulation/`: `EcologicalRegion`, `AbstractEcosystemTick`, `SimulationHydrator`, `ContinuityLedger` — see `ARCHITECTURE.md` §13.
+
+## LOD Manager Pattern
+
+```csharp
+public class AILODManager : MonoBehaviour
+{
+    private Camera mainCam;
+    private readonly List<AgentBrain> zone1 = new();
+    private readonly List<AgentBrain> zone2 = new();
+    private readonly List<AgentBrain> zone3 = new();
+
+    void Update()
+    {
+        ClassifyAgents();          // Sort agents into zones by distance
+        RunZone1Inference();       // Full batched Sentis inference
+        if (Time.frameCount % 4 == 0) RunZone2Inference(); // Reduced freq
+        // Zone 3: handled by AgentBrain's built-in FSM
+    }
+}
+```
+
+## Rendering LOD (NOT GPU Resident Drawer)
+
+GPU Resident Drawer does NOT work with Animator components. Instead:
+- Zone 1: Animator with full skeletal animation
+- Zone 2: Vertex Animation Textures (VAT) with GPU instancing
+- Zone 3: Billboard impostors with baked animation frames
+
+## Key Constraints
+
+- All C# scripts use `Unity.InferenceEngine` namespace (NOT the old `Unity.Sentis`).
+- Use `BackendType.GPUCompute` — fastest on RTX GPUs with DirectML.
+- ALWAYS dispose tensors and workers to prevent VRAM leaks.
+- Batch all same-zone agents into ONE forward pass — never run per-agent inference.

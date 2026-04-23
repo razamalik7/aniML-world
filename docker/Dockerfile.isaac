@@ -1,0 +1,13 @@
+# Placeholder for Linux/WSL2 training images. Pin FROM to the Isaac Sim tag that matches
+# your Isaac Lab branch (see https://isaac-sim.github.io/IsaacLab/latest/source/setup/installation/index.html).
+#
+# Example:
+#   FROM nvcr.io/nvidia/isaac-sim:4.5.0
+#   WORKDIR /workspace
+#   COPY . /workspace/aniML_world
+#   ENV PYTHONPATH=/workspace/aniML_world
+#   ... follow NVIDIA Isaac Lab container setup ...
+
+FROM ubuntu:22.04
+LABEL org.opencontainers.image.description="aniML World — replace with NGC isaac-sim when training in Docker"
+WORKDIR /workspace

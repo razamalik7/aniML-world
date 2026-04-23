@@ -1,0 +1,43 @@
+---
+description: aniML World project overview — architecture, constraints, and key decisions. Read this first.
+alwaysApply: true
+---
+
+# aniML World — Project Overview
+
+Intelligent ecosystem simulation with 50+ AI agents (deer, wolves) trained via RL in NVIDIA Isaac Lab and deployed in Unity 6.
+
+## Key Architectural Decisions
+
+1. **Agent policy networks are SMALL** — 1-5M params (MLP [512, 256, 128]), NOT 250M-500M. These process state vectors, not images.
+2. **Continuous action spaces** — standard PPO with Gaussian policy. No FAST/OAT action tokenization.
+3. **World Director is rule-based** — probabilistic event system with context tokens. No VLM.
+4. **GPU Resident Drawer does NOT work for animated agents** — use VAT (Vertex Animation Textures) or skeletal LOD.
+
+5. **Rendering ≠ ecological truth** — Distant or unrendered animals still advance **hunting, predation, reproduction, and world effects** via cheaper tiers (macro sim, distilled policy). When the player enters a region, state must **hydrate** consistently (sports-sim style). See `ARCHITECTURE.md` §13–§15.
+6. **Heritable genome per agent** — Each animal carries a float-vector genome (16–32 genes) covering morphology, locomotion, metabolism, sensory range, appearance. Offspring inherit via crossover + mutation. Selection pressure is emergent (no explicit fitness function). Gene ranges stay within domain randomization bounds so trained policies generalise without retraining. See `ARCHITECTURE.md` §16.
+7. **Time fast-forward** — Sim-tick multiplier (NOT `Time.timeScale`). At high speed, aggressive LOD demotion pushes most agents to abstract-layer macro ticks. See `ARCHITECTURE.md` §17.
+
+## VRAM Budget (RTX 5070 Laptop, 12GB)
+
+- Training (Isaac Lab): ~6-7GB. Use 1024-2048 parallel envs (NOT 4096 — that needs 24GB+).
+- Deployment (Unity 6): ~5-7GB. Sentis batched inference + URP rendering.
+
+## Directory Layout
+
+- `configs/` — YAML configs for species, training hyperparams, environment
+- `training/` — Isaac Lab Python code (envs, agents, rewards, scripts)
+- `models/` — PyTorch network definitions + ONNX exports in `models/exported/`
+- `world_director/` — Rule-based event system and context tokens (Python)
+- `unity/` — C# scripts for Unity 6 (Sentis inference, LOD, creatures, environment)
+- `shared/` — Cross-language state/action schemas (Python + JSON)
+- `tools/` — VRAM budget calculator, benchmarks
+- `docker/` — Dockerfile for Isaac Lab training via WSL2
+
+## Phase Order
+
+0. Foundation/scaffolding → 1. Single-agent locomotion → 2. Multi-species ecosystem → 3. World Director events → 4. ONNX export + Unity Sentis → 5. Full Unity ecosystem → 6. Genetics & reproduction → 7. Time control & evolution observation → 8. Optimization
+
+## Reference
+
+See `ARCHITECTURE.md` in project root for full API reference, tensor layouts, and version pins.

@@ -1,0 +1,412 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot name="deer">
+  <link name="pelvis">
+    <inertial>
+      <origin xyz="-0.000001 0.728145 -0.520502" rpy="0 0 0" />
+      <mass value="25.000000" />
+      <inertia ixx="1.461721" ixy="0" ixz="0" iyy="1.372512" iyz="0" izz="0.844660" />
+    </inertial>
+    <collision>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/pelvis_collision.stl" />
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/pelvis_collision.stl" />
+      </geometry>
+    </visual>
+  </link>
+  <link name="chest">
+    <inertial>
+      <origin xyz="-0.000028 -0.622695 1.286595" rpy="0 0 0" />
+      <mass value="22.000000" />
+      <inertia ixx="4.047500" ixy="0" ixz="0" iyy="3.796640" iyz="0" izz="1.030469" />
+    </inertial>
+    <collision>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/chest_collision.stl" />
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/chest_collision.stl" />
+      </geometry>
+    </visual>
+  </link>
+  <link name="neck">
+    <inertial>
+      <origin xyz="-0.000019 -0.921248 0.170690" rpy="0 0 0" />
+      <mass value="3.500000" />
+      <inertia ixx="0.335532" ixy="0" ixz="0" iyy="0.160215" iyz="0" izz="0.273118" />
+    </inertial>
+    <collision>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/neck_collision.stl" />
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/neck_collision.stl" />
+      </geometry>
+    </visual>
+  </link>
+  <link name="skull">
+    <inertial>
+      <origin xyz="-0.000003 -1.361236 -0.243162" rpy="0 0 0" />
+      <mass value="2.500000" />
+      <inertia ixx="0.239443" ixy="0" ixz="0" iyy="0.304650" iyz="0" izz="0.404810" />
+    </inertial>
+    <collision>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/skull_collision.stl" />
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/skull_collision.stl" />
+      </geometry>
+    </visual>
+  </link>
+  <link name="HR_thigh">
+    <inertial>
+      <origin xyz="0.212361 -0.703494 0.951129" rpy="0 0 0" />
+      <mass value="1.533589" />
+      <inertia ixx="0.070828" ixy="0" ixz="0" iyy="0.051351" iyz="0" izz="0.049459" />
+    </inertial>
+    <collision>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/HR_thigh_collision.stl" />
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/HR_thigh_collision.stl" />
+      </geometry>
+    </visual>
+  </link>
+  <link name="HR_shin">
+    <inertial>
+      <origin xyz="0.147567 -0.532824 0.422427" rpy="0 0 0" />
+      <mass value="1.468330" />
+      <inertia ixx="0.069088" ixy="0" ixz="0" iyy="0.033817" iyz="0" izz="0.046364" />
+    </inertial>
+    <collision>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/HR_shin_collision.stl" />
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/HR_shin_collision.stl" />
+      </geometry>
+    </visual>
+  </link>
+  <link name="HR_foot">
+    <inertial>
+      <origin xyz="0.137587 -0.431249 0.677384" rpy="0 0 0" />
+      <mass value="1.174664" />
+      <inertia ixx="0.014113" ixy="0" ixz="0" iyy="0.002552" iyz="0" izz="0.012383" />
+    </inertial>
+    <collision>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/HR_foot_collision.stl" />
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/HR_foot_collision.stl" />
+      </geometry>
+    </visual>
+  </link>
+  <link name="HL_thigh">
+    <inertial>
+      <origin xyz="-0.212362 -0.703494 0.951128" rpy="0 0 0" />
+      <mass value="1.533589" />
+      <inertia ixx="0.070828" ixy="0" ixz="0" iyy="0.051351" iyz="0" izz="0.049459" />
+    </inertial>
+    <collision>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/HL_thigh_collision.stl" />
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/HL_thigh_collision.stl" />
+      </geometry>
+    </visual>
+  </link>
+  <link name="HL_shin">
+    <inertial>
+      <origin xyz="-0.147571 -0.532823 0.422427" rpy="0 0 0" />
+      <mass value="1.468330" />
+      <inertia ixx="0.069088" ixy="0" ixz="0" iyy="0.033817" iyz="0" izz="0.046364" />
+    </inertial>
+    <collision>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/HL_shin_collision.stl" />
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/HL_shin_collision.stl" />
+      </geometry>
+    </visual>
+  </link>
+  <link name="HL_foot">
+    <inertial>
+      <origin xyz="-0.137586 -0.431250 0.677383" rpy="0 0 0" />
+      <mass value="1.174664" />
+      <inertia ixx="0.014113" ixy="0" ixz="0" iyy="0.002552" iyz="0" izz="0.012383" />
+    </inertial>
+    <collision>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/HL_foot_collision.stl" />
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/HL_foot_collision.stl" />
+      </geometry>
+    </visual>
+  </link>
+  <link name="FR_thigh">
+    <inertial>
+      <origin xyz="0.193567 -1.012330 -0.173887" rpy="0 0 0" />
+      <mass value="1.957774" />
+      <inertia ixx="0.142444" ixy="0" ixz="0" iyy="0.104511" iyz="0" izz="0.080061" />
+    </inertial>
+    <collision>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/FR_thigh_collision.stl" />
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/FR_thigh_collision.stl" />
+      </geometry>
+    </visual>
+  </link>
+  <link name="FR_shin">
+    <inertial>
+      <origin xyz="0.131006 -0.767364 0.178798" rpy="0 0 0" />
+      <mass value="1.174664" />
+      <inertia ixx="0.029326" ixy="0" ixz="0" iyy="0.012046" iyz="0" izz="0.027344" />
+    </inertial>
+    <collision>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/FR_shin_collision.stl" />
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/FR_shin_collision.stl" />
+      </geometry>
+    </visual>
+  </link>
+  <link name="FR_foot">
+    <inertial>
+      <origin xyz="0.124637 -0.588919 -0.099479" rpy="0 0 0" />
+      <mass value="1.174664" />
+      <inertia ixx="0.011062" ixy="0" ixz="0" iyy="0.002700" iyz="0" izz="0.009295" />
+    </inertial>
+    <collision>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/FR_foot_collision.stl" />
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/FR_foot_collision.stl" />
+      </geometry>
+    </visual>
+  </link>
+  <link name="FL_thigh">
+    <inertial>
+      <origin xyz="-0.193570 -1.011733 -0.173943" rpy="0 0 0" />
+      <mass value="1.990403" />
+      <inertia ixx="0.144616" ixy="0" ixz="0" iyy="0.106260" iyz="0" izz="0.081199" />
+    </inertial>
+    <collision>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/FL_thigh_collision.stl" />
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/FL_thigh_collision.stl" />
+      </geometry>
+    </visual>
+  </link>
+  <link name="FL_shin">
+    <inertial>
+      <origin xyz="-0.130968 -0.766803 0.178768" rpy="0 0 0" />
+      <mass value="1.174664" />
+      <inertia ixx="0.029230" ixy="0" ixz="0" iyy="0.012041" iyz="0" izz="0.027251" />
+    </inertial>
+    <collision>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/FL_shin_collision.stl" />
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/FL_shin_collision.stl" />
+      </geometry>
+    </visual>
+  </link>
+  <link name="FL_foot">
+    <inertial>
+      <origin xyz="-0.124912 -0.596287 -0.115251" rpy="0 0 0" />
+      <mass value="1.174664" />
+      <inertia ixx="0.010357" ixy="0" ixz="0" iyy="0.002014" iyz="0" izz="0.009310" />
+    </inertial>
+    <collision>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/FL_foot_collision.stl" />
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0.000000 0.000000 0.000000" rpy="-1.570796 0 0" />
+      <geometry>
+        <mesh filename="meshes/FL_foot_collision.stl" />
+      </geometry>
+    </visual>
+  </link>
+  <joint name="pelvis_to_chest" type="revolute">
+    <parent link="pelvis" />
+    <child link="chest" />
+    <origin xyz="0.000000 0.731998 -0.810849" rpy="0 0 0" />
+    <axis xyz="1.000000 0.000000 0.000000" />
+    <limit lower="-0.523599" upper="0.523599" effort="120.000000" velocity="8.000000" />
+  </joint>
+  <joint name="chest_to_neck" type="revolute">
+    <parent link="chest" />
+    <child link="neck" />
+    <origin xyz="0.000002 0.313195 0.790129" rpy="0 0 0" />
+    <axis xyz="1.000000 0.000000 0.000000" />
+    <limit lower="-0.698132" upper="0.698132" effort="50.000000" velocity="8.000000" />
+  </joint>
+  <joint name="neck_to_skull" type="revolute">
+    <parent link="neck" />
+    <child link="skull" />
+    <origin xyz="0.000003 0.465927 0.203012" rpy="0 0 0" />
+    <axis xyz="1.000000 0.000000 0.000000" />
+    <limit lower="-0.523599" upper="0.872665" effort="30.000000" velocity="8.000000" />
+  </joint>
+  <joint name="pelvis_to_HR_thigh" type="revolute">
+    <parent link="pelvis" />
+    <child link="HR_thigh" />
+    <origin xyz="-0.127009 0.635741 -0.717620" rpy="0 0 0" />
+    <axis xyz="1.000000 0.000000 0.000000" />
+    <limit lower="-1.570796" upper="1.570796" effort="100.000000" velocity="10.000000" />
+  </joint>
+  <joint name="HR_thigh_to_HR_shin" type="revolute">
+    <parent link="HR_thigh" />
+    <child link="HR_shin" />
+    <origin xyz="-0.000001 -0.145065 0.300118" rpy="0 0 0" />
+    <axis xyz="1.000000 0.000000 0.000000" />
+    <limit lower="-2.094395" upper="0.174533" effort="80.000000" velocity="10.000000" />
+  </joint>
+  <joint name="HR_shin_to_HR_foot" type="revolute">
+    <parent link="HR_shin" />
+    <child link="HR_foot" />
+    <origin xyz="-0.008380 -0.232770 -0.146574" rpy="0 0 0" />
+    <axis xyz="1.000000 0.000000 0.000000" />
+    <limit lower="-0.785398" upper="0.785398" effort="60.000000" velocity="10.000000" />
+  </joint>
+  <joint name="pelvis_to_HL_thigh" type="revolute">
+    <parent link="pelvis" />
+    <child link="HL_thigh" />
+    <origin xyz="0.127008 0.635740 -0.717620" rpy="0 0 0" />
+    <axis xyz="1.000000 0.000000 0.000000" />
+    <limit lower="-1.570796" upper="1.570796" effort="100.000000" velocity="10.000000" />
+  </joint>
+  <joint name="HL_thigh_to_HL_shin" type="revolute">
+    <parent link="HL_thigh" />
+    <child link="HL_shin" />
+    <origin xyz="-0.000001 -0.145065 0.300118" rpy="0 0 0" />
+    <axis xyz="1.000000 0.000000 0.000000" />
+    <limit lower="-2.094395" upper="0.174533" effort="80.000000" velocity="10.000000" />
+  </joint>
+  <joint name="HL_shin_to_HL_foot" type="revolute">
+    <parent link="HL_shin" />
+    <child link="HL_foot" />
+    <origin xyz="0.008379 -0.232769 -0.146575" rpy="0 0 0" />
+    <axis xyz="1.000000 0.000000 0.000000" />
+    <limit lower="-0.785398" upper="0.785398" effort="60.000000" velocity="10.000000" />
+  </joint>
+  <joint name="chest_to_FR_thigh" type="revolute">
+    <parent link="chest" />
+    <child link="FR_thigh" />
+    <origin xyz="-0.122245 0.127611 0.900051" rpy="0 0 0" />
+    <axis xyz="1.000000 0.000000 0.000000" />
+    <limit lower="-1.570796" upper="1.570796" effort="100.000000" velocity="10.000000" />
+  </joint>
+  <joint name="FR_thigh_to_FR_shin" type="revolute">
+    <parent link="FR_thigh" />
+    <child link="FR_shin" />
+    <origin xyz="0.000050 -0.194555 -0.120075" rpy="0 0 0" />
+    <axis xyz="1.000000 0.000000 0.000000" />
+    <limit lower="-2.094395" upper="0.174533" effort="80.000000" velocity="10.000000" />
+  </joint>
+  <joint name="FR_shin_to_FR_foot" type="revolute">
+    <parent link="FR_shin" />
+    <child link="FR_foot" />
+    <origin xyz="0.001356 -0.220814 0.182375" rpy="0 0 0" />
+    <axis xyz="1.000000 0.000000 0.000000" />
+    <limit lower="-0.785398" upper="0.785398" effort="60.000000" velocity="10.000000" />
+  </joint>
+  <joint name="chest_to_FL_thigh" type="revolute">
+    <parent link="chest" />
+    <child link="FL_thigh" />
+    <origin xyz="0.122205 0.127552 0.899991" rpy="0 0 0" />
+    <axis xyz="1.000000 0.000000 0.000000" />
+    <limit lower="-1.570796" upper="1.570796" effort="100.000000" velocity="10.000000" />
+  </joint>
+  <joint name="FL_thigh_to_FL_shin" type="revolute">
+    <parent link="FL_thigh" />
+    <child link="FL_shin" />
+    <origin xyz="-0.000067 -0.194523 -0.120127" rpy="0 0 0" />
+    <axis xyz="1.000000 0.000000 0.000000" />
+    <limit lower="-2.094395" upper="0.174533" effort="80.000000" velocity="10.000000" />
+  </joint>
+  <joint name="FL_shin_to_FL_foot" type="revolute">
+    <parent link="FL_shin" />
+    <child link="FL_foot" />
+    <origin xyz="-0.000251 -0.218082 0.185639" rpy="0 0 0" />
+    <axis xyz="1.000000 0.000000 0.000000" />
+    <limit lower="-0.785398" upper="0.785398" effort="60.000000" velocity="10.000000" />
+  </joint>
+</robot>

@@ -1,0 +1,275 @@
+
+============================================================
+File: C:\Users\nars7\Downloads\aniML_world\deer_standing_robot.usd
+Up axis: Z
+Default prim: /deer
+Xform on /deer:
+  xformOp:translate (double3): (0, 0, 0)
+  xformOp:orient (quatd): (0.7017914799970107, -0.7123824244067265, 0, 0)
+  xformOp:scale (double3): (1, 1, 1)
+  Xform on /deer/pelvis:
+    xformOp:translate (double3): (0, 0, 0)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/pelvis
+  Xform on /deer/HL_thigh:
+    xformOp:translate (double3): (0.12700800597667694, -0.8428410291671753, 0.4569059908390045)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/HL_thigh
+  Xform on /deer/HL_shin:
+    xformOp:translate (double3): (0.12700700759887695, -0.6038780212402344, 0.22450299561023712)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/HL_shin
+  Xform on /deer/HL_foot:
+    xformOp:translate (double3): (0.13538600504398346, -0.4352780282497406, 0.4418500065803528)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/HL_foot
+  Xform on /deer/HR_thigh:
+    xformOp:translate (double3): (-0.12700900435447693, -0.8428419828414917, 0.4569059908390045)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/HR_thigh
+  Xform on /deer/HR_shin:
+    xformOp:translate (double3): (-0.12701000273227692, -0.6038789749145508, 0.22450299561023712)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/HR_shin
+  Xform on /deer/HR_foot:
+    xformOp:translate (double3): (-0.1353899985551834, -0.4352779686450958, 0.4418500065803528)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/HR_foot
+  Xform on /deer/chest:
+    xformOp:translate (double3): (0, -0.965179979801178, 0.5115910172462463)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/chest
+  Xform on /deer/FL_thigh:
+    xformOp:translate (double3): (0.12220499664545059, -0.7772249579429626, -0.377748966217041)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/FL_thigh
+  Xform on /deer/FL_shin:
+    xformOp:translate (double3): (0.12213799357414246, -0.6355189681053162, -0.19833596050739288)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/FL_shin
+  Xform on /deer/FL_foot:
+    xformOp:translate (double3): (0.12188699096441269, -0.3670969605445862, -0.2981909513473511)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/FL_foot
+  Xform on /deer/FR_thigh:
+    xformOp:translate (double3): (-0.12224499881267548, -0.7772599458694458, -0.3778259754180908)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/FR_thigh
+  Xform on /deer/FR_shin:
+    xformOp:translate (double3): (-0.12219499796628952, -0.6355059146881104, -0.1984509825706482)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/FR_shin
+  Xform on /deer/FR_foot:
+    xformOp:translate (double3): (-0.12083899974822998, -0.36563292145729065, -0.2943049669265747)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/FR_foot
+  Xform on /deer/neck:
+    xformOp:translate (double3): (0.0000019999999949504854, -0.9892469644546509, -0.3380059599876404)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/neck
+  Xform on /deer/skull:
+    xformOp:translate (double3): (0.000004999999873689376, -1.3576409816741943, -0.6881309747695923)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/skull
+  ** ArticulationRootAPI on /deer/root_joint
+
+============================================================
+File: C:\Users\nars7\Downloads\aniML_world\deer_standing_physics.usd
+Up axis: Z
+Default prim: /World
+  Xform on /World/deer:
+    xformOp:translate (double3): (0, 0, 0)
+    xformOp:orient (quatd): (0.7017914799970107, -0.7123824244067265, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+    Xform on /World/deer/pelvis:
+      xformOp:translate (double3): (0, 0, 0)
+      xformOp:orient (quatd): (1, 0, 0, 0)
+      xformOp:scale (double3): (1, 1, 1)
+    ** RigidBodyAPI on /World/deer/pelvis
+    Xform on /World/deer/HL_thigh:
+      xformOp:translate (double3): (0.12700800597667694, -0.8428410291671753, 0.4569059908390045)
+      xformOp:orient (quatd): (1, 0, 0, 0)
+      xformOp:scale (double3): (1, 1, 1)
+    ** RigidBodyAPI on /World/deer/HL_thigh
+    Xform on /World/deer/HL_shin:
+      xformOp:translate (double3): (0.12700700759887695, -0.6038780212402344, 0.22450299561023712)
+      xformOp:orient (quatd): (1, 0, 0, 0)
+      xformOp:scale (double3): (1, 1, 1)
+    ** RigidBodyAPI on /World/deer/HL_shin
+    Xform on /World/deer/HL_foot:
+      xformOp:translate (double3): (0.13538600504398346, -0.4352780282497406, 0.4418500065803528)
+      xformOp:orient (quatd): (1, 0, 0, 0)
+      xformOp:scale (double3): (1, 1, 1)
+    ** RigidBodyAPI on /World/deer/HL_foot
+    Xform on /World/deer/HR_thigh:
+      xformOp:translate (double3): (-0.12700900435447693, -0.8428419828414917, 0.4569059908390045)
+      xformOp:orient (quatd): (1, 0, 0, 0)
+      xformOp:scale (double3): (1, 1, 1)
+    ** RigidBodyAPI on /World/deer/HR_thigh
+    Xform on /World/deer/HR_shin:
+      xformOp:translate (double3): (-0.12701000273227692, -0.6038789749145508, 0.22450299561023712)
+      xformOp:orient (quatd): (1, 0, 0, 0)
+      xformOp:scale (double3): (1, 1, 1)
+    ** RigidBodyAPI on /World/deer/HR_shin
+    Xform on /World/deer/HR_foot:
+      xformOp:translate (double3): (-0.1353899985551834, -0.4352779686450958, 0.4418500065803528)
+      xformOp:orient (quatd): (1, 0, 0, 0)
+      xformOp:scale (double3): (1, 1, 1)
+    ** RigidBodyAPI on /World/deer/HR_foot
+    Xform on /World/deer/chest:
+      xformOp:translate (double3): (0, -0.965179979801178, 0.5115910172462463)
+      xformOp:orient (quatd): (1, 0, 0, 0)
+      xformOp:scale (double3): (1, 1, 1)
+    ** RigidBodyAPI on /World/deer/chest
+    Xform on /World/deer/FL_thigh:
+      xformOp:translate (double3): (0.12220499664545059, -0.7772249579429626, -0.377748966217041)
+      xformOp:orient (quatd): (1, 0, 0, 0)
+      xformOp:scale (double3): (1, 1, 1)
+    ** RigidBodyAPI on /World/deer/FL_thigh
+    Xform on /World/deer/FL_shin:
+      xformOp:translate (double3): (0.12213799357414246, -0.6355189681053162, -0.19833596050739288)
+      xformOp:orient (quatd): (1, 0, 0, 0)
+      xformOp:scale (double3): (1, 1, 1)
+    ** RigidBodyAPI on /World/deer/FL_shin
+    Xform on /World/deer/FL_foot:
+      xformOp:translate (double3): (0.12188699096441269, -0.3670969605445862, -0.2981909513473511)
+      xformOp:orient (quatd): (1, 0, 0, 0)
+      xformOp:scale (double3): (1, 1, 1)
+    ** RigidBodyAPI on /World/deer/FL_foot
+    Xform on /World/deer/FR_thigh:
+      xformOp:translate (double3): (-0.12224499881267548, -0.7772599458694458, -0.3778259754180908)
+      xformOp:orient (quatd): (1, 0, 0, 0)
+      xformOp:scale (double3): (1, 1, 1)
+    ** RigidBodyAPI on /World/deer/FR_thigh
+    Xform on /World/deer/FR_shin:
+      xformOp:translate (double3): (-0.12219499796628952, -0.6355059146881104, -0.1984509825706482)
+      xformOp:orient (quatd): (1, 0, 0, 0)
+      xformOp:scale (double3): (1, 1, 1)
+    ** RigidBodyAPI on /World/deer/FR_shin
+    Xform on /World/deer/FR_foot:
+      xformOp:translate (double3): (-0.12083899974822998, -0.36563292145729065, -0.2943049669265747)
+      xformOp:orient (quatd): (1, 0, 0, 0)
+      xformOp:scale (double3): (1, 1, 1)
+    ** RigidBodyAPI on /World/deer/FR_foot
+    Xform on /World/deer/neck:
+      xformOp:translate (double3): (0.0000019999999949504854, -0.9892469644546509, -0.3380059599876404)
+      xformOp:orient (quatd): (1, 0, 0, 0)
+      xformOp:scale (double3): (1, 1, 1)
+    ** RigidBodyAPI on /World/deer/neck
+    Xform on /World/deer/skull:
+      xformOp:translate (double3): (0.000004999999873689376, -1.3576409816741943, -0.6881309747695923)
+      xformOp:orient (quatd): (1, 0, 0, 0)
+      xformOp:scale (double3): (1, 1, 1)
+    ** RigidBodyAPI on /World/deer/skull
+    ** ArticulationRootAPI on /World/deer/root_joint
+
+============================================================
+File: C:\Users\nars7\Downloads\aniML_world\assets\deer_urdf\deer\deer.usd
+Up axis: Z
+Default prim: /deer
+Xform on /deer:
+  xformOp:translate (double3): (0, 0, 0)
+  xformOp:orient (quatd): (1, 0, 0, 0)
+  xformOp:scale (double3): (1, 1, 1)
+  Xform on /deer/pelvis:
+    xformOp:translate (double3): (0, 0, 0)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/pelvis
+  Xform on /deer/HL_thigh:
+    xformOp:translate (double3): (0.12700800597667694, -0.8428410291671753, 0.4569059908390045)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/HL_thigh
+  Xform on /deer/HL_shin:
+    xformOp:translate (double3): (0.12700700759887695, -0.6038780212402344, 0.22450299561023712)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/HL_shin
+  Xform on /deer/HL_foot:
+    xformOp:translate (double3): (0.13538600504398346, -0.4352780282497406, 0.4418500065803528)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/HL_foot
+  Xform on /deer/HR_thigh:
+    xformOp:translate (double3): (-0.12700900435447693, -0.8428419828414917, 0.4569059908390045)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/HR_thigh
+  Xform on /deer/HR_shin:
+    xformOp:translate (double3): (-0.12701000273227692, -0.6038789749145508, 0.22450299561023712)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/HR_shin
+  Xform on /deer/HR_foot:
+    xformOp:translate (double3): (-0.1353899985551834, -0.4352779686450958, 0.4418500065803528)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/HR_foot
+  Xform on /deer/chest:
+    xformOp:translate (double3): (0, -0.965179979801178, 0.5115910172462463)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/chest
+  Xform on /deer/FL_thigh:
+    xformOp:translate (double3): (0.12220499664545059, -0.7772249579429626, -0.377748966217041)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/FL_thigh
+  Xform on /deer/FL_shin:
+    xformOp:translate (double3): (0.12213799357414246, -0.6355189681053162, -0.19833596050739288)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/FL_shin
+  Xform on /deer/FL_foot:
+    xformOp:translate (double3): (0.12188699096441269, -0.3670969605445862, -0.2981909513473511)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/FL_foot
+  Xform on /deer/FR_thigh:
+    xformOp:translate (double3): (-0.12224499881267548, -0.7772599458694458, -0.3778259754180908)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/FR_thigh
+  Xform on /deer/FR_shin:
+    xformOp:translate (double3): (-0.12219499796628952, -0.6355059146881104, -0.1984509825706482)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/FR_shin
+  Xform on /deer/FR_foot:
+    xformOp:translate (double3): (-0.12083899974822998, -0.36563292145729065, -0.2943049669265747)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/FR_foot
+  Xform on /deer/neck:
+    xformOp:translate (double3): (0.0000019999999949504854, -0.9892469644546509, -0.3380059599876404)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/neck
+  Xform on /deer/skull:
+    xformOp:translate (double3): (0.000004999999873689376, -1.3576409816741943, -0.6881309747695923)
+    xformOp:orient (quatd): (1, 0, 0, 0)
+    xformOp:scale (double3): (1, 1, 1)
+  ** RigidBodyAPI on /deer/skull
+  ** ArticulationRootAPI on /deer/root_joint
+
+============================================================
+File: C:\Users\nars7\Downloads\aniML_world\assets\deer_urdf\deer\configuration\deer_robot.usd
+Up axis: Z
+Default prim: /deer

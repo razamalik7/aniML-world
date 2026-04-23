@@ -1,0 +1,42 @@
+Visual mesh rotation: +109.0 deg X
+
+Copied C:\Users\nars7\Downloads\aniML_world\assets\deer_urdf\deer -> C:\Users\nars7\Downloads\aniML_world\assets\deer_urdf\deer_visualfix
+  pelvis_collision: 264 pts, centroid (0.000,-0.875,0.266) -> (0.000,0.033,-0.914)
+  HL_thigh_collision: 150 pts, centroid (-0.022,0.151,-0.157) -> (-0.022,0.099,0.194)
+  HL_shin_collision: 132 pts, centroid (-0.002,0.057,0.074) -> (-0.002,-0.089,0.030)
+  HL_foot_collision: 138 pts, centroid (-0.006,0.286,-0.060) -> (-0.006,-0.036,0.289)
+  HR_thigh_collision: 150 pts, centroid (0.022,0.151,-0.157) -> (0.022,0.099,0.194)
+  HR_shin_collision: 132 pts, centroid (0.002,0.056,0.077) -> (0.002,-0.091,0.028)
+  HR_foot_collision: 138 pts, centroid (0.006,0.286,-0.060) -> (0.006,-0.036,0.289)
+  chest_collision: 348 pts, centroid (0.001,0.119,-0.604) -> (0.001,0.532,0.309)
+  FL_thigh_collision: 138 pts, centroid (-0.025,0.097,0.107) -> (-0.025,-0.133,0.057)
+  FL_shin_collision: 72 pts, centroid (-0.013,0.170,-0.084) -> (-0.013,0.024,0.188)
+  FL_foot_collision: 132 pts, centroid (-0.003,0.223,0.007) -> (-0.003,-0.079,0.208)
+  FR_thigh_collision: 132 pts, centroid (0.017,0.100,0.115) -> (0.017,-0.141,0.057)
+  FR_shin_collision: 84 pts, centroid (0.012,0.179,-0.077) -> (0.012,0.015,0.194)
+  FR_foot_collision: 132 pts, centroid (0.004,0.223,-0.014) -> (0.004,-0.060,0.215)
+  neck_collision: 264 pts, centroid (0.002,-0.137,-0.234) -> (0.002,0.266,-0.054)
+  skull_collision: 330 pts, centroid (-0.001,-0.304,-0.011) -> (-0.001,0.109,-0.284)
+
+Created 16 rotated mesh prims under /meshes_visual/
+  Updated ref: /visuals/pelvis/pelvis_collision -> /meshes_visual/pelvis_collision
+  Updated ref: /visuals/HL_thigh/HL_thigh_collision -> /meshes_visual/HL_thigh_collision
+  Updated ref: /visuals/HL_shin/HL_shin_collision -> /meshes_visual/HL_shin_collision
+  Updated ref: /visuals/HL_foot/HL_foot_collision -> /meshes_visual/HL_foot_collision
+  Updated ref: /visuals/HR_thigh/HR_thigh_collision -> /meshes_visual/HR_thigh_collision
+  Updated ref: /visuals/HR_shin/HR_shin_collision -> /meshes_visual/HR_shin_collision
+  Updated ref: /visuals/HR_foot/HR_foot_collision -> /meshes_visual/HR_foot_collision
+  Updated ref: /visuals/chest/chest_collision -> /meshes_visual/chest_collision
+  Updated ref: /visuals/FL_thigh/FL_thigh_collision -> /meshes_visual/FL_thigh_collision
+  Updated ref: /visuals/FL_shin/FL_shin_collision -> /meshes_visual/FL_shin_collision
+  Updated ref: /visuals/FL_foot/FL_foot_collision -> /meshes_visual/FL_foot_collision
+  Updated ref: /visuals/FR_thigh/FR_thigh_collision -> /meshes_visual/FR_thigh_collision
+  Updated ref: /visuals/FR_shin/FR_shin_collision -> /meshes_visual/FR_shin_collision
+  Updated ref: /visuals/FR_foot/FR_foot_collision -> /meshes_visual/FR_foot_collision
+  Updated ref: /visuals/neck/neck_collision -> /meshes_visual/neck_collision
+  Updated ref: /visuals/skull/skull_collision -> /meshes_visual/skull_collision
+
+Updated 16 visual references
+
+Saved: C:\Users\nars7\Downloads\aniML_world\assets\deer_urdf\deer_visualfix\configuration\deer_base.usd
+Created root: C:\Users\nars7\Downloads\aniML_world\deer_visualfix2_robot.usd

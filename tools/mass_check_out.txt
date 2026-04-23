@@ -1,0 +1,19 @@
+=== USD Mass values (physics:mass attribute) ===
+  /deer/pelvis: 18.0 kg
+  /deer/HL_thigh: 1.2000000476837158 kg
+  /deer/HL_shin: 1.0 kg
+  /deer/HL_foot: 0.800000011920929 kg
+  /deer/HR_thigh: 1.2000000476837158 kg
+  /deer/HR_shin: 1.0 kg
+  /deer/HR_foot: 0.800000011920929 kg
+  /deer/chest: 28.0 kg
+  /deer/FL_thigh: 2.5 kg
+  /deer/FL_shin: 1.5 kg
+  /deer/FL_foot: 1.0 kg
+  /deer/FR_thigh: 2.5 kg
+  /deer/FR_shin: 1.5 kg
+  /deer/FR_foot: 1.0 kg
+  /deer/neck: 6.0 kg
+  /deer/skull: 5.0 kg
+
+Total: 73.00 kg

@@ -1,0 +1,4 @@
+# Editor-side / schema tooling (plain Python). Learning stack lives in Isaac Sim Kit Python.
+numpy>=1.26,<2
+PyYAML>=6.0
+gymnasium>=0.29,<1.0

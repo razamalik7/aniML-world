@@ -1,0 +1,77 @@
+{
+  "species": "deer",
+  "mesh_object": "Deer_001",
+  "armature_object": "Deer_001_rig",
+  "total_mass_kg": 70.0,
+  "collision_method": "convex_hull",
+  "export_visual_meshes": true,
+
+  "torso": [
+    {
+      "name": "pelvis",
+      "bones": ["Root", "spine.003", "spine.002", "shoulder.R", "shoulder.L"],
+      "is_base": true,
+      "mass_kg": 25.0
+    },
+    {
+      "name": "chest",
+      "bones": ["spine.001", "spine", "spine.004", "spine.005", "front_shoulder.R", "front_shoulder.L"],
+      "parent": "pelvis",
+      "joint_bone": "spine.001",
+      "joint": { "axis": [1,0,0], "lower_deg": -30, "upper_deg": 30, "effort": 120, "velocity": 8 },
+      "mass_kg": 22.0
+    },
+    {
+      "name": "neck",
+      "bones": ["spine.006", "spine.007", "spine.008"],
+      "parent": "chest",
+      "joint_bone": "spine.006",
+      "joint": { "axis": [1,0,0], "lower_deg": -40, "upper_deg": 40, "effort": 50, "velocity": 8 },
+      "mass_kg": 3.5
+    },
+    {
+      "name": "skull",
+      "bones": ["scull", "ear.R", "ear.L"],
+      "parent": "neck",
+      "joint_bone": "scull",
+      "joint": { "axis": [1,0,0], "lower_deg": -30, "upper_deg": 50, "effort": 30, "velocity": 8 },
+      "mass_kg": 2.5
+    }
+  ],
+
+  "legs": {
+    "HR": {
+      "parent": "pelvis",
+      "thigh": "thigh.R",
+      "shin":  "shin.R",
+      "foot":  "foot.R"
+    },
+    "HL": {
+      "parent": "pelvis",
+      "thigh": "thigh.L",
+      "shin":  "shin.L",
+      "foot":  "foot.L"
+    },
+    "FR": {
+      "parent": "chest",
+      "thigh": "front_thigh.R",
+      "shin":  "front_shin.R",
+      "foot":  "front_foot.R"
+    },
+    "FL": {
+      "parent": "chest",
+      "thigh": "front_thigh.L",
+      "shin":  "front_shin.L",
+      "foot":  "front_foot.L"
+    }
+  },
+
+  "joint_defaults": {
+    "thigh": { "axis": [1,0,0], "lower_deg": -90,  "upper_deg": 90,  "effort": 100, "velocity": 10 },
+    "shin":  { "axis": [1,0,0], "lower_deg": -120, "upper_deg": 10,  "effort": 80,  "velocity": 10 },
+    "foot":  { "axis": [1,0,0], "lower_deg": -45,  "upper_deg": 45,  "effort": 60,  "velocity": 10 }
+  },
+
+  "weight_threshold": 0.05,
+  "min_hull_vertices": 4
+}

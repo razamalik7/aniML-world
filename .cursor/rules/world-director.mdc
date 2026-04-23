@@ -1,0 +1,74 @@
+---
+description: World Director — rule-based event system and context token protocol.
+globs: world_director/**/*.py
+alwaysApply: false
+---
+
+# World Director System
+
+The World Director is a RULE-BASED probabilistic event system. It is NOT a VLM or neural network.
+
+## Context Token Protocol
+
+Context tokens are one-hot encoded vectors appended to every agent's observation.
+
+```python
+from enum import IntEnum
+
+class ContextToken(IntEnum):
+    CLEAR_SKY = 0
+    LIGHT_RAIN = 1
+    HEAVY_RAIN = 2
+    THUNDERSTORM = 3
+    METEOR_INCOMING = 4
+    METEOR_IMPACT = 5
+    NIGHT = 6
+    DAWN = 7
+    DUSK = 8
+    DROUGHT = 9
+    WILDFIRE = 10
+
+NUM_CONTEXT_TOKENS = len(ContextToken)  # = 11
+
+def encode_context(active_tokens: list[ContextToken]) -> list[float]:
+    """Returns a multi-hot vector of length NUM_CONTEXT_TOKENS."""
+    vec = [0.0] * NUM_CONTEXT_TOKENS
+    for t in active_tokens:
+        vec[t] = 1.0
+    return vec
+```
+
+## Weather State Machine
+
+```python
+WEATHER_TRANSITIONS = {
+    ContextToken.CLEAR_SKY:    {ContextToken.CLEAR_SKY: 0.7, ContextToken.LIGHT_RAIN: 0.2, ContextToken.DUSK: 0.1},
+    ContextToken.LIGHT_RAIN:   {ContextToken.LIGHT_RAIN: 0.5, ContextToken.HEAVY_RAIN: 0.3, ContextToken.CLEAR_SKY: 0.2},
+    ContextToken.HEAVY_RAIN:   {ContextToken.HEAVY_RAIN: 0.4, ContextToken.THUNDERSTORM: 0.3, ContextToken.LIGHT_RAIN: 0.3},
+    ContextToken.THUNDERSTORM: {ContextToken.THUNDERSTORM: 0.3, ContextToken.HEAVY_RAIN: 0.5, ContextToken.CLEAR_SKY: 0.2},
+}
+```
+
+## Event System Pattern
+
+```python
+class WorldDirector:
+    def __init__(self, config: dict):
+        self.weather_state = ContextToken.CLEAR_SKY
+        self.time_of_day = 0.0  # 0-24 hours
+        self.active_tokens: list[ContextToken] = []
+
+    def step(self, dt: float, ecosystem_state: dict) -> list[float]:
+        """Called each sim step. Returns context vector for agent observations."""
+        self._advance_time(dt)
+        self._update_weather()
+        self._check_catastrophes(ecosystem_state)
+        return encode_context(self.active_tokens)
+```
+
+## Integration with Observations
+
+The context vector is APPENDED to each agent's observation tensor:
+`obs = [proprioception (48D) | raycasts (100D) | context_tokens (11D)]`
+
+Total observation dim = 48 + 100 + 11 = 159.

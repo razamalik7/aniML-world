@@ -1,0 +1,71 @@
+---
+description: Policy network architecture — MLP specs, Actor-Critic pattern, ONNX export.
+globs: models/**/*.py
+alwaysApply: false
+---
+
+# Policy Network Architecture
+
+## Network Specs
+
+- **Actor (policy)**: MLP [512, 256, 128] with ELU activation. Output = continuous action dim.
+- **Critic (value)**: MLP [512, 256, 128] with ELU activation. Output = scalar value.
+- Total params per species: ~1-2M. This is intentional — do NOT increase.
+- Use `init_noise_std=1.0` for initial exploration.
+
+## PyTorch Template
+
+```python
+import torch
+import torch.nn as nn
+
+class ActorCritic(nn.Module):
+    def __init__(self, obs_dim: int, action_dim: int, hidden_dims: list[int] = [512, 256, 128]):
+        super().__init__()
+        layers = []
+        in_dim = obs_dim
+        for h in hidden_dims:
+            layers.extend([nn.Linear(in_dim, h), nn.ELU()])
+            in_dim = h
+        self.actor_backbone = nn.Sequential(*layers)
+        self.action_mean = nn.Linear(hidden_dims[-1], action_dim)
+        self.action_log_std = nn.Parameter(torch.zeros(action_dim))
+
+        critic_layers = []
+        in_dim = obs_dim
+        for h in hidden_dims:
+            critic_layers.extend([nn.Linear(in_dim, h), nn.ELU()])
+            in_dim = h
+        critic_layers.append(nn.Linear(hidden_dims[-1], 1))
+        self.critic = nn.Sequential(*critic_layers)
+
+    def forward_actor(self, obs: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        features = self.actor_backbone(obs)
+        return self.action_mean(features), self.action_log_std.expand_as(self.action_mean(features))
+
+    def forward_critic(self, obs: torch.Tensor) -> torch.Tensor:
+        return self.critic(obs)
+```
+
+## ONNX Export Template
+
+```python
+import torch
+
+def export_actor_onnx(model, obs_dim, path="models/exported/policy.onnx"):
+    model.eval()
+    dummy = torch.randn(1, obs_dim)
+    torch.onnx.export(
+        model, dummy, path,
+        input_names=["observations"],
+        output_names=["action_mean", "action_log_std"],
+        dynamic_axes={"observations": {0: "batch"}, "action_mean": {0: "batch"}},
+        opset_version=17,
+    )
+```
+
+## Constraints
+
+- Export with `dynamic_axes` on batch dimension — Unity Sentis needs this.
+- Use opset 17 (verified Sentis 2.5 compatible).
+- FP16 export is optional — profile in Unity before enabling.

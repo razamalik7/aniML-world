@@ -1,0 +1,81 @@
+---
+description: Isaac Lab RL training conventions — env config patterns, manager setup, and training scripts.
+globs: training/**/*.py
+alwaysApply: false
+---
+
+# Isaac Lab Training Conventions
+
+## Required Imports
+
+```python
+from isaaclab.utils import configclass
+from isaaclab.envs import ManagerBasedRLEnvCfg
+from isaaclab.managers import ObservationTermCfg as ObsTerm
+from isaaclab.managers import ObservationGroupCfg as ObsGroup
+from isaaclab.managers import RewardTermCfg as RewTerm
+from isaaclab.managers import TerminationTermCfg as DoneTerm
+from isaaclab.managers import EventTermCfg as EventTerm
+from isaaclab.managers import SceneEntityCfg
+from isaaclab.envs.mdp import actions_cfg as action_cfgs
+from isaaclab.envs import mdp
+from isaaclab.noise import UniformNoiseCfg as Unoise
+```
+
+## Environment Config Pattern
+
+Every env MUST subclass `ManagerBasedRLEnvCfg` and define these managers:
+
+```python
+@configclass
+class MyEnvCfg(ManagerBasedRLEnvCfg):
+    scene = MySceneCfg(num_envs=1024, env_spacing=2.5)
+    observations = ObservationsCfg()
+    actions = ActionsCfg()
+    rewards = RewardsCfg()
+    terminations = TerminationsCfg()
+    events = EventCfg()
+    episode_length_s = 20.0
+
+    def __post_init__(self):
+        self.decimation = 4
+        self.sim.dt = 0.005  # 200Hz physics, 50Hz policy
+```
+
+## Observation Pattern
+
+```python
+@configclass
+class ObservationsCfg:
+    @configclass
+    class PolicyCfg(ObsGroup):
+        joint_pos = ObsTerm(func=mdp.joint_pos_rel, noise=Unoise(n_min=-0.01, n_max=0.01))
+        joint_vel = ObsTerm(func=mdp.joint_vel_rel, noise=Unoise(n_min=-0.01, n_max=0.01))
+        # Add custom observation terms for raycasts, context tokens, etc.
+        def __post_init__(self):
+            self.enable_corruption = True
+            self.concatenate_terms = True
+    policy: PolicyCfg = PolicyCfg()
+```
+
+## Action Pattern — Use JointPositionActionCfg
+
+```python
+@configclass
+class ActionsCfg:
+    joint_pos = action_cfgs.JointPositionActionCfg(
+        asset_name="robot", joint_names=[".*"], scale=1.0, use_default_offset=True
+    )
+```
+
+## Training Command (rsl_rl)
+
+```bash
+python -m isaaclab.app --task MyTask-v0 --headless --num_envs 1024
+```
+
+## Constraints
+
+- Use 1024-2048 parallel envs on 12GB VRAM (NOT 4096).
+- Domain randomization is REQUIRED: vary friction (0.5-1.5), mass (+/-15%), motor strength (+/-10%).
+- Always add observation noise via `Unoise` for sim-to-sim transfer robustness.

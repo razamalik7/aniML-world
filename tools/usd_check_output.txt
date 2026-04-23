@@ -1,0 +1,174 @@
+
+=== Top-level prims ===
+  /deer: Xform
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/pelvis: Xform
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/HL_thigh: Xform
+    xformOp:translate = (0.12700800597667694, 0.1879339963197708, -0.18975499272346497)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/HL_shin: Xform
+    xformOp:translate = (0.12700700759887695, -0.05053700506687164, -0.422664999961853)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/HL_foot: Xform
+    xformOp:translate = (0.13538600504398346, 0.16240300238132477, -0.5967980027198792)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/HR_thigh: Xform
+    xformOp:translate = (-0.12700800597667694, 0.1879359930753708, -0.18975499272346497)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/HR_shin: Xform
+    xformOp:translate = (-0.1270110011100769, -0.05053700506687164, -0.42266297340393066)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/HR_foot: Xform
+    xformOp:translate = (-0.1353899985551834, 0.16240400075912476, -0.5967959761619568)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/chest: Xform
+    xformOp:translate = (-9.999999974752427e-7, -0.1771859973669052, -0.011858000420033932)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/FL_thigh: Xform
+    xformOp:translate = (0.1219329982995987, -0.6489130258560181, -0.2272060066461563)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/FL_shin: Xform
+    xformOp:translate = (0.12172999978065491, -0.47314101457595825, -0.37340599298477173)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/FL_foot: Xform
+    xformOp:translate = (0.12161900103092194, -0.5929059982299805, -0.6335560083389282)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/FR_thigh: Xform
+    xformOp:translate = (-0.12205100059509277, -0.6491420269012451, -0.22709700465202332)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/FR_shin: Xform
+    xformOp:translate = (-0.12190200388431549, -0.4734880328178406, -0.3734380006790161)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/FR_foot: Xform
+    xformOp:translate = (-0.11851300299167633, -0.5815430283546448, -0.6386439800262451)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/neck: Xform
+    xformOp:translate = (0.000007000000096013537, -0.6037529706954956, -0.016346000134944916)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/skull: Xform
+    xformOp:translate = (0.00001700000029813964, -0.9438889622688293, 0.36129099130630493)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /colliders/pelvis: Xform
+  /colliders/HL_thigh: Xform
+  /colliders/HL_shin: Xform
+  /colliders/HL_foot: Xform
+  /colliders/HR_thigh: Xform
+  /colliders/HR_shin: Xform
+  /colliders/HR_foot: Xform
+  /colliders/chest: Xform
+  /colliders/FL_thigh: Xform
+  /colliders/FL_shin: Xform
+  /colliders/FL_foot: Xform
+  /colliders/FR_thigh: Xform
+  /colliders/FR_shin: Xform
+  /colliders/FR_foot: Xform
+  /colliders/neck: Xform
+  /colliders/skull: Xform
+  /meshes/pelvis_visual: Xform
+  /meshes/pelvis_collision: Xform
+  /meshes/HL_thigh_visual: Xform
+  /meshes/HL_thigh_collision: Xform
+  /meshes/HL_shin_visual: Xform
+  /meshes/HL_shin_collision: Xform
+  /meshes/HL_foot_visual: Xform
+  /meshes/HL_foot_collision: Xform
+  /meshes/HR_thigh_visual: Xform
+  /meshes/HR_thigh_collision: Xform
+  /meshes/HR_shin_visual: Xform
+  /meshes/HR_shin_collision: Xform
+  /meshes/HR_foot_visual: Xform
+  /meshes/HR_foot_collision: Xform
+  /meshes/chest_visual: Xform
+  /meshes/chest_collision: Xform
+  /meshes/FL_thigh_visual: Xform
+  /meshes/FL_thigh_collision: Xform
+  /meshes/FL_shin_visual: Xform
+  /meshes/FL_shin_collision: Xform
+  /meshes/FL_foot_visual: Xform
+  /meshes/FL_foot_collision: Xform
+  /meshes/FR_thigh_visual: Xform
+  /meshes/FR_thigh_collision: Xform
+  /meshes/FR_shin_visual: Xform
+  /meshes/FR_shin_collision: Xform
+  /meshes/FR_foot_visual: Xform
+  /meshes/FR_foot_collision: Xform
+  /meshes/neck_visual: Xform
+  /meshes/neck_collision: Xform
+  /meshes/skull_visual: Xform
+  /meshes/skull_collision: Xform
+
+=== Pelvis prim ===
+  /deer/pelvis: Xform
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/pelvis/visuals: Xform
+  /deer/pelvis/collisions: Xform
+  /visuals/pelvis/pelvis_visual: Xform
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /visuals/pelvis/pelvis_visual/node_STL_BINARY_: Xform
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /visuals/pelvis/pelvis_visual/node_STL_BINARY_/mesh: Mesh
+  /colliders/pelvis: Xform
+  /colliders/pelvis/pelvis_collision: Xform
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /colliders/pelvis/pelvis_collision/node_STL_BINARY_: Xform
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /colliders/pelvis/pelvis_collision/node_STL_BINARY_/mesh: Mesh
+  /meshes/pelvis_visual: Xform
+  /meshes/pelvis_visual/node_STL_BINARY_: Xform
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /meshes/pelvis_visual/node_STL_BINARY_/mesh: Mesh
+  /meshes/pelvis_collision: Xform
+  /meshes/pelvis_collision/node_STL_BINARY_: Xform
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /meshes/pelvis_collision/node_STL_BINARY_/mesh: Mesh
+
+=== All joints (depth<=4) ===
+  /deer/joints/pelvis_to_HL_thigh
+  /deer/joints/HL_thigh_to_HL_shin
+  /deer/joints/HL_shin_to_HL_foot
+  /deer/joints/pelvis_to_HR_thigh
+  /deer/joints/HR_thigh_to_HR_shin
+  /deer/joints/HR_shin_to_HR_foot
+  /deer/joints/pelvis_to_chest
+  /deer/joints/chest_to_FL_thigh
+  /deer/joints/FL_thigh_to_FL_shin
+  /deer/joints/FL_shin_to_FL_foot
+  /deer/joints/chest_to_FR_thigh
+  /deer/joints/FR_thigh_to_FR_shin
+  /deer/joints/FR_shin_to_FR_foot
+  /deer/joints/chest_to_neck
+  /deer/joints/neck_to_skull

@@ -1,0 +1,1585 @@
+=== All prims in deer_base.usd with xform ops ===
+
+/deer [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'joints[Scope]', 'pelvis[Xform]', 'HL_thigh[Xform]', 'HL_shin[Xform]', 'HL_foot[Xform]', 'HR_thigh[Xform]', 'HR_shin[Xform]', 'HR_foot[Xform]', 'chest[Xform]', 'FL_thigh[Xform]', 'FL_shin[Xform]', 'FL_foot[Xform]', 'FR_thigh[Xform]', 'FR_shin[Xform]', 'FR_foot[Xform]', 'neck[Xform]', 'skull[Xform]']
+/deer/pelvis [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['visuals[Xform]']
+/deer/pelvis/visuals [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /visuals/pelvis, SdfLayerOffset(0, 1), {})])
+    (no xform ops)
+/deer/HL_thigh [Xform]
+    xformOp:translate = (0.12700800597667694, -0.8428410291671753, 0.4569059908390045)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['visuals[Xform]']
+/deer/HL_thigh/visuals [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /visuals/HL_thigh, SdfLayerOffset(0, 1), {})])
+    (no xform ops)
+/deer/HL_shin [Xform]
+    xformOp:translate = (0.12700700759887695, -0.6038780212402344, 0.22450299561023712)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['visuals[Xform]']
+/deer/HL_shin/visuals [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /visuals/HL_shin, SdfLayerOffset(0, 1), {})])
+    (no xform ops)
+/deer/HL_foot [Xform]
+    xformOp:translate = (0.13538600504398346, -0.4352780282497406, 0.4418500065803528)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['visuals[Xform]']
+/deer/HL_foot/visuals [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /visuals/HL_foot, SdfLayerOffset(0, 1), {})])
+    (no xform ops)
+/deer/HR_thigh [Xform]
+    xformOp:translate = (-0.12700900435447693, -0.8428419828414917, 0.4569059908390045)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['visuals[Xform]']
+/deer/HR_thigh/visuals [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /visuals/HR_thigh, SdfLayerOffset(0, 1), {})])
+    (no xform ops)
+/deer/HR_shin [Xform]
+    xformOp:translate = (-0.12701000273227692, -0.6038789749145508, 0.22450299561023712)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['visuals[Xform]']
+/deer/HR_shin/visuals [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /visuals/HR_shin, SdfLayerOffset(0, 1), {})])
+    (no xform ops)
+/deer/HR_foot [Xform]
+    xformOp:translate = (-0.1353899985551834, -0.4352779686450958, 0.4418500065803528)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['visuals[Xform]']
+/deer/HR_foot/visuals [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /visuals/HR_foot, SdfLayerOffset(0, 1), {})])
+    (no xform ops)
+/deer/chest [Xform]
+    xformOp:translate = (0, -0.965179979801178, 0.5115910172462463)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['visuals[Xform]']
+/deer/chest/visuals [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /visuals/chest, SdfLayerOffset(0, 1), {})])
+    (no xform ops)
+/deer/FL_thigh [Xform]
+    xformOp:translate = (0.12220499664545059, -0.7772249579429626, -0.377748966217041)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['visuals[Xform]']
+/deer/FL_thigh/visuals [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /visuals/FL_thigh, SdfLayerOffset(0, 1), {})])
+    (no xform ops)
+/deer/FL_shin [Xform]
+    xformOp:translate = (0.12213799357414246, -0.6355189681053162, -0.19833596050739288)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['visuals[Xform]']
+/deer/FL_shin/visuals [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /visuals/FL_shin, SdfLayerOffset(0, 1), {})])
+    (no xform ops)
+/deer/FL_foot [Xform]
+    xformOp:translate = (0.12188699096441269, -0.3670969605445862, -0.2981909513473511)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['visuals[Xform]']
+/deer/FL_foot/visuals [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /visuals/FL_foot, SdfLayerOffset(0, 1), {})])
+    (no xform ops)
+/deer/FR_thigh [Xform]
+    xformOp:translate = (-0.12224499881267548, -0.7772599458694458, -0.3778259754180908)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['visuals[Xform]']
+/deer/FR_thigh/visuals [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /visuals/FR_thigh, SdfLayerOffset(0, 1), {})])
+    (no xform ops)
+/deer/FR_shin [Xform]
+    xformOp:translate = (-0.12219499796628952, -0.6355059146881104, -0.1984509825706482)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['visuals[Xform]']
+/deer/FR_shin/visuals [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /visuals/FR_shin, SdfLayerOffset(0, 1), {})])
+    (no xform ops)
+/deer/FR_foot [Xform]
+    xformOp:translate = (-0.12083899974822998, -0.36563292145729065, -0.2943049669265747)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['visuals[Xform]']
+/deer/FR_foot/visuals [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /visuals/FR_foot, SdfLayerOffset(0, 1), {})])
+    (no xform ops)
+/deer/neck [Xform]
+    xformOp:translate = (0.0000019999999949504854, -0.9892469644546509, -0.3380059599876404)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['visuals[Xform]']
+/deer/neck/visuals [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /visuals/neck, SdfLayerOffset(0, 1), {})])
+    (no xform ops)
+/deer/skull [Xform]
+    xformOp:translate = (0.000004999999873689376, -1.3576409816741943, -0.6881309747695923)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['visuals[Xform]']
+/deer/skull/visuals [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /visuals/skull, SdfLayerOffset(0, 1), {})])
+    (no xform ops)
+/visuals [Scope]
+    (no xform ops)
+    children: ['pelvis[]', 'HL_thigh[]', 'HL_shin[]', 'HL_foot[]', 'HR_thigh[]', 'HR_shin[]', 'HR_foot[]', 'chest[]', 'FL_thigh[]', 'FL_shin[]', 'FL_foot[]', 'FR_thigh[]', 'FR_shin[]', 'FR_foot[]', 'neck[]', 'skull[]']
+/visuals/pelvis []
+    (no xform ops)
+    children: ['pelvis_collision[Xform]']
+/visuals/pelvis/pelvis_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/pelvis_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/visuals/pelvis/pelvis_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/visuals/pelvis/pelvis_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/visuals/pelvis/pelvis_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/visuals/pelvis/pelvis_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/pelvis/pelvis_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/visuals/HL_thigh []
+    (no xform ops)
+    children: ['HL_thigh_collision[Xform]']
+/visuals/HL_thigh/HL_thigh_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/HL_thigh_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/visuals/HL_thigh/HL_thigh_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/visuals/HL_thigh/HL_thigh_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/visuals/HL_thigh/HL_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/visuals/HL_thigh/HL_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/HL_thigh/HL_thigh_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/visuals/HL_shin []
+    (no xform ops)
+    children: ['HL_shin_collision[Xform]']
+/visuals/HL_shin/HL_shin_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/HL_shin_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/visuals/HL_shin/HL_shin_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/visuals/HL_shin/HL_shin_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/visuals/HL_shin/HL_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/visuals/HL_shin/HL_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/HL_shin/HL_shin_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/visuals/HL_foot []
+    (no xform ops)
+    children: ['HL_foot_collision[Xform]']
+/visuals/HL_foot/HL_foot_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/HL_foot_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/visuals/HL_foot/HL_foot_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/visuals/HL_foot/HL_foot_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/visuals/HL_foot/HL_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/visuals/HL_foot/HL_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/HL_foot/HL_foot_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/visuals/HR_thigh []
+    (no xform ops)
+    children: ['HR_thigh_collision[Xform]']
+/visuals/HR_thigh/HR_thigh_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/HR_thigh_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/visuals/HR_thigh/HR_thigh_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/visuals/HR_thigh/HR_thigh_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/visuals/HR_thigh/HR_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/visuals/HR_thigh/HR_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/HR_thigh/HR_thigh_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/visuals/HR_shin []
+    (no xform ops)
+    children: ['HR_shin_collision[Xform]']
+/visuals/HR_shin/HR_shin_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/HR_shin_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/visuals/HR_shin/HR_shin_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/visuals/HR_shin/HR_shin_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/visuals/HR_shin/HR_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/visuals/HR_shin/HR_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/HR_shin/HR_shin_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/visuals/HR_foot []
+    (no xform ops)
+    children: ['HR_foot_collision[Xform]']
+/visuals/HR_foot/HR_foot_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/HR_foot_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/visuals/HR_foot/HR_foot_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/visuals/HR_foot/HR_foot_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/visuals/HR_foot/HR_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/visuals/HR_foot/HR_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/HR_foot/HR_foot_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/visuals/chest []
+    (no xform ops)
+    children: ['chest_collision[Xform]']
+/visuals/chest/chest_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/chest_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/visuals/chest/chest_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/visuals/chest/chest_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/visuals/chest/chest_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/visuals/chest/chest_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/chest/chest_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/visuals/FL_thigh []
+    (no xform ops)
+    children: ['FL_thigh_collision[Xform]']
+/visuals/FL_thigh/FL_thigh_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/FL_thigh_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/visuals/FL_thigh/FL_thigh_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/visuals/FL_thigh/FL_thigh_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/visuals/FL_thigh/FL_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/visuals/FL_thigh/FL_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/FL_thigh/FL_thigh_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/visuals/FL_shin []
+    (no xform ops)
+    children: ['FL_shin_collision[Xform]']
+/visuals/FL_shin/FL_shin_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/FL_shin_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/visuals/FL_shin/FL_shin_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/visuals/FL_shin/FL_shin_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/visuals/FL_shin/FL_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/visuals/FL_shin/FL_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/FL_shin/FL_shin_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/visuals/FL_foot []
+    (no xform ops)
+    children: ['FL_foot_collision[Xform]']
+/visuals/FL_foot/FL_foot_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/FL_foot_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/visuals/FL_foot/FL_foot_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/visuals/FL_foot/FL_foot_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/visuals/FL_foot/FL_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/visuals/FL_foot/FL_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/FL_foot/FL_foot_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/visuals/FR_thigh []
+    (no xform ops)
+    children: ['FR_thigh_collision[Xform]']
+/visuals/FR_thigh/FR_thigh_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/FR_thigh_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/visuals/FR_thigh/FR_thigh_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/visuals/FR_thigh/FR_thigh_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/visuals/FR_thigh/FR_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/visuals/FR_thigh/FR_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/FR_thigh/FR_thigh_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/visuals/FR_shin []
+    (no xform ops)
+    children: ['FR_shin_collision[Xform]']
+/visuals/FR_shin/FR_shin_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/FR_shin_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/visuals/FR_shin/FR_shin_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/visuals/FR_shin/FR_shin_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/visuals/FR_shin/FR_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/visuals/FR_shin/FR_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/FR_shin/FR_shin_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/visuals/FR_foot []
+    (no xform ops)
+    children: ['FR_foot_collision[Xform]']
+/visuals/FR_foot/FR_foot_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/FR_foot_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/visuals/FR_foot/FR_foot_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/visuals/FR_foot/FR_foot_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/visuals/FR_foot/FR_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/visuals/FR_foot/FR_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/FR_foot/FR_foot_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/visuals/neck []
+    (no xform ops)
+    children: ['neck_collision[Xform]']
+/visuals/neck/neck_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/neck_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/visuals/neck/neck_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/visuals/neck/neck_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/visuals/neck/neck_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/visuals/neck/neck_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/neck/neck_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/visuals/skull []
+    (no xform ops)
+    children: ['skull_collision[Xform]']
+/visuals/skull/skull_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/skull_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/visuals/skull/skull_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/visuals/skull/skull_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/visuals/skull/skull_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/visuals/skull/skull_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/skull/skull_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/colliders/pelvis/pelvis_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/pelvis_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/colliders/pelvis/pelvis_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/colliders/HL_thigh/HL_thigh_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/HL_thigh_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/colliders/HL_thigh/HL_thigh_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/colliders/HL_shin/HL_shin_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/HL_shin_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/colliders/HL_shin/HL_shin_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/colliders/HL_foot/HL_foot_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/HL_foot_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/colliders/HL_foot/HL_foot_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/colliders/HR_thigh/HR_thigh_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/HR_thigh_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/colliders/HR_thigh/HR_thigh_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/colliders/HR_shin/HR_shin_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/HR_shin_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/colliders/HR_shin/HR_shin_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/colliders/HR_foot/HR_foot_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/HR_foot_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/colliders/HR_foot/HR_foot_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/colliders/chest/chest_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/chest_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/colliders/chest/chest_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/colliders/FL_thigh/FL_thigh_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/FL_thigh_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/colliders/FL_thigh/FL_thigh_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/colliders/FL_shin/FL_shin_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/FL_shin_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/colliders/FL_shin/FL_shin_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/colliders/FL_foot/FL_foot_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/FL_foot_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/colliders/FL_foot/FL_foot_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/colliders/FR_thigh/FR_thigh_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/FR_thigh_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/colliders/FR_thigh/FR_thigh_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/colliders/FR_shin/FR_shin_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/FR_shin_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/colliders/FR_shin/FR_shin_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/colliders/FR_foot/FR_foot_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/FR_foot_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/colliders/FR_foot/FR_foot_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/colliders/neck/neck_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/neck_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/colliders/neck/neck_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/colliders/skull/skull_collision [Xform] REFS=SdfReferenceListOp(Prepended Items: [SdfReference(, /meshes/skull_collision, SdfLayerOffset(0, 1), {})])
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['node_STL_BINARY_[Xform]']
+/colliders/skull/skull_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/meshes [Scope]
+    (no xform ops)
+    children: ['pelvis_collision[Xform]', 'HL_thigh_collision[Xform]', 'HL_shin_collision[Xform]', 'HL_foot_collision[Xform]', 'HR_thigh_collision[Xform]', 'HR_shin_collision[Xform]', 'HR_foot_collision[Xform]', 'chest_collision[Xform]', 'FL_thigh_collision[Xform]', 'FL_shin_collision[Xform]', 'FL_foot_collision[Xform]', 'FR_thigh_collision[Xform]', 'FR_shin_collision[Xform]', 'FR_foot_collision[Xform]', 'neck_collision[Xform]', 'skull_collision[Xform]']
+/meshes/pelvis_collision [Xform]
+    (no xform ops)
+    children: ['node_STL_BINARY_[Xform]']
+/meshes/pelvis_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/meshes/pelvis_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/meshes/pelvis_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/meshes/pelvis_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/pelvis_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/meshes/HL_thigh_collision [Xform]
+    (no xform ops)
+    children: ['node_STL_BINARY_[Xform]']
+/meshes/HL_thigh_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/meshes/HL_thigh_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/meshes/HL_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/meshes/HL_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/HL_thigh_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/meshes/HL_shin_collision [Xform]
+    (no xform ops)
+    children: ['node_STL_BINARY_[Xform]']
+/meshes/HL_shin_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/meshes/HL_shin_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/meshes/HL_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/meshes/HL_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/HL_shin_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/meshes/HL_foot_collision [Xform]
+    (no xform ops)
+    children: ['node_STL_BINARY_[Xform]']
+/meshes/HL_foot_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/meshes/HL_foot_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/meshes/HL_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/meshes/HL_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/HL_foot_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/meshes/HR_thigh_collision [Xform]
+    (no xform ops)
+    children: ['node_STL_BINARY_[Xform]']
+/meshes/HR_thigh_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/meshes/HR_thigh_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/meshes/HR_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/meshes/HR_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/HR_thigh_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/meshes/HR_shin_collision [Xform]
+    (no xform ops)
+    children: ['node_STL_BINARY_[Xform]']
+/meshes/HR_shin_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/meshes/HR_shin_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/meshes/HR_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/meshes/HR_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/HR_shin_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/meshes/HR_foot_collision [Xform]
+    (no xform ops)
+    children: ['node_STL_BINARY_[Xform]']
+/meshes/HR_foot_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/meshes/HR_foot_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/meshes/HR_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/meshes/HR_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/HR_foot_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/meshes/chest_collision [Xform]
+    (no xform ops)
+    children: ['node_STL_BINARY_[Xform]']
+/meshes/chest_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/meshes/chest_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/meshes/chest_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/meshes/chest_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/chest_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/meshes/FL_thigh_collision [Xform]
+    (no xform ops)
+    children: ['node_STL_BINARY_[Xform]']
+/meshes/FL_thigh_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/meshes/FL_thigh_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/meshes/FL_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/meshes/FL_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/FL_thigh_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/meshes/FL_shin_collision [Xform]
+    (no xform ops)
+    children: ['node_STL_BINARY_[Xform]']
+/meshes/FL_shin_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/meshes/FL_shin_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/meshes/FL_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/meshes/FL_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/FL_shin_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/meshes/FL_foot_collision [Xform]
+    (no xform ops)
+    children: ['node_STL_BINARY_[Xform]']
+/meshes/FL_foot_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/meshes/FL_foot_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/meshes/FL_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/meshes/FL_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/FL_foot_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/meshes/FR_thigh_collision [Xform]
+    (no xform ops)
+    children: ['node_STL_BINARY_[Xform]']
+/meshes/FR_thigh_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/meshes/FR_thigh_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/meshes/FR_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/meshes/FR_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/FR_thigh_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/meshes/FR_shin_collision [Xform]
+    (no xform ops)
+    children: ['node_STL_BINARY_[Xform]']
+/meshes/FR_shin_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/meshes/FR_shin_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/meshes/FR_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/meshes/FR_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/FR_shin_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/meshes/FR_foot_collision [Xform]
+    (no xform ops)
+    children: ['node_STL_BINARY_[Xform]']
+/meshes/FR_foot_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/meshes/FR_foot_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/meshes/FR_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/meshes/FR_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/FR_foot_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/meshes/neck_collision [Xform]
+    (no xform ops)
+    children: ['node_STL_BINARY_[Xform]']
+/meshes/neck_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/meshes/neck_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/meshes/neck_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/meshes/neck_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/neck_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/meshes/skull_collision [Xform]
+    (no xform ops)
+    children: ['node_STL_BINARY_[Xform]']
+/meshes/skull_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    children: ['Looks[Scope]', 'mesh[Mesh]']
+/meshes/skull_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+    children: ['DefaultMaterial[Material]']
+/meshes/skull_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+    children: ['DefaultMaterial[Shader]']
+/meshes/skull_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/skull_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+
+
+=== Reference arcs on /deer/*/visuals ===
+
+
+/deer/pelvis/visuals:
+  xform ops: NONE (identity)
+  spec layer: deer_base.usd
+    prepended ref: asset= prim=/visuals/pelvis
+  spec layer: deer_base.usd
+
+/deer/HL_thigh/visuals:
+  xform ops: NONE (identity)
+  spec layer: deer_base.usd
+    prepended ref: asset= prim=/visuals/HL_thigh
+  spec layer: deer_base.usd
+
+/deer/HL_shin/visuals:
+  xform ops: NONE (identity)
+  spec layer: deer_base.usd
+    prepended ref: asset= prim=/visuals/HL_shin
+  spec layer: deer_base.usd
+
+/deer/HL_foot/visuals:
+  xform ops: NONE (identity)
+  spec layer: deer_base.usd
+    prepended ref: asset= prim=/visuals/HL_foot
+  spec layer: deer_base.usd
+
+/deer/HR_thigh/visuals:
+  xform ops: NONE (identity)
+  spec layer: deer_base.usd
+    prepended ref: asset= prim=/visuals/HR_thigh
+  spec layer: deer_base.usd
+
+/deer/HR_shin/visuals:
+  xform ops: NONE (identity)
+  spec layer: deer_base.usd
+    prepended ref: asset= prim=/visuals/HR_shin
+  spec layer: deer_base.usd
+
+/deer/HR_foot/visuals:
+  xform ops: NONE (identity)
+  spec layer: deer_base.usd
+    prepended ref: asset= prim=/visuals/HR_foot
+  spec layer: deer_base.usd
+
+/deer/chest/visuals:
+  xform ops: NONE (identity)
+  spec layer: deer_base.usd
+    prepended ref: asset= prim=/visuals/chest
+  spec layer: deer_base.usd
+
+/deer/FL_thigh/visuals:
+  xform ops: NONE (identity)
+  spec layer: deer_base.usd
+    prepended ref: asset= prim=/visuals/FL_thigh
+  spec layer: deer_base.usd
+
+/deer/FL_shin/visuals:
+  xform ops: NONE (identity)
+  spec layer: deer_base.usd
+    prepended ref: asset= prim=/visuals/FL_shin
+  spec layer: deer_base.usd
+
+/deer/FL_foot/visuals:
+  xform ops: NONE (identity)
+  spec layer: deer_base.usd
+    prepended ref: asset= prim=/visuals/FL_foot
+  spec layer: deer_base.usd
+
+/deer/FR_thigh/visuals:
+  xform ops: NONE (identity)
+  spec layer: deer_base.usd
+    prepended ref: asset= prim=/visuals/FR_thigh
+  spec layer: deer_base.usd
+
+/deer/FR_shin/visuals:
+  xform ops: NONE (identity)
+  spec layer: deer_base.usd
+    prepended ref: asset= prim=/visuals/FR_shin
+  spec layer: deer_base.usd
+
+/deer/FR_foot/visuals:
+  xform ops: NONE (identity)
+  spec layer: deer_base.usd
+    prepended ref: asset= prim=/visuals/FR_foot
+  spec layer: deer_base.usd
+
+/deer/neck/visuals:
+  xform ops: NONE (identity)
+  spec layer: deer_base.usd
+    prepended ref: asset= prim=/visuals/neck
+  spec layer: deer_base.usd
+
+/deer/skull/visuals:
+  xform ops: NONE (identity)
+  spec layer: deer_base.usd
+    prepended ref: asset= prim=/visuals/skull
+  spec layer: deer_base.usd
+
+/visuals:
+  xform ops: NONE (identity)
+  spec layer: deer_base.usd
+
+
+=== /visuals scope prims ===
+
+/visuals [Scope]
+    (no xform ops)
+/visuals/pelvis []
+    (no xform ops)
+/visuals/pelvis/pelvis_collision [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    ref: asset= prim=/meshes/pelvis_collision
+/visuals/pelvis/pelvis_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/visuals/pelvis/pelvis_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/visuals/pelvis/pelvis_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/visuals/pelvis/pelvis_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/pelvis/pelvis_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/visuals/HL_thigh []
+    (no xform ops)
+/visuals/HL_thigh/HL_thigh_collision [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    ref: asset= prim=/meshes/HL_thigh_collision
+/visuals/HL_thigh/HL_thigh_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/visuals/HL_thigh/HL_thigh_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/visuals/HL_thigh/HL_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/visuals/HL_thigh/HL_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/HL_thigh/HL_thigh_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/visuals/HL_shin []
+    (no xform ops)
+/visuals/HL_shin/HL_shin_collision [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    ref: asset= prim=/meshes/HL_shin_collision
+/visuals/HL_shin/HL_shin_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/visuals/HL_shin/HL_shin_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/visuals/HL_shin/HL_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/visuals/HL_shin/HL_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/HL_shin/HL_shin_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/visuals/HL_foot []
+    (no xform ops)
+/visuals/HL_foot/HL_foot_collision [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    ref: asset= prim=/meshes/HL_foot_collision
+/visuals/HL_foot/HL_foot_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/visuals/HL_foot/HL_foot_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/visuals/HL_foot/HL_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/visuals/HL_foot/HL_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/HL_foot/HL_foot_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/visuals/HR_thigh []
+    (no xform ops)
+/visuals/HR_thigh/HR_thigh_collision [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    ref: asset= prim=/meshes/HR_thigh_collision
+/visuals/HR_thigh/HR_thigh_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/visuals/HR_thigh/HR_thigh_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/visuals/HR_thigh/HR_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/visuals/HR_thigh/HR_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/HR_thigh/HR_thigh_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/visuals/HR_shin []
+    (no xform ops)
+/visuals/HR_shin/HR_shin_collision [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    ref: asset= prim=/meshes/HR_shin_collision
+/visuals/HR_shin/HR_shin_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/visuals/HR_shin/HR_shin_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/visuals/HR_shin/HR_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/visuals/HR_shin/HR_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/HR_shin/HR_shin_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/visuals/HR_foot []
+    (no xform ops)
+/visuals/HR_foot/HR_foot_collision [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    ref: asset= prim=/meshes/HR_foot_collision
+/visuals/HR_foot/HR_foot_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/visuals/HR_foot/HR_foot_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/visuals/HR_foot/HR_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/visuals/HR_foot/HR_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/HR_foot/HR_foot_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/visuals/chest []
+    (no xform ops)
+/visuals/chest/chest_collision [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    ref: asset= prim=/meshes/chest_collision
+/visuals/chest/chest_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/visuals/chest/chest_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/visuals/chest/chest_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/visuals/chest/chest_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/chest/chest_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/visuals/FL_thigh []
+    (no xform ops)
+/visuals/FL_thigh/FL_thigh_collision [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    ref: asset= prim=/meshes/FL_thigh_collision
+/visuals/FL_thigh/FL_thigh_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/visuals/FL_thigh/FL_thigh_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/visuals/FL_thigh/FL_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/visuals/FL_thigh/FL_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/FL_thigh/FL_thigh_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/visuals/FL_shin []
+    (no xform ops)
+/visuals/FL_shin/FL_shin_collision [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    ref: asset= prim=/meshes/FL_shin_collision
+/visuals/FL_shin/FL_shin_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/visuals/FL_shin/FL_shin_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/visuals/FL_shin/FL_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/visuals/FL_shin/FL_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/FL_shin/FL_shin_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/visuals/FL_foot []
+    (no xform ops)
+/visuals/FL_foot/FL_foot_collision [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    ref: asset= prim=/meshes/FL_foot_collision
+/visuals/FL_foot/FL_foot_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/visuals/FL_foot/FL_foot_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/visuals/FL_foot/FL_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/visuals/FL_foot/FL_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/FL_foot/FL_foot_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/visuals/FR_thigh []
+    (no xform ops)
+/visuals/FR_thigh/FR_thigh_collision [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    ref: asset= prim=/meshes/FR_thigh_collision
+/visuals/FR_thigh/FR_thigh_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/visuals/FR_thigh/FR_thigh_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/visuals/FR_thigh/FR_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/visuals/FR_thigh/FR_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/FR_thigh/FR_thigh_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/visuals/FR_shin []
+    (no xform ops)
+/visuals/FR_shin/FR_shin_collision [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    ref: asset= prim=/meshes/FR_shin_collision
+/visuals/FR_shin/FR_shin_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/visuals/FR_shin/FR_shin_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/visuals/FR_shin/FR_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/visuals/FR_shin/FR_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/FR_shin/FR_shin_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/visuals/FR_foot []
+    (no xform ops)
+/visuals/FR_foot/FR_foot_collision [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    ref: asset= prim=/meshes/FR_foot_collision
+/visuals/FR_foot/FR_foot_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/visuals/FR_foot/FR_foot_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/visuals/FR_foot/FR_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/visuals/FR_foot/FR_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/FR_foot/FR_foot_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/visuals/neck []
+    (no xform ops)
+/visuals/neck/neck_collision [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    ref: asset= prim=/meshes/neck_collision
+/visuals/neck/neck_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/visuals/neck/neck_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/visuals/neck/neck_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/visuals/neck/neck_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/neck/neck_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/visuals/skull []
+    (no xform ops)
+/visuals/skull/skull_collision [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+    ref: asset= prim=/meshes/skull_collision
+/visuals/skull/skull_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/visuals/skull/skull_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/visuals/skull/skull_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/visuals/skull/skull_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/visuals/skull/skull_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+
+
+=== /meshes scope prims ===
+
+/meshes [Scope]
+    (no xform ops)
+/meshes/pelvis_collision [Xform]
+    (no xform ops)
+/meshes/pelvis_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/meshes/pelvis_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/meshes/pelvis_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/meshes/pelvis_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/pelvis_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/meshes/HL_thigh_collision [Xform]
+    (no xform ops)
+/meshes/HL_thigh_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/meshes/HL_thigh_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/meshes/HL_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/meshes/HL_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/HL_thigh_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/meshes/HL_shin_collision [Xform]
+    (no xform ops)
+/meshes/HL_shin_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/meshes/HL_shin_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/meshes/HL_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/meshes/HL_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/HL_shin_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/meshes/HL_foot_collision [Xform]
+    (no xform ops)
+/meshes/HL_foot_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/meshes/HL_foot_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/meshes/HL_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/meshes/HL_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/HL_foot_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/meshes/HR_thigh_collision [Xform]
+    (no xform ops)
+/meshes/HR_thigh_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/meshes/HR_thigh_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/meshes/HR_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/meshes/HR_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/HR_thigh_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/meshes/HR_shin_collision [Xform]
+    (no xform ops)
+/meshes/HR_shin_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/meshes/HR_shin_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/meshes/HR_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/meshes/HR_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/HR_shin_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/meshes/HR_foot_collision [Xform]
+    (no xform ops)
+/meshes/HR_foot_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/meshes/HR_foot_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/meshes/HR_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/meshes/HR_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/HR_foot_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/meshes/chest_collision [Xform]
+    (no xform ops)
+/meshes/chest_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/meshes/chest_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/meshes/chest_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/meshes/chest_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/chest_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/meshes/FL_thigh_collision [Xform]
+    (no xform ops)
+/meshes/FL_thigh_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/meshes/FL_thigh_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/meshes/FL_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/meshes/FL_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/FL_thigh_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/meshes/FL_shin_collision [Xform]
+    (no xform ops)
+/meshes/FL_shin_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/meshes/FL_shin_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/meshes/FL_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/meshes/FL_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/FL_shin_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/meshes/FL_foot_collision [Xform]
+    (no xform ops)
+/meshes/FL_foot_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/meshes/FL_foot_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/meshes/FL_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/meshes/FL_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/FL_foot_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/meshes/FR_thigh_collision [Xform]
+    (no xform ops)
+/meshes/FR_thigh_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/meshes/FR_thigh_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/meshes/FR_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/meshes/FR_thigh_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/FR_thigh_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/meshes/FR_shin_collision [Xform]
+    (no xform ops)
+/meshes/FR_shin_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/meshes/FR_shin_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/meshes/FR_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/meshes/FR_shin_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/FR_shin_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/meshes/FR_foot_collision [Xform]
+    (no xform ops)
+/meshes/FR_foot_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/meshes/FR_foot_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/meshes/FR_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/meshes/FR_foot_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/FR_foot_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/meshes/neck_collision [Xform]
+    (no xform ops)
+/meshes/neck_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/meshes/neck_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/meshes/neck_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/meshes/neck_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/neck_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)
+/meshes/skull_collision [Xform]
+    (no xform ops)
+/meshes/skull_collision/node_STL_BINARY_ [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+/meshes/skull_collision/node_STL_BINARY_/Looks [Scope]
+    (no xform ops)
+/meshes/skull_collision/node_STL_BINARY_/Looks/DefaultMaterial [Material]
+    (no xform ops)
+/meshes/skull_collision/node_STL_BINARY_/Looks/DefaultMaterial/DefaultMaterial [Shader]
+    (no xform ops)
+/meshes/skull_collision/node_STL_BINARY_/mesh [Mesh]
+    (no xform ops)

@@ -1,0 +1,89 @@
+{
+  "locomotion_obs_dim": 148,
+  "ecosystem_obs_dim": 159,
+  "action_dim": 12,
+  "context_token_dim": 11,
+  "context_token_ids": {
+    "CLEAR_SKY": 0,
+    "LIGHT_RAIN": 1,
+    "HEAVY_RAIN": 2,
+    "THUNDERSTORM": 3,
+    "METEOR_INCOMING": 4,
+    "METEOR_IMPACT": 5,
+    "NIGHT": 6,
+    "DAWN": 7,
+    "DUSK": 8,
+    "DROUGHT": 9,
+    "WILDFIRE": 10
+  },
+  "observation_slices_locomotion": {
+    "joint_positions": {
+      "start": 0,
+      "end": 12,
+      "dim": 12
+    },
+    "joint_velocities": {
+      "start": 12,
+      "end": 24,
+      "dim": 12
+    },
+    "body_orientation": {
+      "start": 24,
+      "end": 28,
+      "dim": 4
+    },
+    "body_angular_velocity": {
+      "start": 28,
+      "end": 31,
+      "dim": 3
+    },
+    "gravity_projection": {
+      "start": 31,
+      "end": 34,
+      "dim": 3
+    },
+    "velocity_command": {
+      "start": 34,
+      "end": 37,
+      "dim": 3
+    },
+    "body_linear_velocity": {
+      "start": 37,
+      "end": 39,
+      "dim": 2
+    },
+    "last_action": {
+      "start": 39,
+      "end": 48,
+      "dim": 9
+    },
+    "height_scan": {
+      "start": 48,
+      "end": 148,
+      "dim": 100
+    },
+    "context_tokens": {
+      "start": 148,
+      "end": 159,
+      "dim": 11
+    }
+  },
+  "action_slices": {
+    "joint_pos_targets": {
+      "start": 0,
+      "end": 12,
+      "dim": 12
+    }
+  },
+  "joint_order_legs": [
+    "front_left",
+    "front_right",
+    "rear_left",
+    "rear_right"
+  ],
+  "joint_order_per_leg": [
+    "hip_yaw",
+    "hip_pitch",
+    "knee"
+  ]
+}

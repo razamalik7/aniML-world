@@ -1,0 +1,31 @@
+experiment:
+  name: deer_locomotion_rough
+  max_iterations: 1500
+  save_interval: 50
+
+environment:
+  num_envs: 1536
+  env_spacing: 2.5
+  episode_length_s: 20.0
+  decimation: 4
+  physics_dt: 0.005
+
+policy:
+  actor_hidden_dims: [512, 256, 128]
+  critic_hidden_dims: [512, 256, 128]
+  activation: elu
+  init_noise_std: 1.0
+
+algorithm:
+  name: ppo
+  learning_rate: 0.001
+  schedule: adaptive
+  clip_param: 0.2
+  entropy_coef: 0.005
+  num_learning_epochs: 5
+  num_mini_batches: 4
+  gamma: 0.99
+  lam: 0.95
+  desired_kl: 0.01
+  max_grad_norm: 1.0
+  num_steps_per_env: 24

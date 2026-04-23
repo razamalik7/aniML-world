@@ -1,0 +1,7 @@
+Put your quadruped here as deer.usd, or keep deer1.usdc at the repo root — both are auto-detected.
+You can also set env ANIML_DEER_USD to any absolute path (.usd / .usda / .usdc).
+
+In Isaac Sim, confirm:
+- Articulation root under the prim you spawn as Robot
+- Name of the trunk link (set ANIML_DEER_BODY_BASE if not "base")
+- Link used for height scanner / IMU (set ANIML_DEER_IMU_LINK, default "base")

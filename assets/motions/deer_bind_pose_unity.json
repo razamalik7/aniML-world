@@ -1,0 +1,381 @@
+{
+  "source_idle": "C:\\Users\\nars7\\Downloads\\Unity Projects\\aniML-world\\Assets\\ithappy\\Animals_FREE\\Animations\\Other_Animations\\Deer_001_idle.anim",
+  "source_walk": "C:\\Users\\nars7\\Downloads\\Unity Projects\\aniML-world\\Assets\\ithappy\\Animals_FREE\\Animations\\Other_Animations\\Deer_001_walk.anim",
+  "note": "rest_quat is in Unity's bone-local frame (xyzw), taken from idle.anim frame 0 where available, else walk.anim frame 0",
+  "bones": {
+    "Deer_001_rig": {
+      "rest_quat_unity_xyzw": [
+        0.0,
+        0.0,
+        -0.0,
+        1.0
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 0.0,
+      "idle_minus_walk0_deg": 0.0
+    },
+    "Deer_001_rig/Root": {
+      "rest_quat_unity_xyzw": [
+        4.3711406e-08,
+        1.0,
+        -6.55671e-08,
+        1.3315805e-07
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 0.0,
+      "idle_minus_walk0_deg": 0.0
+    },
+    "Deer_001_rig/Root/spine.003": {
+      "rest_quat_unity_xyzw": [
+        -0.73905617,
+        9.779034e-07,
+        6.5875334e-08,
+        0.6736438
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 8.217797223543727,
+      "idle_minus_walk0_deg": 1.492709681135105
+    },
+    "Deer_001_rig/Root/spine.003/shoulder.L": {
+      "rest_quat_unity_xyzw": [
+        0.88637704,
+        -2.1552643e-07,
+        8.054618e-08,
+        -0.4629641
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 15.269331502187821,
+      "idle_minus_walk0_deg": 16.245704454603185
+    },
+    "Deer_001_rig/Root/spine.003/shoulder.L/thigh.L": {
+      "rest_quat_unity_xyzw": [
+        0.6713832,
+        -9.90979e-08,
+        2.0752375e-07,
+        0.7411104
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 0.0,
+      "idle_minus_walk0_deg": 0.0
+    },
+    "Deer_001_rig/Root/spine.003/shoulder.L/thigh.L/shin.L": {
+      "rest_quat_unity_xyzw": [
+        -0.7453973,
+        -0.011350617,
+        -0.0101489285,
+        0.66644657
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 10.546019722512296,
+      "idle_minus_walk0_deg": 19.138519110715258
+    },
+    "Deer_001_rig/Root/spine.003/shoulder.L/thigh.L/shin.L/foot.L": {
+      "rest_quat_unity_xyzw": [
+        0.5056497,
+        0.0014489202,
+        0.023798203,
+        0.8624094
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 23.26898730031869,
+      "idle_minus_walk0_deg": 11.826453423226722
+    },
+    "Deer_001_rig/Root/spine.003/shoulder.L/thigh.L/shin.L/foot.L/toe.L": {
+      "rest_quat_unity_xyzw": [
+        0.20551579,
+        -0.0025405788,
+        -0.012096638,
+        0.97857577
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 15.631344011807027,
+      "idle_minus_walk0_deg": 20.20261412830574
+    },
+    "Deer_001_rig/Root/spine.003/shoulder.R": {
+      "rest_quat_unity_xyzw": [
+        0.88637704,
+        1.5729532e-09,
+        -3.4911704e-07,
+        -0.4629641
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 14.260099118360205,
+      "idle_minus_walk0_deg": 9.737863214759695
+    },
+    "Deer_001_rig/Root/spine.003/shoulder.R/thigh.R": {
+      "rest_quat_unity_xyzw": [
+        0.67138326,
+        7.7596624e-08,
+        -2.7268783e-07,
+        0.7411103
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 6.7896982990548045,
+      "idle_minus_walk0_deg": 0.032983903235179676
+    },
+    "Deer_001_rig/Root/spine.003/shoulder.R/thigh.R/shin.R": {
+      "rest_quat_unity_xyzw": [
+        -0.7453973,
+        0.011350623,
+        0.010148878,
+        0.66644657
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 16.47358290744241,
+      "idle_minus_walk0_deg": 14.055996473390767
+    },
+    "Deer_001_rig/Root/spine.003/shoulder.R/thigh.R/shin.R/foot.R": {
+      "rest_quat_unity_xyzw": [
+        0.50564975,
+        -0.001448884,
+        -0.023798266,
+        0.86240935
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 23.68931219544145,
+      "idle_minus_walk0_deg": 4.033165398076958
+    },
+    "Deer_001_rig/Root/spine.003/shoulder.R/thigh.R/shin.R/foot.R/toe.R": {
+      "rest_quat_unity_xyzw": [
+        0.20551594,
+        0.002540532,
+        0.012096537,
+        0.9785757
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 11.682226955819116,
+      "idle_minus_walk0_deg": 14.076758247210329
+    },
+    "Deer_001_rig/Root/spine.003/spine.002": {
+      "rest_quat_unity_xyzw": [
+        0.9636858,
+        1.4569282e-09,
+        -2.2935689e-07,
+        -0.2670387
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 0.017439478033473836,
+      "idle_minus_walk0_deg": 38.35847505191966
+    },
+    "Deer_001_rig/Root/spine.003/spine.002/spine.001": {
+      "rest_quat_unity_xyzw": [
+        0.0053181285,
+        -1.19207485e-07,
+        -1.9286248e-09,
+        0.9999859
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 0.0,
+      "idle_minus_walk0_deg": 4.0659256206399155
+    },
+    "Deer_001_rig/Root/spine.003/spine.002/spine.001/spine": {
+      "rest_quat_unity_xyzw": [
+        -0.1948286,
+        1.8761119e-10,
+        9.384555e-08,
+        0.9808373
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 0.01408193765195618,
+      "idle_minus_walk0_deg": 6.891047513688373
+    },
+    "Deer_001_rig/Root/spine.003/spine.004": {
+      "rest_quat_unity_xyzw": [
+        0.03465068,
+        1.4426006e-06,
+        -3.6434226e-06,
+        0.9993995
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 10.211854356599526,
+      "idle_minus_walk0_deg": 0.0
+    },
+    "Deer_001_rig/Root/spine.003/spine.004/spine.005": {
+      "rest_quat_unity_xyzw": [
+        0.1041814,
+        -1.5348073e-09,
+        -2.4230374e-08,
+        0.99455833
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 47.00097930151245,
+      "idle_minus_walk0_deg": 0.023581848844389883
+    },
+    "Deer_001_rig/Root/spine.003/spine.004/spine.005/front_shoulder.L": {
+      "rest_quat_unity_xyzw": [
+        -0.62069976,
+        0.0002109843,
+        0.000119786106,
+        0.7840483
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 2.833023242923112,
+      "idle_minus_walk0_deg": 13.482654902471545
+    },
+    "Deer_001_rig/Root/spine.003/spine.004/spine.005/front_shoulder.L/front_thigh.L": {
+      "rest_quat_unity_xyzw": [
+        -0.6128526,
+        -2.1412255e-08,
+        -2.8799138e-07,
+        0.79019725
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 35.231592706795894,
+      "idle_minus_walk0_deg": 0.0
+    },
+    "Deer_001_rig/Root/spine.003/spine.004/spine.005/front_shoulder.L/front_thigh.L/front_shin.L": {
+      "rest_quat_unity_xyzw": [
+        0.5885109,
+        -0.0002448041,
+        7.9590405e-05,
+        0.80848926
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 42.18999111919323,
+      "idle_minus_walk0_deg": 8.56840972115418
+    },
+    "Deer_001_rig/Root/spine.003/spine.004/spine.005/front_shoulder.L/front_thigh.L/front_shin.L/front_foot.L": {
+      "rest_quat_unity_xyzw": [
+        -0.22957657,
+        2.7516355e-05,
+        -0.0012353557,
+        0.97328985
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 21.44785663139402,
+      "idle_minus_walk0_deg": 16.434221624139756
+    },
+    "Deer_001_rig/Root/spine.003/spine.004/spine.005/front_shoulder.L/front_thigh.L/front_shin.L/front_foot.L/front_toe.L": {
+      "rest_quat_unity_xyzw": [
+        0.36947575,
+        0.00024716795,
+        0.000827954,
+        0.92924
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 22.611007483664054,
+      "idle_minus_walk0_deg": 1.088430121395454
+    },
+    "Deer_001_rig/Root/spine.003/spine.004/spine.005/front_shoulder.R": {
+      "rest_quat_unity_xyzw": [
+        -0.6205947,
+        -0.0001556578,
+        -7.397392e-05,
+        0.7841315
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 3.5515538500972688,
+      "idle_minus_walk0_deg": 1.6592953388956182
+    },
+    "Deer_001_rig/Root/spine.003/spine.004/spine.005/front_shoulder.R/front_thigh.R": {
+      "rest_quat_unity_xyzw": [
+        -0.6128526,
+        -2.142463e-08,
+        2.964816e-07,
+        0.79019725
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 35.23161647362007,
+      "idle_minus_walk0_deg": 16.838274859244752
+    },
+    "Deer_001_rig/Root/spine.003/spine.004/spine.005/front_shoulder.R/front_thigh.R/front_shin.R": {
+      "rest_quat_unity_xyzw": [
+        0.58237195,
+        -0.00034891034,
+        -0.0029664494,
+        0.812917
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 35.26688054814826,
+      "idle_minus_walk0_deg": 15.849534796990197
+    },
+    "Deer_001_rig/Root/spine.003/spine.004/spine.005/front_shoulder.R/front_thigh.R/front_shin.R/front_foot.R": {
+      "rest_quat_unity_xyzw": [
+        -0.17464168,
+        -8.078754e-06,
+        0.0009422283,
+        0.9846316
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 60.519582724140655,
+      "idle_minus_walk0_deg": 23.05515094444094
+    },
+    "Deer_001_rig/Root/spine.003/spine.004/spine.005/front_shoulder.R/front_thigh.R/front_shin.R/front_foot.R/front_toe.R": {
+      "rest_quat_unity_xyzw": [
+        0.32219076,
+        0.0036847764,
+        0.0015391967,
+        0.94666636
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 28.022171885238134,
+      "idle_minus_walk0_deg": 3.523095845625002
+    },
+    "Deer_001_rig/Root/spine.003/spine.004/spine.005/spine.006": {
+      "rest_quat_unity_xyzw": [
+        0.24296932,
+        -1.6631041e-07,
+        1.1799681e-07,
+        0.970034
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 22.25111080054939,
+      "idle_minus_walk0_deg": 3.1368052513983695
+    },
+    "Deer_001_rig/Root/spine.003/spine.004/spine.005/spine.006/spine.007": {
+      "rest_quat_unity_xyzw": [
+        0.20191382,
+        1.8197169e-07,
+        -7.22023e-08,
+        0.9794033
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 38.88383084131987,
+      "idle_minus_walk0_deg": 4.27453279315372
+    },
+    "Deer_001_rig/Root/spine.003/spine.004/spine.005/spine.006/spine.007/spine.008": {
+      "rest_quat_unity_xyzw": [
+        -0.1880561,
+        -1.6124083e-10,
+        4.399283e-08,
+        0.9821583
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 0.0,
+      "idle_minus_walk0_deg": 4.274486275665812
+    },
+    "Deer_001_rig/Root/spine.003/spine.004/spine.005/spine.006/spine.007/spine.008/scull": {
+      "rest_quat_unity_xyzw": [
+        -0.487567,
+        -8.960389e-10,
+        1.1464005e-07,
+        0.8730856
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 0.0,
+      "idle_minus_walk0_deg": 14.161573270481755
+    },
+    "Deer_001_rig/Root/spine.003/spine.004/spine.005/spine.006/spine.007/spine.008/scull/ear.L": {
+      "rest_quat_unity_xyzw": [
+        0.80443966,
+        0.3209897,
+        -0.18438469,
+        0.46459094
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 0.0,
+      "idle_minus_walk0_deg": 0.0
+    },
+    "Deer_001_rig/Root/spine.003/spine.004/spine.005/spine.006/spine.007/spine.008/scull/ear.R": {
+      "rest_quat_unity_xyzw": [
+        0.8044397,
+        -0.32098928,
+        0.18438448,
+        0.46459115
+      ],
+      "source": "idle[0]",
+      "idle_amplitude_deg": 0.0452791257368618,
+      "idle_minus_walk0_deg": 0.04364547600096356
+    }
+  }
+}

@@ -1,0 +1,74 @@
+---
+description: Shared observation/action tensor layouts — the contract between Isaac Lab and Unity.
+globs: shared/**
+alwaysApply: false
+---
+
+# Shared State/Action Schemas
+
+These schemas define the EXACT tensor layout shared between Isaac Lab (Python) and Unity (C#).
+Any change here MUST be mirrored in both codebases.
+
+## Observation Tensor Layout
+
+Total dim depends on phase. Locomotion phase = 148D. Ecosystem phase = 159D.
+
+```
+Index Range  | Name                  | Dim | Description
+-------------|----------------------|-----|------------------------------------
+[0:12]       | joint_positions       | 12  | Relative joint angles (rad)
+[12:24]      | joint_velocities      | 12  | Joint angular velocities (rad/s)
+[24:28]      | body_orientation      |  4  | Body quaternion (w, x, y, z)
+[28:31]      | body_angular_velocity |  3  | Body angular velocity (rad/s)
+[31:34]      | gravity_projection    |  3  | Gravity vector in body frame
+[34:37]      | velocity_command      |  3  | Target (vx, vy, yaw_rate)
+[37:39]      | body_linear_velocity  |  2  | Current vx, vy in body frame
+[39:48]      | last_action           |  9  | Previous action (for smoothness)
+[48:148]     | height_scan           | 100 | Raycast height samples around body
+[148:159]    | context_tokens        | 11  | World Director multi-hot vector
+```
+
+## Action Tensor Layout
+
+```
+Index Range | Name                 | Dim | Description
+------------|---------------------|-----|-------------------------------------
+[0:12]      | joint_pos_targets    | 12  | Target joint positions for PD ctrl
+```
+
+Joint ordering (per leg: hip_yaw, hip_pitch, knee):
+- [0:3] = front-left leg
+- [3:6] = front-right leg
+- [6:9] = rear-left leg
+- [9:12] = rear-right leg
+
+## Context Token Vector (index 148-158)
+
+```
+Index | Token
+------|------------------
+  0   | CLEAR_SKY
+  1   | LIGHT_RAIN
+  2   | HEAVY_RAIN
+  3   | THUNDERSTORM
+  4   | METEOR_INCOMING
+  5   | METEOR_IMPACT
+  6   | NIGHT
+  7   | DAWN
+  8   | DUSK
+  9   | DROUGHT
+ 10   | WILDFIRE
+```
+
+Multi-hot encoding: multiple tokens can be active (e.g., NIGHT + HEAVY_RAIN).
+
+## Cross-Language Contract
+
+Python source of truth: `shared/schemas.py`
+JSON export for Unity: `shared/schemas.json` (auto-generated from Python)
+
+When adding new observation terms:
+1. Update `shared/schemas.py` (add field, update total dim)
+2. Run `python shared/schemas.py --export` to regenerate JSON
+3. Update Unity C# `AgentBrain.cs` constants to match new dims
+4. Re-export ONNX models with new input dimension

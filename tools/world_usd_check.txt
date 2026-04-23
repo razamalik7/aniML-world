@@ -1,0 +1,73 @@
+defaultPrim: /deer
+
+=== All prims depth<=2 with xformOps ===
+  /deer [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/pelvis [Xform]
+    xformOp:translate = (0, 0, 0)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/HL_thigh [Xform]
+    xformOp:translate = (0.12700800597667694, 0.18975499272346497, 0.1879339963197708)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/joints [Scope]
+  /deer/HL_shin [Xform]
+    xformOp:translate = (0.12700700759887695, 0.422664999961853, -0.05053700506687164)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/HL_foot [Xform]
+    xformOp:translate = (0.13538600504398346, 0.5967980027198792, 0.16240300238132477)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/HR_thigh [Xform]
+    xformOp:translate = (-0.12700800597667694, 0.18975499272346497, 0.1879359930753708)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/HR_shin [Xform]
+    xformOp:translate = (-0.1270110011100769, 0.42266297340393066, -0.05053700506687164)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/HR_foot [Xform]
+    xformOp:translate = (-0.1353899985551834, 0.5967959761619568, 0.16240400075912476)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/chest [Xform]
+    xformOp:translate = (-9.999999974752427e-7, 0.011858000420033932, -0.1771859973669052)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/FL_thigh [Xform]
+    xformOp:translate = (0.1219329982995987, 0.2272060066461563, -0.6489130258560181)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/FL_shin [Xform]
+    xformOp:translate = (0.12172999978065491, 0.37340599298477173, -0.47314101457595825)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/FL_foot [Xform]
+    xformOp:translate = (0.12161900103092194, 0.6335569620132446, -0.5929059982299805)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/FR_thigh [Xform]
+    xformOp:translate = (-0.12205100059509277, 0.22709700465202332, -0.6491420269012451)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/FR_shin [Xform]
+    xformOp:translate = (-0.12190200388431549, 0.3734380006790161, -0.4734880328178406)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/FR_foot [Xform]
+    xformOp:translate = (-0.11851300299167633, 0.6386439800262451, -0.5815430283546448)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/neck [Xform]
+    xformOp:translate = (0.000007000000096013537, 0.016346000134944916, -0.6037529706954956)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/skull [Xform]
+    xformOp:translate = (0.00001700000029813964, -0.36128997802734375, -0.9438889622688293)
+    xformOp:orient = (1, 0, 0, 0)
+    xformOp:scale = (1, 1, 1)
+  /deer/Looks [Scope]

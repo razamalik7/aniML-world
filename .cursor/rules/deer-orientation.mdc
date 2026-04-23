@@ -1,0 +1,43 @@
+---
+description: Critical orientation rules for the deer USD model in Isaac Lab
+globs: training/**/*.py, tools/**/*.py
+alwaysApply: true
+---
+
+# Deer USD Orientation — DO NOT CHANGE
+
+## Working Configuration (deer_world.usd)
+
+The deer URDF is exported in Blender's Y-up coordinate space (lying flat).
+Isaac Lab uses Z-up. The ONLY configuration that works:
+
+1. **USD file**: `deer_world.usd` — has identity root transform (no baked rotation)
+2. **Spawn rotation**: `init_state.rot = (0.7071068, -0.7071068, 0, 0)` which is Rx(-90°)
+   - This is set in `training/envs/deer_usd_articulation.py` as `_DEFAULT_ROT`
+   - Applied at EVERY episode reset by Isaac Lab
+3. **Spawn Z**: `0.93` — places pelvis so feet (0.638m below after rotation) land at ground
+4. **`reset_base` event**: ALL pose and velocity ranges must be `(0.0, 0.0)` — any nonzero
+   roll/pitch/yaw gets composed with Rx(-90) and produces sideways/upside-down spawns
+
+## Why This Matters
+
+- Baking Rx(-90) INTO the USD root prim causes double-rotation on episode reset
+- Using identity rotation in init_state leaves the deer lying flat
+- Using deer_zup.usd (pre-rotated geometry) broke visual meshes
+- The ONLY working approach is: identity USD root + Rx(-90) in init_state + zero reset_base ranges
+
+## When Regenerating USD from URDF
+
+If you run `convert_urdf.py` on a modified URDF, the importer may bake its own rotation
+into the USD root. You MUST either:
+- Strip the baked rotation using `tools/fix_deer_world_usd.py` (sets root orient to identity)
+- OR verify the root prim has identity orientation before using it
+
+## Height Constants (for deer_world.urdf with spawn Z=0.93)
+
+- Pelvis world height when standing: ~0.93m
+- Front foot (lowest): 0.638m below pelvis → Z ≈ 0.29m above ground
+- Hind foot: 0.597m below pelvis → Z ≈ 0.33m above ground
+- `base_height_l2` target: 0.92m (standing) or 0.85m (walking)
+- `leg_extension` target_gap: 0.89m (standing)
+- `pelvis_too_low` min_height: 0.25m (walking termination)

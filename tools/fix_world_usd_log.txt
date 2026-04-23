@@ -1,0 +1,7 @@
+deer_world.usd root orient set to IDENTITY (1,0,0,0)
+Isaac Lab will apply Rx(-90) via init_state.rot at every episode reset
+Rx(-90) quaternion: w=0.7071068, x=-0.7071068, y=0, z=0
+
+HR_foot USD translate: (-0.1354, 0.5968, 0.1624)
+After Rx(-90): foot goes to Z = -0.5968 = -0.5968 below pelvis
+SPAWN_Z = 0.6268

@@ -1,0 +1,57 @@
+Config attrs:
+  collision_from_visuals = False
+  convex_decomp = False
+  create_physics_scene = False
+  default_drive_strength = 1000.0
+  default_drive_type = UrdfJointTargetType.JOINT_DRIVE_POSITION
+  default_position_drive_damping = 100.0
+  density = 0.0
+  distance_scale = 1.0
+  fix_base = True
+  import_inertia_tensor = True
+  make_default_prim = False
+  merge_fixed_joints = True
+  override_joint_dynamics = False
+  parse_mimic = True
+  replace_cylinders_with_capsules = False
+  self_collision = False
+  set_collision_from_visuals = <bound method PyCapsule.set_collision_from_visuals of <isaacsim.asset.importer.urdf._urdf.ImportConfig object at 0x000001DF9BE2E330>>
+  set_convex_decomp = <bound method PyCapsule.set_convex_decomp of <isaacsim.asset.importer.urdf._urdf.ImportConfig object at 0x000001DF9BE2E330>>
+  set_create_physics_scene = <bound method PyCapsule.set_create_physics_scene of <isaacsim.asset.importer.urdf._urdf.ImportConfig object at 0x000001DF9BE2E330>>
+  set_default_drive_strength = <bound method PyCapsule.set_default_drive_strength of <isaacsim.asset.importer.urdf._urdf.ImportConfig object at 0x000001DF9BE2E330>>
+  set_default_drive_type = <bound method PyCapsule.set_default_drive_type of <isaacsim.asset.importer.urdf._urdf.ImportConfig object at 0x000001DF9BE2E330>>
+  set_default_position_drive_damping = <bound method PyCapsule.set_default_position_drive_damping of <isaacsim.asset.importer.urdf._urdf.ImportConfig object at 0x000001DF9BE2E330>>
+  set_density = <bound method PyCapsule.set_density of <isaacsim.asset.importer.urdf._urdf.ImportConfig object at 0x000001DF9BE2E330>>
+  set_distance_scale = <bound method PyCapsule.set_distance_scale of <isaacsim.asset.importer.urdf._urdf.ImportConfig object at 0x000001DF9BE2E330>>
+  set_fix_base = <bound method PyCapsule.set_fix_base of <isaacsim.asset.importer.urdf._urdf.ImportConfig object at 0x000001DF9BE2E330>>
+  set_import_inertia_tensor = <bound method PyCapsule.set_import_inertia_tensor of <isaacsim.asset.importer.urdf._urdf.ImportConfig object at 0x000001DF9BE2E330>>
+  set_make_default_prim = <bound method PyCapsule.set_make_default_prim of <isaacsim.asset.importer.urdf._urdf.ImportConfig object at 0x000001DF9BE2E330>>
+  set_merge_fixed_joints = <bound method PyCapsule.set_merge_fixed_joints of <isaacsim.asset.importer.urdf._urdf.ImportConfig object at 0x000001DF9BE2E330>>
+  set_override_joint_dynamics = <bound method PyCapsule.set_override_joint_dynamics of <isaacsim.asset.importer.urdf._urdf.ImportConfig object at 0x000001DF9BE2E330>>
+  set_parse_mimic = <bound method PyCapsule.set_parse_mimic of <isaacsim.asset.importer.urdf._urdf.ImportConfig object at 0x000001DF9BE2E330>>
+  set_replace_cylinders_with_capsules = <bound method PyCapsule.set_replace_cylinders_with_capsules of <isaacsim.asset.importer.urdf._urdf.ImportConfig object at 0x000001DF9BE2E330>>
+  set_self_collision = <bound method PyCapsule.set_self_collision of <isaacsim.asset.importer.urdf._urdf.ImportConfig object at 0x000001DF9BE2E330>>
+  set_subdivision_scheme = <bound method PyCapsule.set_subdivision_scheme of <isaacsim.asset.importer.urdf._urdf.ImportConfig object at 0x000001DF9BE2E330>>
+  set_up_vector = <bound method PyCapsule.set_up_vector of <isaacsim.asset.importer.urdf._urdf.ImportConfig object at 0x000001DF9BE2E330>>
+  up_vector = <isaacsim.asset.importer.urdf._urdf.UrdfAxis object at 0x000001DF9BE2DD70>
+Set defaultPrim to /deer and saved.
+
+=== Physics APIs ===
+  /deer/pelvis: RigidBody, ArticulationRoot
+  /deer/HL_thigh: RigidBody
+  /deer/HL_shin: RigidBody
+  /deer/HL_foot: RigidBody
+  /deer/HR_thigh: RigidBody
+  /deer/HR_shin: RigidBody
+  /deer/HR_foot: RigidBody
+  /deer/chest: RigidBody
+  /deer/FL_thigh: RigidBody
+  /deer/FL_shin: RigidBody
+  /deer/FL_foot: RigidBody
+  /deer/FR_thigh: RigidBody
+  /deer/FR_shin: RigidBody
+  /deer/FR_foot: RigidBody
+  /deer/neck: RigidBody
+  /deer/skull: RigidBody
+
+Total rigid bodies: 16

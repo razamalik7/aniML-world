@@ -1,0 +1,6 @@
+Root layer: C:/Users/nars7/Downloads/aniML_world/deer_standing_robot.usd
+Sublayers:
+
+--- All Mesh prims ---
+
+Total Mesh prims: 0

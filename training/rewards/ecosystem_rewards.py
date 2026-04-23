@@ -1,0 +1,7 @@
+"""Ecosystem reward weights (Phase 2) — ARCHITECTURE.md §4."""
+
+SURVIVAL_BONUS = 0.1
+FORAGE = 2.0
+FLEE_PREDATOR = 3.0
+CATCH_PREY = 5.0
+PACK_PROXIMITY = 0.5

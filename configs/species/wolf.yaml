@@ -1,0 +1,41 @@
+species:
+  name: wolf
+  type: predator
+
+morphology:
+  num_legs: 4
+  joints_per_leg: 3
+  total_joints: 12
+  body_mass_kg: 35.0
+  body_length_m: 1.2
+
+observations:
+  joint_pos_dim: 12
+  joint_vel_dim: 12
+  body_orientation_dim: 4
+  body_angular_vel_dim: 3
+  gravity_projection_dim: 3
+  velocity_command_dim: 3
+  height_scan_points: 100
+  context_token_dim: 11
+  total_obs_dim: 148
+
+actions:
+  type: joint_position_targets
+  dim: 12
+  scale: 1.0
+
+rewards:
+  velocity_tracking_weight: 1.0
+  energy_penalty_weight: -0.001
+  feet_air_time_weight: 0.5
+  body_height_weight: -0.5
+  orientation_penalty_weight: -1.0
+  survival_bonus: 0.1
+  flee_predator_weight: 0.0
+  forage_weight: 0.0
+
+domain_randomization:
+  friction_range: [0.5, 1.5]
+  mass_variation_pct: 15
+  motor_strength_variation_pct: 10
