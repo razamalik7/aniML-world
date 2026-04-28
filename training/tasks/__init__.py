@@ -282,3 +282,17 @@ gym.register(
         "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_WALK_RUN_IDLE_CFG",
     },
 )
+
+# Run 23: narrow command range (0.5-1.2 m/s walk speeds only) + 3-clip
+# dataset. Fixes r21/r22's velocity-tracking regression while keeping the
+# multi-clip body-motion benefit. Discriminator's run-clip pose info still
+# influences the manifold even though command is walk-only.
+gym.register(
+    id="AniML-Deer-USD-Walk-AMP-v17",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_amp_env_cfg:DeerUsdWalkAMPEnvCfgV13",
+        "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_WRI_NARROW_CFG",
+    },
+)

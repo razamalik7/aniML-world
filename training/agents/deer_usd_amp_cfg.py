@@ -413,6 +413,15 @@ DEER_USD_AMP_WALK_RUN_IDLE_CFG["dataset"] = {
 }
 
 
+# r23: same 3-clip dataset but narrower command range (V13 env, 0.5-1.2 m/s).
+# Separate experiment_name so logs don't collide with r22's animl_deer_amp_walk_run_idle.
+DEER_USD_AMP_WRI_NARROW_CFG: dict[str, Any] = {
+    **DEER_USD_AMP_WALK_RUN_IDLE_CFG,
+    "experiment_name": "animl_deer_amp_wri_narrow",
+    "seed": 50,
+}
+
+
 try:
     from isaaclab.utils import configclass
 

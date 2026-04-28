@@ -574,6 +574,36 @@ class DeerUsdWalkAMPEnvCfgV12(DeerUsdWalkAMPEnvCfg):
 
 
 @configclass
+class DeerUsdWalkAMPEnvCfgV13(DeerUsdWalkAMPEnvCfg):
+    """Run 23: narrow command range (walk speeds only) + multi-clip dataset.
+
+    r21/r22 showed: multi-clip dataset gave best-ever style metrics but
+    velocity tracking regressed (lin_vel_R 0.33 -> 0.11). The V12 wide
+    command range (0.3-2.5 m/s) made it impossible for one policy to
+    actually track the command — it settled at a self-consistent gait the
+    discriminator approved of, regardless of commanded speed.
+
+    V13 keeps the multi-clip discriminator (which gets to see walk + run
+    body-motion shapes) but constrains the command to walk speeds only
+    (0.5-1.2 m/s). Hypothesis: the policy can match command at walk speed
+    AND benefit from the run clip's richer body-motion signal in the
+    discriminator manifold (the discriminator scores body shape, not
+    speed; a slow walker that uses spine/legs like a runner still scores
+    well).
+    """
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        # V11's L2 zeroing
+        self.rewards.dof_torques_l2.weight = 0.0
+        self.rewards.dof_acc_l2.weight = 0.0
+        # Walk-speed command range, lets task reward pull velocity to match
+        self.commands.base_velocity.ranges.lin_vel_x = (0.5, 1.2)
+        self.commands.base_velocity.ranges.lin_vel_y = (-0.2, 0.2)
+        self.commands.base_velocity.ranges.ang_vel_z = (-0.5, 0.5)
+
+
+@configclass
 class DeerUsdWalkAMPEnvCfgV11(DeerUsdWalkAMPEnvCfg):
     """Run 19: kill the tiny-weight L2 smoothness penalties that overflow
     when widened URDF limits + occasional PhysX numeric spikes feed huge
