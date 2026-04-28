@@ -367,6 +367,52 @@ DEER_USD_AMP_WALK_CFG_V12["algorithm"] = {
 }
 
 
+# ---------------------------------------------------------------------------
+# r21+ multi-clip configs: walk + run motion library so the AMP discriminator
+# sees richer body motion (esp. through the spine/neck/head joints, which the
+# walk clip alone barely animates: pelvis_to_chest amplitude ~2.4° in walk vs
+# ~11° in run/idle). Used with V11 env (zeroed L2) + the widened URDF/USD.
+# ---------------------------------------------------------------------------
+
+DEER_USD_AMP_WALK_RUN_CFG: dict[str, Any] = {
+    **DEER_USD_AMP_WALK_CFG,
+    "experiment_name": "animl_deer_amp_walk_run",
+    "max_iterations": 3000,
+    "seed": 48,
+}
+DEER_USD_AMP_WALK_RUN_CFG["dataset"] = {
+    **DEER_USD_AMP_WALK_CFG["dataset"],
+    # Equal-weight mixture. Walk clip is 31 frames, run is 25; weight=1.0
+    # each gives roughly equal sampling. Names are filename stems (without
+    # .npy) and must match files under amp_data_path.
+    "datasets": {
+        "deer_walk": 1.0,
+        "deer_run":  1.0,
+    },
+}
+
+
+# Run + walk + idle three-clip mix. Idle has 331 frames (the longest by far)
+# and lots of subtle weight-shift / breathing motion that should pull the
+# policy toward natural rest-state postures even when the velocity command
+# is low. Reserve for r22 onward once we know walk+run plays well.
+DEER_USD_AMP_WALK_RUN_IDLE_CFG: dict[str, Any] = {
+    **DEER_USD_AMP_WALK_CFG,
+    "experiment_name": "animl_deer_amp_walk_run_idle",
+    "max_iterations": 3000,
+    "seed": 49,
+}
+DEER_USD_AMP_WALK_RUN_IDLE_CFG["dataset"] = {
+    **DEER_USD_AMP_WALK_CFG["dataset"],
+    "datasets": {
+        "deer_walk": 1.0,
+        "deer_run":  1.0,
+        "deer_idle": 0.5,   # less weight: idle is 10x longer, don't drown
+                            #              the active gait clips
+    },
+}
+
+
 try:
     from isaaclab.utils import configclass
 

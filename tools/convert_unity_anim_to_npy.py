@@ -122,7 +122,7 @@ URDF_JOINTS: list[str] = [
 # 71% of front-fetlock frames clamped on deer_walk.npy — flat-footing the
 # AMP reference. Widening unlocks a real walk/run shape.
 URDF_LIMITS: dict[str, tuple[float, float]] = {
-    "pelvis_to_chest":      (-0.2, 0.2),
+    "pelvis_to_chest":      (-0.5, 0.5),
     "pelvis_to_HR_thigh":   (-1.4, 1.4),
     "pelvis_to_HL_thigh":   (-1.4, 1.4),
     "chest_to_FR_thigh":    (-1.4, 1.4),
@@ -135,8 +135,13 @@ URDF_LIMITS: dict[str, tuple[float, float]] = {
     "FR_shin_to_FR_foot":   (-1.2, 1.2),
     "FL_thigh_to_FL_shin":  (0.0, 2.2),
     "FL_shin_to_FL_foot":   (-1.2, 1.2),
-    "chest_to_neck":        (-0.3, 0.5),
-    "neck_to_skull":        (-0.4, 0.6),
+    # Torso widened r20 (2026-04-28): originally ±11.5° / -17/+29° / -23/+34°.
+    # Reference clips clamped on torso joints (idle: pelvis_to_chest 68/331,
+    # chest_to_neck regularly hit limit). Real deer flex spine ~30°+ during
+    # gait. Widening to give the discriminator unclamped torso reference so
+    # it can pull policy toward whole-body motion, not just leg swing.
+    "chest_to_neck":        (-0.6, 0.8),
+    "neck_to_skull":        (-0.8, 0.8),
 }
 
 # URDF joint -> list of Unity bone paths (in parent->child composition order).

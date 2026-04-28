@@ -100,7 +100,7 @@
     <parent link="pelvis" /><child link="chest" />
     <origin xyz="-0.000001 0.011858 -0.177186" rpy="0 0 0" />
     <axis xyz="1 0 0" />
-    <limit lower="-0.2" upper="0.2" effort="120.0" velocity="8.0" />
+    <limit lower="-0.5" upper="0.5" effort="120.0" velocity="8.0" />
   </joint>
   <joint name="pelvis_to_HR_thigh" type="revolute">
     <parent link="pelvis" /><child link="HR_thigh" />
@@ -118,7 +118,7 @@
     <parent link="chest" /><child link="neck" />
     <origin xyz="0.000008 0.004488 -0.426567" rpy="0 0 0" />
     <axis xyz="1 0 0" />
-    <limit lower="-0.3" upper="0.5" effort="50.0" velocity="8.0" />
+    <limit lower="-0.6" upper="0.8" effort="50.0" velocity="8.0" />
   </joint>
   <joint name="chest_to_FR_thigh" type="revolute">
     <parent link="chest" /><child link="FR_thigh" />
@@ -136,7 +136,7 @@
     <parent link="neck" /><child link="skull" />
     <origin xyz="0.000010 -0.377636 -0.340136" rpy="0 0 0" />
     <axis xyz="1 0 0" />
-    <limit lower="-0.4" upper="0.6" effort="30.0" velocity="8.0" />
+    <limit lower="-0.8" upper="0.8" effort="30.0" velocity="8.0" />
   </joint>
   <joint name="HR_thigh_to_HR_shin" type="revolute">
     <parent link="HR_thigh" /><child link="HR_shin" />

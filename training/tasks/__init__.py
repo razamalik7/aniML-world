@@ -257,3 +257,28 @@ gym.register(
         "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_WALK_CFG",
     },
 )
+
+# Run 21: multi-clip walk + run motion library, V12 env with wider velocity
+# command range (0.3-2.5 m/s) so policy is asked to span both gait speeds.
+gym.register(
+    id="AniML-Deer-USD-Walk-AMP-v15",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_amp_env_cfg:DeerUsdWalkAMPEnvCfgV12",
+        "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_WALK_RUN_CFG",
+    },
+)
+
+# Run 22: walk + run + idle three-clip library. Idle adds rest-state /
+# breathing pose diversity; weight reduced to 0.5 so its 331-frame length
+# doesn't drown the 31/25-frame active-gait clips.
+gym.register(
+    id="AniML-Deer-USD-Walk-AMP-v16",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_amp_env_cfg:DeerUsdWalkAMPEnvCfgV12",
+        "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_WALK_RUN_IDLE_CFG",
+    },
+)

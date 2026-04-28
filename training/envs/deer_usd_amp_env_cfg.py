@@ -550,6 +550,30 @@ class DeerUsdWalkAMPEnvCfg(DeerUsdWalkEnvCfg):
 
 
 @configclass
+class DeerUsdWalkAMPEnvCfgV12(DeerUsdWalkAMPEnvCfg):
+    """Run 21+: multi-clip motion library (walk + run, optionally + idle).
+
+    Inherits V11's reward shape (zeroed L2 smoothness), then widens the
+    velocity command range so the policy is asked to span both gait speeds
+    in the dataset (walk = 0.8 m/s, run = 2.5 m/s).
+
+    Designed to be paired with DEER_USD_AMP_WALK_RUN_CFG or
+    DEER_USD_AMP_WALK_RUN_IDLE_CFG agent dicts (which add the run/idle
+    .npy files to the AMP discriminator's dataset).
+    """
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        # V11's L2 zeroing
+        self.rewards.dof_torques_l2.weight = 0.0
+        self.rewards.dof_acc_l2.weight = 0.0
+        # Span walk (0.8 m/s) AND run (2.5 m/s) gait speeds
+        self.commands.base_velocity.ranges.lin_vel_x = (0.3, 2.5)
+        self.commands.base_velocity.ranges.lin_vel_y = (-0.3, 0.3)
+        self.commands.base_velocity.ranges.ang_vel_z = (-0.7, 0.7)
+
+
+@configclass
 class DeerUsdWalkAMPEnvCfgV11(DeerUsdWalkAMPEnvCfg):
     """Run 19: kill the tiny-weight L2 smoothness penalties that overflow
     when widened URDF limits + occasional PhysX numeric spikes feed huge
