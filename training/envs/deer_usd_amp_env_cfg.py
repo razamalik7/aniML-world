@@ -547,3 +547,59 @@ class DeerUsdWalkAMPEnvCfg(DeerUsdWalkEnvCfg):
         # 0% standing envs -- AMP should not see "stand still" as matching
         # the walk motion. Re-enable later with a separate idle clip.
         self.commands.base_velocity.rel_standing_envs = 0.0
+
+
+@configclass
+class DeerUsdWalkAMPEnvCfgV11(DeerUsdWalkAMPEnvCfg):
+    """Run 19: kill the tiny-weight L2 smoothness penalties that overflow
+    when widened URDF limits + occasional PhysX numeric spikes feed huge
+    joint accelerations into them.
+
+    Pattern from r18: with the wider joint range, transient joint vel spikes
+    near limit edges produce dof_acc values around 1e10. Multiplied by the
+    -2.5e-8 weight, the per-step reward becomes -1e2 = OK. But when MULTIPLE
+    spikes happen in one batch, their squared L2 sum overflows fp32 and
+    cascades to -inf gradient -> std<0 -> torch crash.
+
+    These terms were never load-bearing (weights were tiny by design). Only
+    action_rate_l2 actually constrains policy behavior; keep that at the v0
+    value to prevent noise_std drift (the r16 lesson).
+
+    Deltas vs. base v0:
+      - dof_torques_l2 weight: -1e-5 -> 0.0
+      - dof_acc_l2 weight    : -2.5e-8 -> 0.0
+      - action_rate_l2 weight: unchanged (-0.01)
+    """
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.rewards.dof_torques_l2.weight = 0.0
+        self.rewards.dof_acc_l2.weight = 0.0
+        # action_rate_l2 stays at -0.01 (inherited from base v0)
+
+
+@configclass
+class DeerUsdWalkAMPEnvCfgV10(DeerUsdWalkAMPEnvCfg):
+    """Run 16: loosen the smoothness penalties so the policy can produce a
+    real walk instead of a shuffle.
+
+    Diagnosis from r15 visual playback: deer walks but with a stiff-legged
+    shuffle. Reward breakdown showed Episode_Reward/action_rate_l2 = -0.94
+    and dof_torques_l2 = -0.64 — those penalties were collectively bigger
+    than the +0.39 AMP style reward, so the policy learned to minimize
+    action changes rather than produce big leg swings (which require fast
+    target changes during swing phase).
+
+    Deltas vs. base v0:
+      - action_rate_l2 weight: -0.01 -> -0.001 (10x lower)
+      - dof_torques_l2 weight: -1e-5 -> -3e-6 (~3x lower)
+      - dof_acc_l2 weight: unchanged (already negligible)
+    Everything else (rewards, velocity range, RSI off, etc.) inherits from
+    base v0.
+    """
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.rewards.action_rate_l2.weight = -0.001
+        self.rewards.dof_torques_l2.weight = -3.0e-6
+        # dof_acc_l2 stays at -2.5e-8 (inherited from base)

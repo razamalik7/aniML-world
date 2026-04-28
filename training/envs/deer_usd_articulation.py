@@ -118,14 +118,29 @@ def deer_articulation_cfg(usd_path: str) -> ArticulationCfg:
                 retain_accelerations=False,
                 linear_damping=0.05,
                 angular_damping=0.05,
-                max_linear_velocity=1000.0,
-                max_angular_velocity=1000.0,
+                # Tightened from 1000.0 / 1000.0. Stock Isaac Lab quadruped
+                # configs use these huge caps for robustness, but on the
+                # deer URDF with self_collisions=True they let PhysX produce
+                # NaN-sized velocities during depenetration of overlapping
+                # mesh fragments, which propagates to "Failed to get DOF
+                # velocities from backend" exceptions and corrupts the
+                # cooked GPU articulation state on disk between runs.
+                # 50 m/s and 20 rad/s are generous above realistic deer motion
+                # (sprint ~15 m/s, head shake ~10 rad/s). Tightened from 30 ->
+                # 20 rad/s for r18 after r17 crashed at iter 735 with widened
+                # joint limits — wider hip/fetlock range gave the policy more
+                # opportunities to drive joint vel into NaN territory.
+                max_linear_velocity=50.0,
+                max_angular_velocity=20.0,
                 max_depenetration_velocity=1.0,
             ),
             articulation_props=sim_utils.ArticulationRootPropertiesCfg(
                 enabled_self_collisions=True,
-                solver_position_iteration_count=8,
-                solver_velocity_iteration_count=0,
+                # Bumped from 8/0 to 16/2 for r18. Widened joint limits push
+                # PhysX harder; more solver iterations = better numerical
+                # stability at limit edges, at ~10-15% throughput cost.
+                solver_position_iteration_count=16,
+                solver_velocity_iteration_count=2,
             ),
         ),
         init_state=ArticulationCfg.InitialStateCfg(

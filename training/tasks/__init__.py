@@ -230,3 +230,30 @@ gym.register(
         "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_WALK_CFG_V12",
     },
 )
+
+# Run 16: shuffle->walk fix. Inherits base v0 env (clean reward set, lean
+# config that gave us the breakthrough in r15) but reduces action_rate_l2 +
+# dof_torques_l2 weights so the policy can swing legs through the action
+# space instead of minimizing change. Reuses v0 agent cfg (init_noise_std=1.0).
+gym.register(
+    id="AniML-Deer-USD-Walk-AMP-v13",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_amp_env_cfg:DeerUsdWalkAMPEnvCfgV10",
+        "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_WALK_CFG",
+    },
+)
+
+# Run 19: zero out the tiny-weight L2 smoothness penalties (dof_acc_l2,
+# dof_torques_l2) that overflow when widened URDF limits push joint state
+# through occasional PhysX numeric spikes. Used with widened URDF/USD/.npy.
+gym.register(
+    id="AniML-Deer-USD-Walk-AMP-v14",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_amp_env_cfg:DeerUsdWalkAMPEnvCfgV11",
+        "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_WALK_CFG",
+    },
+)

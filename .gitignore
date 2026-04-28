@@ -6,6 +6,16 @@
 # corresponds to which run.
 logs/
 
+# ---------------------------------------------------------------------------
+# Pre-fix local safety backups (regenerable from git history if needed)
+# ---------------------------------------------------------------------------
+*.preaxisfix.bak.npy
+*.prelimits.bak
+*.prelimits.bak.npy
+configuration.prelimits.bak/
+deer_world_v2.usd
+configuration/deer_world_v2_*.usd
+
 # Isaac Lab writes transient outputs here (play videos, eval dumps).
 outputs/
 /outputs_*

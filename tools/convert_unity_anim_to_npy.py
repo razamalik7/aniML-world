@@ -27,8 +27,14 @@ Pipeline:
      requires clamping on more than 5 % of frames.
   5. Finite-difference joint positions -> velocities.
   6. Synthesize root_position as linear forward motion at FORWARD_SPEED along
-     Isaac +X (the clip is in-place). Root orientation stays identity in
-     Isaac frame (deer faces +X).
+     world -Y (the clip is in-place). The deer URDF was authored with body -Z
+     = anatomical forward, and the Rx(-90°) spawn rotation maps body -Z to
+     world -Y; so a deer walking forward in Isaac travels toward world -Y.
+     Root orientation is the constant Rx(-90°) spawn rotation. AMPLoader
+     computes base-frame velocities as R.T @ v_world, which for v_world =
+     (0, -FORWARD_SPEED, 0) and R = Rx(-90°) produces v_body = (0, 0,
+     -FORWARD_SPEED) — i.e. forward along body -Z, exactly what the running
+     policy's base_lin_vel_b reports when the deer walks correctly.
 
 Run:  python tools/convert_unity_anim_to_npy.py
 """
@@ -50,17 +56,30 @@ import numpy as np
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-ANIM_PATH = Path(
-    r"C:\Users\nars7\Downloads\Unity Projects\aniML-world"
-    r"\Assets\ithappy\Animals_FREE\Animations\Other_Animations\Deer_001_walk.anim"
-)
-# We use idle.anim frame 0 as the "rest" pose for delta extraction. idle
-# better approximates the URDF's default standing pose than walk frame 0
-# (which is a mid-swing leg pose). See Phase 0a probe notes.
-REST_ANIM_PATH = Path(
-    r"C:\Users\nars7\Downloads\Unity Projects\aniML-world"
-    r"\Assets\ithappy\Animals_FREE\Animations\Other_Animations\Deer_001_idle.anim"
-)
+
+def _find_anim_source_dir() -> Path:
+    """Locate aniML-anim-source folder. Walks up from REPO_ROOT looking for it,
+    so this works whether we run from the main project or a worktree.
+    Falls back to the legacy Unity project path on the original machine."""
+    cur = REPO_ROOT
+    for _ in range(6):
+        cand = cur / "aniML-anim-source"
+        if cand.is_dir():
+            return cand
+        cand2 = cur.parent / "aniML-anim-source"
+        if cand2.is_dir():
+            return cand2
+        cur = cur.parent
+    legacy = Path(
+        r"C:\Users\nars7\Downloads\Unity Projects\aniML-world"
+        r"\Assets\ithappy\Animals_FREE\Animations\Other_Animations"
+    )
+    return legacy
+
+
+ANIM_SOURCE_DIR = _find_anim_source_dir()
+ANIM_PATH = ANIM_SOURCE_DIR / "Deer_001_walk.anim"
+REST_ANIM_PATH = ANIM_SOURCE_DIR / "Deer_001_idle.anim"
 OUT_PATH = REPO_ROOT / "assets" / "motions" / "deer_walk.npy"
 OUT_REPORT = REPO_ROOT / "assets" / "motions" / "deer_walk_conversion_report.md"
 
@@ -91,21 +110,31 @@ URDF_JOINTS: list[str] = [
     "neck_to_skull",
 ]
 
-# URDF joint limits (radians). Taken from deer_world.urdf.
+# URDF joint limits (radians). MUST stay in sync with assets/deer_urdf/deer_world.urdf.
+# Widened on 2026-04-27 from the original tighter set:
+#   fetlock (shin_to_foot): ±0.50 -> ±1.20 rad  (28.6° -> 68.8°)
+#   hip (pelvis_to_thigh) : ±0.80 -> ±1.40 rad  (45.8° -> 80.2°)
+#   knee one-sided        : 1.80  -> 2.20 rad  (103° -> 126°)
+#   front shoulder        : ±0.80 -> ±1.40 rad
+# These come from configs/species/deer.json's biomechanical targets, which the
+# original URDF was supposed to match but didn't (URDF was tighter for
+# unclear reasons). Pre-widen, 11/12 leg joints clamped on deer_run.npy and
+# 71% of front-fetlock frames clamped on deer_walk.npy — flat-footing the
+# AMP reference. Widening unlocks a real walk/run shape.
 URDF_LIMITS: dict[str, tuple[float, float]] = {
     "pelvis_to_chest":      (-0.2, 0.2),
-    "pelvis_to_HR_thigh":   (-0.8, 0.8),
-    "pelvis_to_HL_thigh":   (-0.8, 0.8),
-    "chest_to_FR_thigh":    (-0.8, 0.8),
-    "chest_to_FL_thigh":    (-0.8, 0.8),
-    "HR_thigh_to_HR_shin":  (-1.8, 0.0),
-    "HR_shin_to_HR_foot":   (-0.5, 0.5),
-    "HL_thigh_to_HL_shin":  (-1.8, 0.0),
-    "HL_shin_to_HL_foot":   (-0.5, 0.5),
-    "FR_thigh_to_FR_shin":  (0.0, 1.8),
-    "FR_shin_to_FR_foot":   (-0.5, 0.5),
-    "FL_thigh_to_FL_shin":  (0.0, 1.8),
-    "FL_shin_to_FL_foot":   (-0.5, 0.5),
+    "pelvis_to_HR_thigh":   (-1.4, 1.4),
+    "pelvis_to_HL_thigh":   (-1.4, 1.4),
+    "chest_to_FR_thigh":    (-1.4, 1.4),
+    "chest_to_FL_thigh":    (-1.4, 1.4),
+    "HR_thigh_to_HR_shin":  (-2.2, 0.0),
+    "HR_shin_to_HR_foot":   (-1.2, 1.2),
+    "HL_thigh_to_HL_shin":  (-2.2, 0.0),
+    "HL_shin_to_HL_foot":   (-1.2, 1.2),
+    "FR_thigh_to_FR_shin":  (0.0, 2.2),
+    "FR_shin_to_FR_foot":   (-1.2, 1.2),
+    "FL_thigh_to_FL_shin":  (0.0, 2.2),
+    "FL_shin_to_FL_foot":   (-1.2, 1.2),
     "chest_to_neck":        (-0.3, 0.5),
     "neck_to_skull":        (-0.4, 0.6),
 }
@@ -415,19 +444,25 @@ def convert(anim_path: Path, out_path: Path, rest_anim_path: Path | None = None)
         fm = (f - 1) % (last_unique + 1)
         joint_velocities[f] = (joint_positions[fp] - joint_positions[fm]) / (2 * dt_frame)
 
-    # Synthesize root trajectory. Isaac Z-up, deer facing +X. Clip is in-place
-    # so we advance X linearly at FORWARD_SPEED.
+    # Synthesize root trajectory. Isaac Z-up. Clip is in-place so we advance
+    # along world -Y at FORWARD_SPEED (deer URDF body -Z = anatomical
+    # forward, mapped to world -Y by the Rx(-90°) spawn rotation).
+    # See bake_reset_states.py for the matching convention used by RSI.
     spawn_height = 0.93  # matches articulation cfg
     root_position = np.zeros((n_frames, 3), dtype=np.float32)
     for f in range(n_frames):
         t = f / FPS
-        root_position[f, 0] = FORWARD_SPEED * t
+        root_position[f, 1] = -FORWARD_SPEED * t
         root_position[f, 2] = spawn_height
 
-    # Root orientation: deer spawns with Rx(-90) to convert URDF Y-up to
+    # Root orientation: deer spawns with Rx(-90°) to convert URDF Y-up to
     # Isaac Z-up. Keep it constant; any Unity root rotation is baked into
     # per-bone rotations when we did q_delta relative to rest.
-    # Rx(-90) as xyzw: (-0.7071068, 0, 0, 0.7071068)
+    # Rx(-90°) as xyzw: (-0.7071068, 0, 0, 0.7071068)
+    # AMPLoader will compute base_lin_velocities_local = R.T @ v_world,
+    # which for v_world = (0, -FORWARD_SPEED, 0) and R = Rx(-90°) yields
+    # v_body = (0, 0, -FORWARD_SPEED) — i.e. forward along body -Z, the same
+    # value the running policy emits as base_lin_vel_b when walking correctly.
     root_quaternion = np.tile(
         np.array([-0.70710678, 0.0, 0.0, 0.70710678], dtype=np.float32),
         (n_frames, 1),
@@ -464,8 +499,8 @@ def convert(anim_path: Path, out_path: Path, rest_anim_path: Path | None = None)
     np.save(out_path, payload, allow_pickle=True)
     print(f"\n  Saved {out_path}")
     print(f"    joint_positions shape: {joint_positions.shape}")
-    print(f"    root_position final X: {root_position[-1, 0]:.3f} m "
-          f"(FORWARD_SPEED={FORWARD_SPEED} m/s over {duration:.3f}s)")
+    print(f"    root_position final Y: {root_position[-1, 1]:.3f} m "
+          f"(FORWARD_SPEED={FORWARD_SPEED} m/s along world -Y over {duration:.3f}s)")
 
     # Write markdown report
     lines = [
@@ -473,7 +508,8 @@ def convert(anim_path: Path, out_path: Path, rest_anim_path: Path | None = None)
         "",
         f"- Source: `{anim_path}`",
         f"- Frames: {n_frames} at {FPS} fps ({duration:.3f} s)",
-        f"- Forward speed synthesized: **{FORWARD_SPEED} m/s** along Isaac +X",
+        f"- Forward speed synthesized: **{FORWARD_SPEED} m/s** along world -Y "
+        f"(matches deer URDF body -Z = anatomical forward via Rx(-90°) spawn rotation)",
         f"- Spawn height: {spawn_height} m",
         "",
         "## Per-joint twist amplitude and clamp counts",
@@ -511,23 +547,26 @@ def convert(anim_path: Path, out_path: Path, rest_anim_path: Path | None = None)
 def convert_many() -> None:
     """Convert every known deer motion clip into .npy form.
 
-    Uses the same REST_ANIM_PATH (idle.anim[0]) as rest pose for both clips,
-    so joint angles live in the same reference frame. Run clip gets a higher
-    synthesized forward speed (larger stride, higher gait frequency)."""
+    Uses the same REST_ANIM_PATH (idle.anim[0]) as rest pose for all clips,
+    so joint angles live in the same reference frame. Speeds are synthesized
+    per-clip since the source .anim are in-place (no root translation).
+      walk:  0.8 m/s
+      run :  2.5 m/s
+      idle:  0.0 m/s (stationary)"""
     clips = [
-        (ANIM_PATH, OUT_PATH, 0.8),
-        (
-            Path(
-                r"C:\Users\nars7\Downloads\Unity Projects\aniML-world"
-                r"\Assets\ithappy\Animals_FREE\Animations\Other_Animations\Deer_001_run.anim"
-            ),
-            REPO_ROOT / "assets" / "motions" / "deer_run.npy",
-            2.5,
-        ),
+        (ANIM_SOURCE_DIR / "Deer_001_walk.anim",
+         REPO_ROOT / "assets" / "motions" / "deer_walk.npy", 0.8),
+        (ANIM_SOURCE_DIR / "Deer_001_run.anim",
+         REPO_ROOT / "assets" / "motions" / "deer_run.npy", 2.5),
+        (ANIM_SOURCE_DIR / "Deer_001_idle.anim",
+         REPO_ROOT / "assets" / "motions" / "deer_idle.npy", 0.0),
     ]
     global FORWARD_SPEED, OUT_REPORT
     base_speed, base_report = FORWARD_SPEED, OUT_REPORT
     for anim, out, speed in clips:
+        if not anim.is_file():
+            print(f"  [skip] {anim.name}: source not found at {anim}")
+            continue
         FORWARD_SPEED = speed
         OUT_REPORT = out.with_suffix("").parent / (out.stem + "_conversion_report.md")
         try:

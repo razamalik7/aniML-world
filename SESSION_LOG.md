@@ -57,29 +57,49 @@ not world +X.
 
 ## Current State (At A Glance)
 
-**As of 2026-04-21:** 14 training runs completed. Latest best run by numeric
-reward is **Run 14**, but visually the deer is still not walking properly.
+**As of 2026-04-26 (late evening):** 15 training runs completed. **Run 15
+is a major breakthrough** — first run where the AMP discriminator
+actually trained, with style_r/step ~70× higher than every prior run.
 
-**Active failure mode:** the deer has been finding geometric local optima
-that let it score high on velocity + activity rewards while never actually
-performing a gait. The pattern cycled:
+**Diagnosis of the prior 14-run saturation:** the .npy reference motion's
+`root_position` was advancing along world **+X** while the policy's
+runtime base-frame velocity faces world **−Y** post-spawn-rotation. After
+`AMPLoader`'s `R.T @ v_world` transform, the expert's `base_lin_vel_b`
+landed on body **+X** while the policy's lands on body **−Z**. That is a
+**constant 3-vector mismatch** the discriminator could drive its
+expert-vs-policy decision off without ever inspecting the gait cycle —
+explains the chronic style_r ≈ 0.002 across r1-r14. Bake_reset_states.py
+already had the right convention (world −Y); the bug was only in
+`tools/convert_unity_anim_to_npy.py:418-434`. Fix landed via
+`tools/patch_walk_npy_axis.py` + converter source update.
 
-1. Belly-sliding (r11b) — pelvis dragging on ground
-2. Low-crouch shuffle (r12) — pelvis lifted 15cm but nose-down
-3. Horizontal pelvis + bent neck (r13) — head buried in antlers
-4. Head-up but still static-prop? (r14) — under visual review
+**New machine** (this session): RTX 5080 / 16 GB VRAM / Core Ultra 9 285K,
+~2-3× the prior compute. Throughput at 8000 envs hit **147k steps/s**,
+~7× the laptop's 21k. Iter pace stable at ~42-46 iter/min.
 
-Every fix pushes the failure mode into a new geometric niche. The underlying
-problem is that our task reward (velocity tracking + activity + height)
-can be satisfied by **any** motion that moves forward, even non-locomotive
-ones. AMP's discriminator — which should shape "looks like a real walk" — has
-been **chronically saturated** at style_r ≈ 0.002/step. R14 was the first run
-where style_r briefly peaked at 0.046, hinting the disc is starting to find
-gradient as the geometry gets closer to reference.
+**New unrelated bug discovered:** Isaac Sim 5.1 has intermittent silent
+deaths on this hardware — `Exception: Failed to get DOF velocities from
+backend` from `omni.physics.tensors`, downstream of NaN propagation
+through the cooked GPU PhysX articulation cache. Made worse by
+`max_linear_velocity=1000.0` / `max_angular_velocity=1000.0` defaults
+that let PhysX yank self-colliding bodies apart at NaN-inducing speeds.
+Fixed by tightening to 50 / 30 in
+`training/envs/deer_usd_articulation.py`. Each crash also wrote
+degenerate state to disk caches (`%LOCALAPPDATA%\ov\cache`,
+`...\NVIDIA\DXCache`), causing subsequent runs to die earlier — clearing
+those caches plus the velocity-cap fix together kept r15 stable for full
+training.
 
-**Next likely run (r15):** add **foot-alternation / gait-phase reward** to
-directly shape stepping pattern rather than just velocity. Possibly also
-shrink discriminator or train from scratch to break the saturation.
+**Active issue:** Headless and viewer playback (`play_amp.py`) still
+crashes silently in env init — same `terrain_importer + FabricManager`
+warning pattern then process death. Training works; playback path has
+some additional fragility. Not yet diagnosed.
+
+**Next likely run (r16):** investigate playback crash, then consider:
+(a) adding `Deer_001_run.anim` as a second motion clip for a
+2-gait library, (b) testing the policy under varied terrain via
+`DeerUsdRoughEnvCfg`, (c) extending to 5000+ iters since training is
+stable now.
 
 ### Currently running / queued
 - **r14 playback** running in Isaac Sim (process started in current session).
@@ -168,6 +188,97 @@ powershell Get-Process kit -EA SilentlyContinue | Stop-Process -Force
 ## Run History
 
 Keep this table append-only. **Latest runs first.**
+
+### Run 15 — 2026-04-26 (BREAKTHROUGH: AMP discriminator finally trains)
+
+- **Hardware**: NEW machine — RTX 5080 (16 GB VRAM) / Core Ultra 9 285K /
+  32 GB RAM. ~2-3× the prior laptop's compute.
+- **Task:** `AniML-Deer-USD-Walk-AMP-v0` (clean ablation — wanted the
+  bare-bones config to isolate the bug-fix effect; v12's heavy reward
+  stack carries r1-r14 baggage).
+- **Env cfg:** `DeerUsdWalkAMPEnvCfg` (the original lean version)
+- **Agent cfg:** `DEER_USD_AMP_WALK_CFG` (original; entropy 0.01,
+  init_noise_std 1.0, fresh start — no warm-start from any prior run).
+- **Iters:** 3000 (paused at 2500 for user gaming, resumed via
+  `--resume_from model_2500.pt`, completed last 500 cleanly).
+- **Num envs:** **8000** (the new machine ceiling — VRAM at 51%, GPU
+  util 88%; previous laptop was capped at 2500).
+- **Throughput:** **147k steps/s** (vs 21k on the laptop).
+- **Final stats (last 20 iters of completed run):**
+  - mean_reward **184** (peak 194)
+  - **style_r/step 0.389** (peak **0.605**) ← vs r14's 0.003
+  - ep_len 1000 / 1000 (max — deer never falls)
+  - pelvis_too_low **0.0%** (vs r14's 1%)
+  - amp_loss **0.40** (real discriminator gradient throughout)
+  - noise_std 1.47 (healthy exploration without drift)
+- **Final checkpoint:**
+  `logs/rsl_rl/animl_deer_amp_walk/2026-04-26_23-26-43/model_2999.pt`
+  (+ matching `policy_2999.onnx` for Unity Sentis).
+
+#### Bug fixes that enabled this run
+
+1. **Coord-frame fix in motion data** (the headline fix):
+   - Before: `tools/convert_unity_anim_to_npy.py:418-434` wrote
+     `root_position` along world +X with constant Rx(-90°) quaternion.
+     `AMPLoader.R.T @ v_world` then put the expert's forward velocity at
+     body +X.
+   - But the deer's actual sim runtime velocity (URDF body -Z =
+     anatomical forward, mapped through Rx(-90°) spawn rotation) sits at
+     body -Z.
+   - Discriminator could decide expert vs policy off this constant
+     3-vector slot — explains why r1-r14 all had style_r ≈ 0.002.
+   - Fix: converter source updated, existing .npy patched in-place via
+     `tools/patch_walk_npy_axis.py` (backup at
+     `assets/motions/deer_walk.npy.preaxisfix.bak.npy`).
+   - Validation: `R.T @ (0, -0.8, 0)` now yields `(0, 0, -0.8)` matching
+     Isaac Lab's `root_lin_vel_b`.
+
+2. **PhysX velocity cap fix** (debugging side-quest):
+   - Before: `RigidBodyPropertiesCfg(max_linear_velocity=1000.0,
+     max_angular_velocity=1000.0)` — Isaac Lab quadruped boilerplate
+     defaults. With self_collisions=True, PhysX yanked overlapping
+     mesh fragments apart at NaN-inducing speeds.
+   - Effect: silent training/playback crashes with
+     `Exception: Failed to get DOF velocities from backend`. Each crash
+     wrote degenerate state to on-disk PhysX cooked caches (in
+     `%LOCALAPPDATA%\ov\cache` and `...\NVIDIA\DXCache`), causing the
+     next run to die earlier than the last.
+   - Fix: capped to 50 m/s / 30 rad/s in
+     `training/envs/deer_usd_articulation.py`. Plus cleared corrupted
+     caches before relaunch.
+   - Symptom hash: silent kit.exe death, no Python traceback (until you
+     get the late traceback from one specific run that tipped past the
+     C++/Python boundary cleanly).
+
+3. **Restored deleted USD payloads:** commit `876e0ae` had pruned
+   `configuration/deer_world_{base,physics,sensor,robot}.usd` as
+   "experimental USDs"; they were actually the live payloads that
+   `deer_world.usd` wraps. Restored from `6624f98^!`.
+
+#### Open issues from this run
+
+- **Playback (`play_amp.py`) crashes silently** even after the velocity-cap
+  fix. Both viewer and `--headless` modes die mid-init at the
+  `terrain_importer + FabricManager mismatched prototypes` warning
+  step. Training survived this same warning fine, but playback's load
+  path (4 envs vs 8000-env trained checkpoint, plus possibly
+  `runner.load()` reshape) hits some additional fragility. Needs
+  investigation before we can visually verify the gait quality. Metric-
+  based evidence is overwhelming, but the visual is still TBD.
+- **Two intermittent multi-minute stalls during training**:
+  iter 1300→1400 took 47 min, iter 2200→2300 took 1h 54min, while
+  every other 100-iter chunk was 130-160s. Pattern is fully recoverable
+  (pace returns to normal after stall). Most likely Windows Defender
+  scan, telemetry pause, or a transient PhysX hiccup. Total stall time:
+  ~2h 42min added to what should have been a 70-min run.
+
+#### Useful artifacts produced
+
+- `tools/patch_walk_npy_axis.py` — one-off .npy axis-swap patch with
+  pre/post-fix value validation. Won't be needed again unless we
+  regenerate the .npy from a fresh Unity export.
+- `assets/motions/deer_walk.npy.preaxisfix.bak.npy` — backup of the
+  pre-fix .npy. Safe to delete once we trust the fix.
 
 ### Run 14 — 2026-04-21
 - **Task:** `AniML-Deer-USD-Walk-AMP-v12`

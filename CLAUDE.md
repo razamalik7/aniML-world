@@ -68,3 +68,20 @@ New AMP task workflow:
 - Style reward collapses to ~0 + policy stops improving → discriminator saturated; lower AMP reward_scale or add entropy.
 - ep_len pegged at max + err_vel_xy below threshold + style very low → deer is sliding on ground, not walking. Check with `play_amp.py`; re-enable termination if killed.
 - Leg-activity reward tiny (~2/episode) despite leg tracking looking ok → policy found rigid-lever hop. Bump leg_activity weight to match task reward magnitudes.
+- **Style_r stuck at ~0.002 across many warm-starts** → check the .npy's `root_position` axis convention. After `Rx(-90°)` spawn rotation, the deer faces world -Y, so the .npy must put `root_position` along world -Y (matches `bake_reset_states.py`). Body-frame velocity should land at body -Z. The original converter wrote +X by mistake — see r15 entry in SESSION_LOG.md.
+
+## PhysX silent-death pattern (Isaac Sim 5.1 + RTX 50-series)
+
+`Exception: Failed to get DOF velocities from backend` from `omni/physics/tensors/impl/api.py` is downstream of NaN propagation in the cooked GPU PhysX articulation cache. Root causes seen:
+- `RigidBodyPropertiesCfg(max_linear_velocity=1000, max_angular_velocity=1000)` — Isaac Lab quadruped default that lets PhysX yank self-colliding bodies apart at NaN-inducing speeds. **Cap to 50 / 30 in `deer_usd_articulation.py`.**
+- The crash writes degenerate state to on-disk caches (`%LOCALAPPDATA%\ov\cache`, `...\NVIDIA\DXCache`), so subsequent runs die earlier than the last. **Clear those caches between investigation passes** if you see the "each run dies sooner" pattern.
+- Reboot does NOT fix this — corruption is on disk, not in RAM.
+- Smoke tests (small num_envs, few iters) hide the problem. Full training runs at 6000+ envs surface it.
+
+## Ghost-process trap
+
+When killing training, `Get-Process kit | Stop-Process` is NOT enough — the parent `python.exe` wrapper that launched kit can hold up to 8 GB of GPU/system memory. Always also `Get-Process python | Where { $_.WorkingSet64 -gt 500MB } | Stop-Process` before relaunching. Otherwise the next launch's VRAM read includes the leftover and looks much higher than reality (cost me hours of "OOM at 8000 envs" misdiagnosis until I noticed VRAM dropped from 15.5 GB to 569 MiB after killing the orphan python procs).
+
+## Playback (`play_amp.py`) currently broken
+
+As of r15 (2026-04-26), playback dies silently in env init with the `terrain_importer + FabricManager mismatched prototypes` warnings as the last log line. Both viewer and `--headless` modes affected. Training works fine on the same machine state. Not yet diagnosed; possibly related to `runner.load()` reshape from 8000-env trained checkpoint to 4-env playback, or a viewport-init code path that runs even in headless. Metric-based validation (style_r, ep_len, etc.) is reliable.

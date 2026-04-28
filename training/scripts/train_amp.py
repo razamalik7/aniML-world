@@ -203,6 +203,46 @@ def main() -> None:
         print(f"[train_amp] warm-starting from {resume_path}")
         runner.load(str(resume_path))
 
+    # ---- Defensive std clamp ----
+    # r16/r18 both crashed with `RuntimeError: normal expects all elements of
+    # std >= 0.0` after a reward overflow drove the PPO update to produce
+    # non-finite gradients, which made the actor's std_param go negative.
+    # Hot-patch update() so right after each PPO step we clamp std_param to
+    # a positive minimum and replace any non-finite values. Combined with
+    # the V11 env's zeroed L2 penalties this should make training robust
+    # against transient PhysX/reward spikes.
+    _STD_FLOOR = 0.05
+    _orig_update = runner.alg.update
+
+    def _safe_update(*a, **kw):
+        result = _orig_update(*a, **kw)
+        ac = runner.alg.actor_critic
+        if hasattr(ac, "std") and ac.std is not None:
+            with torch.no_grad():
+                std = ac.std
+                bad = ~torch.isfinite(std)
+                if bool(bad.any()):
+                    print(f"[train_amp] WARN: non-finite std elements detected, "
+                          f"replacing with {_STD_FLOOR}", flush=True)
+                    std[bad] = _STD_FLOOR
+                std.clamp_(min=_STD_FLOOR)
+        # Same for std_param if exposed under that name
+        for attr in ("std_param", "log_std", "logstd"):
+            p = getattr(ac, attr, None)
+            if p is None:
+                continue
+            with torch.no_grad():
+                bad = ~torch.isfinite(p)
+                if bool(bad.any()):
+                    p[bad] = 0.0  # log_std=0 -> std=1
+                if attr == "std_param":
+                    p.clamp_(min=_STD_FLOOR)
+        return result
+
+    runner.alg.update = _safe_update
+    print(f"[train_amp] installed std-clamp safeguard (floor={_STD_FLOOR})",
+          flush=True)
+
     runner.learn(num_learning_iterations=runner_cfg["max_iterations"])
 
     # Close cleanly
