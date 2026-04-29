@@ -296,3 +296,18 @@ gym.register(
         "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_WRI_NARROW_CFG",
     },
 )
+
+# Run 26: FIX the velocity-tracking axis bug + add linear forward reward.
+# r1-r25 used Isaac Lab's stock track_lin_vel_xy_exp which measures body
+# +X (= deer's anatomical LEFT). This task uses the anatomy-aligned
+# rewards (forward = body -Z) and adds forward_velocity_linear_anatomical
+# at weight 2.0 to break the "stand still and look natural" local optimum.
+gym.register(
+    id="AniML-Deer-USD-Walk-AMP-v18",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_amp_env_cfg:DeerUsdWalkAMPEnvCfgV14",
+        "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_WRI_FWDFIX_CFG",
+    },
+)

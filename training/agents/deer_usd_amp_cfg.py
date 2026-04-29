@@ -422,6 +422,17 @@ DEER_USD_AMP_WRI_NARROW_CFG: dict[str, Any] = {
 }
 
 
+# r26: same 3-clip narrow setup, but the env now uses anatomy-aligned
+# velocity tracking (body -Z = forward) instead of the wrong-axis stock
+# Isaac Lab rewards. Separate experiment_name so r26's logs are isolated
+# (the policy semantics differ — comparing to r25 isn't apples-to-apples).
+DEER_USD_AMP_WRI_FWDFIX_CFG: dict[str, Any] = {
+    **DEER_USD_AMP_WALK_RUN_IDLE_CFG,
+    "experiment_name": "animl_deer_amp_wri_fwdfix",
+    "seed": 53,
+}
+
+
 try:
     from isaaclab.utils import configclass
 

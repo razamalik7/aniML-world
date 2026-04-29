@@ -574,6 +574,82 @@ class DeerUsdWalkAMPEnvCfgV12(DeerUsdWalkAMPEnvCfg):
 
 
 @configclass
+class DeerUsdWalkAMPEnvCfgV14(DeerUsdWalkAMPEnvCfg):
+    """Run 26: FIX the wrong-axis velocity tracking reward + add a linear
+    forward-velocity reward to break the standing-still local optimum.
+
+    Critical bug found 2026-04-28: Isaac Lab's stock track_lin_vel_xy_exp
+    measures body +X velocity, but the deer URDF has body -Z = anatomical
+    forward (per CLAUDE.md). So r1-r25 all "tracked velocity" along the
+    deer's anatomical-LEFT axis. Metrics looked OK because the deer
+    sometimes drifted sideways during shuffling, but the policy was never
+    actually rewarded for moving forward.
+
+    Combined with the multi-clip discriminator giving good "natural-pose"
+    style reward to standing-still configurations (matching idle.npy),
+    the policy converged to "stand still and look natural" in r21-r25.
+
+    Fixes:
+      1. Remove track_lin_vel_xy_exp / track_ang_vel_z_exp (wrong axis).
+      2. Add track_forward_vel_anatomical_exp (right axis: body -Z).
+      3. Add track_yaw_rate_anatomical_exp (right axis).
+      4. Add forward_velocity_linear_anatomical (weight 2.0): linear
+         reward, ZERO when standing still, breaks the standing-still
+         local optimum that saturating-exp can't escape.
+
+    Inherits V11's zeroed L2 + V13's narrow command range. Pairs with
+    multi-clip agent cfg (DEER_USD_AMP_WRI_NARROW_CFG or similar).
+    """
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        # V11's L2 zeroing (overflow-prone with widened limits)
+        self.rewards.dof_torques_l2.weight = 0.0
+        self.rewards.dof_acc_l2.weight = 0.0
+        # V13's narrow command range (walk speeds only)
+        self.commands.base_velocity.ranges.lin_vel_x = (0.5, 1.2)
+        self.commands.base_velocity.ranges.lin_vel_y = (-0.2, 0.2)
+        self.commands.base_velocity.ranges.ang_vel_z = (-0.5, 0.5)
+
+        # ---- THE FIX: anatomy-aligned velocity tracking ----
+        from training.envs.deer_rewards import (
+            track_forward_vel_anatomical_exp,
+            track_yaw_rate_anatomical_exp,
+            forward_velocity_linear_anatomical,
+        )
+        # Remove the wrong-axis stock rewards
+        for attr in ("track_lin_vel_xy_exp", "track_ang_vel_z_exp"):
+            if hasattr(self.rewards, attr):
+                delattr(self.rewards, attr)
+
+        # Disable the curriculum terms that ramp the now-deleted
+        # track_lin_vel_xy_exp / track_ang_vel_z_exp rewards
+        for attr in ("ramp_vel_xy", "ramp_vel_yaw"):
+            if hasattr(self.curriculum, attr):
+                setattr(self.curriculum, attr, None)
+
+        # Anatomy-aligned exp tracking on the correct (-Z) axis
+        self.rewards.track_forward_vel = RewTerm(
+            func=track_forward_vel_anatomical_exp,
+            weight=1.5,
+            params={"command_name": "base_velocity", "std": 0.5},
+        )
+        self.rewards.track_yaw_rate = RewTerm(
+            func=track_yaw_rate_anatomical_exp,
+            weight=0.5,
+            params={"command_name": "base_velocity", "std": 0.5},
+        )
+        # Linear forward-velocity reward — dense gradient, zero at stop.
+        # This is the term that aggressively pulls policy off the
+        # "stand still and look natural" local optimum.
+        self.rewards.forward_velocity_linear = RewTerm(
+            func=forward_velocity_linear_anatomical,
+            weight=2.0,
+            params={"command_name": "base_velocity", "clip_max": 1.5},
+        )
+
+
+@configclass
 class DeerUsdWalkAMPEnvCfgV13(DeerUsdWalkAMPEnvCfg):
     """Run 23: narrow command range (walk speeds only) + multi-clip dataset.
 
