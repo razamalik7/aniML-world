@@ -393,3 +393,16 @@ gym.register(
         "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_MAX_PUSH_CFG",
     },
 )
+
+# Run 33: V21 = V20 + episode_length 20s -> 40s. Force learning of
+# sustained balance, not just 20s bursts. Pair with task_ratio 0.85
+# (less aggressive than r32's 0.95). Warm-start from r32 model_2999.
+gym.register(
+    id="AniML-Deer-USD-Walk-AMP-v25",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_amp_env_cfg:DeerUsdWalkAMPEnvCfgV21",
+        "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_LONG_EP_CFG",
+    },
+)

@@ -574,6 +574,85 @@ class DeerUsdWalkAMPEnvCfgV12(DeerUsdWalkAMPEnvCfg):
 
 
 @configclass
+class DeerUsdWalkAMPEnvCfgV21(DeerUsdWalkAMPEnvCfg):
+    """Run 33: keep r32's speed (linear fwd weight 8.0) but extend
+    episode length to 40s so the policy actually learns sustained
+    balance, not just 20-second bursts.
+
+    r32 broke the speed plateau (0.05 -> 0.16 m/s) but all 4 envs
+    fell during 30s playback — the policy only learned ~20s of stable
+    walking because that's the training episode_length_s cap. Fallen
+    episodes terminate via pelvis_too_low and respawn via RSI, so
+    training pelvis_too_low metric was misleadingly low (0.01%).
+
+    V21 changes:
+      - episode_length_s = 20.0 -> 40.0 (deer must stay up 2x longer
+        per episode in training)
+      - Forward weight stays 8.0 (preserve speed)
+      - Pair with task_ratio 0.85 (less aggressive than r32's 0.95;
+        keeps style as a balance regularizer)
+    """
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+
+        from training.envs.deer_rewards import (
+            track_forward_vel_anatomical_exp,
+            track_yaw_rate_anatomical_exp,
+            forward_velocity_linear_anatomical,
+            reset_from_amp_motion,
+        )
+
+        self.rewards.dof_torques_l2.weight = 0.0
+        self.rewards.dof_acc_l2.weight = 0.0
+        self.rewards.action_rate_l2.weight = -0.005
+
+        self.commands.base_velocity.ranges.lin_vel_x = (0.5, 0.5)
+        self.commands.base_velocity.ranges.lin_vel_y = (0.0, 0.0)
+        self.commands.base_velocity.ranges.ang_vel_z = (0.0, 0.0)
+        self.commands.base_velocity.rel_standing_envs = 0.0
+
+        # KEY CHANGE: longer episodes force learning of sustained balance
+        self.episode_length_s = 40.0
+
+        for attr in ("ramp_vel_xy", "ramp_vel_yaw"):
+            if hasattr(self.curriculum, attr):
+                setattr(self.curriculum, attr, None)
+        for attr in ("track_lin_vel_xy_exp", "track_ang_vel_z_exp"):
+            if hasattr(self.rewards, attr):
+                delattr(self.rewards, attr)
+
+        self.rewards.track_forward_vel = RewTerm(
+            func=track_forward_vel_anatomical_exp,
+            weight=1.5,
+            params={"command_name": "base_velocity", "std": 0.3},
+        )
+        self.rewards.track_yaw_rate = RewTerm(
+            func=track_yaw_rate_anatomical_exp,
+            weight=0.5,
+            params={"command_name": "base_velocity", "std": 0.5},
+        )
+        self.rewards.forward_velocity_linear = RewTerm(
+            func=forward_velocity_linear_anatomical,
+            weight=8.0,
+            params={"command_name": "base_velocity", "clip_max": 1.0},
+        )
+
+        if hasattr(self.events, "reset_robot_joints"):
+            self.events.reset_robot_joints = None
+        self.events.reset_base = EventTerm(
+            func=reset_from_amp_motion,
+            mode="reset",
+            params={
+                "asset_cfg": SceneEntityCfg("robot"),
+                "base_height_m": 0.93,
+                "pose_jitter": 0.05,
+                "vel_jitter": 0.1,
+            },
+        )
+
+
+@configclass
 class DeerUsdWalkAMPEnvCfgV20(DeerUsdWalkAMPEnvCfg):
     """Run 32: V19 + linear forward weight 4.0 -> 8.0. Push task pressure
     as far as it'll go. Pair with task_reward_ratio 0.95 via CLI.

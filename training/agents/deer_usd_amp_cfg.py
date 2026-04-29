@@ -483,6 +483,14 @@ DEER_USD_AMP_MAX_PUSH_CFG: dict[str, Any] = {
 }
 
 
+# r33: V21 (V20 + episode_length_s 20 -> 40). Pair with task_ratio 0.85.
+DEER_USD_AMP_LONG_EP_CFG: dict[str, Any] = {
+    **DEER_USD_AMP_WALK_RUN_CFG,
+    "experiment_name": "animl_deer_amp_long_ep",
+    "seed": 60,
+}
+
+
 try:
     from isaaclab.utils import configclass
 
