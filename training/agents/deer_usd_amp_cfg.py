@@ -459,6 +459,14 @@ DEER_USD_AMP_LOCKED_FWD_CFG: dict[str, Any] = {
 }
 
 
+# r30: V18 (V17 + action_rate_l2 zeroed). Fresh seed.
+DEER_USD_AMP_FREE_ACTION_CFG: dict[str, Any] = {
+    **DEER_USD_AMP_WALK_RUN_CFG,
+    "experiment_name": "animl_deer_amp_free_action",
+    "seed": 57,
+}
+
+
 try:
     from isaaclab.utils import configclass
 

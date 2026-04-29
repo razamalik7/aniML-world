@@ -574,6 +574,89 @@ class DeerUsdWalkAMPEnvCfgV12(DeerUsdWalkAMPEnvCfg):
 
 
 @configclass
+class DeerUsdWalkAMPEnvCfgV18(DeerUsdWalkAMPEnvCfg):
+    """Run 30: V17 + zero action_rate_l2 weight to free up high-frequency
+    joint motion needed for real walking speed.
+
+    r29 produced consistent forward direction (all envs went -Y)
+    but speed was still ~0.04 m/s vs commanded 1.0 m/s. The bidirectional
+    bursts within episodes ("walk forward, pause, sometimes reverse")
+    suggest the policy can't sustain the rapid alternation of joint
+    targets that real walking requires.
+
+    Hypothesis: action_rate_l2 = -0.01 was penalizing exactly the high-
+    frequency action changes a walking gait needs (each leg cycle has
+    several inflection points where target changes sign rapidly).
+
+    V18 zeros action_rate_l2.weight so the policy is free to swing legs
+    fast. Risk: noise_std might drift up like r16. Defensive std-clamp
+    in train_amp.py is in place to prevent NaN crash regardless.
+    """
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+
+        from training.envs.deer_rewards import (
+            track_forward_vel_anatomical_exp,
+            track_yaw_rate_anatomical_exp,
+            forward_velocity_linear_anatomical,
+            reset_from_amp_motion,
+        )
+
+        # ZERO ALL smoothness penalties — free joint motion
+        self.rewards.dof_torques_l2.weight = 0.0
+        self.rewards.dof_acc_l2.weight = 0.0
+        self.rewards.action_rate_l2.weight = 0.0   # NEW: was -0.01
+
+        # Locked command (V17 inherited)
+        self.commands.base_velocity.ranges.lin_vel_x = (1.0, 1.0)
+        self.commands.base_velocity.ranges.lin_vel_y = (0.0, 0.0)
+        self.commands.base_velocity.ranges.ang_vel_z = (0.0, 0.0)
+        self.commands.base_velocity.rel_standing_envs = 0.0
+
+        # Disable wrong-axis curriculum
+        for attr in ("ramp_vel_xy", "ramp_vel_yaw"):
+            if hasattr(self.curriculum, attr):
+                setattr(self.curriculum, attr, None)
+
+        # Remove wrong-axis stock rewards
+        for attr in ("track_lin_vel_xy_exp", "track_ang_vel_z_exp"):
+            if hasattr(self.rewards, attr):
+                delattr(self.rewards, attr)
+
+        # Anatomy-aligned tracking
+        self.rewards.track_forward_vel = RewTerm(
+            func=track_forward_vel_anatomical_exp,
+            weight=1.5,
+            params={"command_name": "base_velocity", "std": 0.5},
+        )
+        self.rewards.track_yaw_rate = RewTerm(
+            func=track_yaw_rate_anatomical_exp,
+            weight=0.5,
+            params={"command_name": "base_velocity", "std": 0.5},
+        )
+        self.rewards.forward_velocity_linear = RewTerm(
+            func=forward_velocity_linear_anatomical,
+            weight=4.0,
+            params={"command_name": "base_velocity", "clip_max": 1.5},
+        )
+
+        # RSI from walk.npy
+        if hasattr(self.events, "reset_robot_joints"):
+            self.events.reset_robot_joints = None
+        self.events.reset_base = EventTerm(
+            func=reset_from_amp_motion,
+            mode="reset",
+            params={
+                "asset_cfg": SceneEntityCfg("robot"),
+                "base_height_m": 0.93,
+                "pose_jitter": 0.05,
+                "vel_jitter": 0.1,
+            },
+        )
+
+
+@configclass
 class DeerUsdWalkAMPEnvCfgV17(DeerUsdWalkAMPEnvCfg):
     """Run 29: V16 + locked command range to single forward value.
 

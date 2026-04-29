@@ -352,3 +352,17 @@ gym.register(
         "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_LOCKED_FWD_CFG",
     },
 )
+
+# Run 30: V18 = V17 + action_rate_l2 zeroed. Free up high-freq joint
+# changes needed for real walking speed. r29 plateaued at 0.04 m/s
+# despite commanded 1.0 m/s — the smoothness penalty was preventing
+# the rapid leg-target changes a real walk gait needs.
+gym.register(
+    id="AniML-Deer-USD-Walk-AMP-v22",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_amp_env_cfg:DeerUsdWalkAMPEnvCfgV18",
+        "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_FREE_ACTION_CFG",
+    },
+)
