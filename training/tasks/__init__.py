@@ -324,3 +324,17 @@ gym.register(
         "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_WR_RSI_CFG",
     },
 )
+
+# Run 28: V16 = V15 + pelvis_too_low termination ON. r27's regression
+# (all 4 envs fell and lay there for 1000 steps each) traced to that
+# termination being the load-bearing piece preventing the policy from
+# gaming ep_len with collapsed posture.
+gym.register(
+    id="AniML-Deer-USD-Walk-AMP-v20",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_amp_env_cfg:DeerUsdWalkAMPEnvCfgV16",
+        "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_WR_RSI_TERM_CFG",
+    },
+)

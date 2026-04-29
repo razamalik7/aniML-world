@@ -442,6 +442,14 @@ DEER_USD_AMP_WR_RSI_CFG: dict[str, Any] = {
 }
 
 
+# r28: same as r27 but env is V16 (pelvis_too_low termination back ON).
+DEER_USD_AMP_WR_RSI_TERM_CFG: dict[str, Any] = {
+    **DEER_USD_AMP_WALK_RUN_CFG,
+    "experiment_name": "animl_deer_amp_wr_rsi_term",
+    "seed": 55,
+}
+
+
 try:
     from isaaclab.utils import configclass
 

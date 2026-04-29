@@ -574,6 +574,87 @@ class DeerUsdWalkAMPEnvCfgV12(DeerUsdWalkAMPEnvCfg):
 
 
 @configclass
+class DeerUsdWalkAMPEnvCfgV16(DeerUsdWalkAMPEnvCfg):
+    """Run 28: V15 + pelvis_too_low termination back ON.
+
+    r27 (V15) removed pelvis_too_low termination thinking RSI made it
+    unnecessary. Result: catastrophic regression — all envs fell over
+    and stayed down to game ep_len. Comparing across the run history,
+    the ONLY runs that produced forward motion (r19 et al.) had
+    pelvis_too_low termination ON. It's load-bearing: it keeps episodes
+    short for fallen deer, removing the perverse incentive to lie down.
+
+    Otherwise inherits V15: RSI from walk.npy, anatomy-aligned tracking
+    rewards (forward = body -Z), forward_velocity_linear at weight 4.0,
+    narrow command range 0.5-1.2 m/s.
+    """
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+
+        from training.envs.deer_rewards import (
+            track_forward_vel_anatomical_exp,
+            track_yaw_rate_anatomical_exp,
+            forward_velocity_linear_anatomical,
+            reset_from_amp_motion,
+        )
+
+        # V11's L2 zeroing
+        self.rewards.dof_torques_l2.weight = 0.0
+        self.rewards.dof_acc_l2.weight = 0.0
+        # V13's narrow command range
+        self.commands.base_velocity.ranges.lin_vel_x = (0.5, 1.2)
+        self.commands.base_velocity.ranges.lin_vel_y = (-0.2, 0.2)
+        self.commands.base_velocity.ranges.ang_vel_z = (-0.5, 0.5)
+
+        # Disable wrong-axis curriculum
+        for attr in ("ramp_vel_xy", "ramp_vel_yaw"):
+            if hasattr(self.curriculum, attr):
+                setattr(self.curriculum, attr, None)
+
+        # Remove wrong-axis stock rewards
+        for attr in ("track_lin_vel_xy_exp", "track_ang_vel_z_exp"):
+            if hasattr(self.rewards, attr):
+                delattr(self.rewards, attr)
+
+        # Anatomy-aligned tracking
+        self.rewards.track_forward_vel = RewTerm(
+            func=track_forward_vel_anatomical_exp,
+            weight=1.5,
+            params={"command_name": "base_velocity", "std": 0.5},
+        )
+        self.rewards.track_yaw_rate = RewTerm(
+            func=track_yaw_rate_anatomical_exp,
+            weight=0.5,
+            params={"command_name": "base_velocity", "std": 0.5},
+        )
+        self.rewards.forward_velocity_linear = RewTerm(
+            func=forward_velocity_linear_anatomical,
+            weight=4.0,
+            params={"command_name": "base_velocity", "clip_max": 1.5},
+        )
+
+        # RSI from walk.npy
+        if hasattr(self.events, "reset_robot_joints"):
+            self.events.reset_robot_joints = None
+        self.events.reset_base = EventTerm(
+            func=reset_from_amp_motion,
+            mode="reset",
+            params={
+                "asset_cfg": SceneEntityCfg("robot"),
+                "base_height_m": 0.93,
+                "pose_jitter": 0.05,
+                "vel_jitter": 0.1,
+            },
+        )
+
+        # KEEP pelvis_too_low termination ON (the difference vs V15).
+        # Inherited default from base config kicks in if pelvis Z drops
+        # below ~0.55 m, terminating the episode and removing the perverse
+        # "fall and lie there for 1000 steps of free reward" incentive.
+
+
+@configclass
 class DeerUsdWalkAMPEnvCfgV15(DeerUsdWalkAMPEnvCfg):
     """Run 27: kick the deer out of the standing-still basin via three
     independent levers stacked together.
