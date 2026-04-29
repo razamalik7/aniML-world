@@ -574,6 +574,89 @@ class DeerUsdWalkAMPEnvCfgV12(DeerUsdWalkAMPEnvCfg):
 
 
 @configclass
+class DeerUsdWalkAMPEnvCfgV17(DeerUsdWalkAMPEnvCfg):
+    """Run 29: V16 + locked command range to single forward value.
+
+    r28 produced real walking (1.2-1.5m of forward motion in 30s) but
+    bidirectional — sometimes the deer walked +Y, sometimes -Y, never
+    locking onto the commanded direction's sign. Hypothesis: the random
+    lateral / yaw / variable speed commands confuse the policy enough
+    that it ignores command sign in favor of "look natural while moving".
+
+    V17 locks the command range to a single value: forward at 1.0 m/s
+    only. No lateral, no yaw, no speed variability. Forces the policy
+    to learn one consistent forward-tracking behavior. Once that's solid
+    we can re-broaden in r30+.
+
+    Otherwise inherits V16: RSI from walk, anatomy-aligned tracking,
+    forward_velocity_linear w=4.0, pelvis_too_low termination ON.
+    """
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+
+        from training.envs.deer_rewards import (
+            track_forward_vel_anatomical_exp,
+            track_yaw_rate_anatomical_exp,
+            forward_velocity_linear_anatomical,
+            reset_from_amp_motion,
+        )
+
+        # V11 zeroed L2
+        self.rewards.dof_torques_l2.weight = 0.0
+        self.rewards.dof_acc_l2.weight = 0.0
+
+        # LOCKED COMMAND: forward at 1.0 m/s, nothing else.
+        self.commands.base_velocity.ranges.lin_vel_x = (1.0, 1.0)
+        self.commands.base_velocity.ranges.lin_vel_y = (0.0, 0.0)
+        self.commands.base_velocity.ranges.ang_vel_z = (0.0, 0.0)
+        self.commands.base_velocity.rel_standing_envs = 0.0
+
+        # Disable curriculum (we have no range to ramp now anyway)
+        for attr in ("ramp_vel_xy", "ramp_vel_yaw"):
+            if hasattr(self.curriculum, attr):
+                setattr(self.curriculum, attr, None)
+
+        # Remove wrong-axis stock rewards
+        for attr in ("track_lin_vel_xy_exp", "track_ang_vel_z_exp"):
+            if hasattr(self.rewards, attr):
+                delattr(self.rewards, attr)
+
+        # Anatomy-aligned tracking
+        self.rewards.track_forward_vel = RewTerm(
+            func=track_forward_vel_anatomical_exp,
+            weight=1.5,
+            params={"command_name": "base_velocity", "std": 0.5},
+        )
+        self.rewards.track_yaw_rate = RewTerm(
+            func=track_yaw_rate_anatomical_exp,
+            weight=0.5,
+            params={"command_name": "base_velocity", "std": 0.5},
+        )
+        self.rewards.forward_velocity_linear = RewTerm(
+            func=forward_velocity_linear_anatomical,
+            weight=4.0,
+            params={"command_name": "base_velocity", "clip_max": 1.5},
+        )
+
+        # RSI from walk.npy
+        if hasattr(self.events, "reset_robot_joints"):
+            self.events.reset_robot_joints = None
+        self.events.reset_base = EventTerm(
+            func=reset_from_amp_motion,
+            mode="reset",
+            params={
+                "asset_cfg": SceneEntityCfg("robot"),
+                "base_height_m": 0.93,
+                "pose_jitter": 0.05,
+                "vel_jitter": 0.1,
+            },
+        )
+
+        # pelvis_too_low termination stays ON (inherited from base)
+
+
+@configclass
 class DeerUsdWalkAMPEnvCfgV16(DeerUsdWalkAMPEnvCfg):
     """Run 28: V15 + pelvis_too_low termination back ON.
 

@@ -338,3 +338,17 @@ gym.register(
         "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_WR_RSI_TERM_CFG",
     },
 )
+
+# Run 29: V17 with locked command (forward only at 1.0 m/s).
+# r28 produced bidirectional walking — moves but not consistently
+# in commanded direction. Lock command to single value to force
+# directional consistency.
+gym.register(
+    id="AniML-Deer-USD-Walk-AMP-v21",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_amp_env_cfg:DeerUsdWalkAMPEnvCfgV17",
+        "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_LOCKED_FWD_CFG",
+    },
+)

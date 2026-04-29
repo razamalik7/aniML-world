@@ -450,6 +450,15 @@ DEER_USD_AMP_WR_RSI_TERM_CFG: dict[str, Any] = {
 }
 
 
+# r29: locked-command setup — V17 env with lin_vel_x=(1.0, 1.0), no
+# lateral, no yaw. Force directional consistency.
+DEER_USD_AMP_LOCKED_FWD_CFG: dict[str, Any] = {
+    **DEER_USD_AMP_WALK_RUN_CFG,
+    "experiment_name": "animl_deer_amp_locked_fwd",
+    "seed": 56,
+}
+
+
 try:
     from isaaclab.utils import configclass
 
