@@ -311,3 +311,16 @@ gym.register(
         "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_WRI_FWDFIX_CFG",
     },
 )
+
+# Run 27: V15 env (RSI from walk + bumped fwd reward 4.0 + axis fix +
+# pelvis_too_low term off) + walk+run dataset (no idle). Triple-pronged
+# attack on the standing-still local optimum.
+gym.register(
+    id="AniML-Deer-USD-Walk-AMP-v19",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_amp_env_cfg:DeerUsdWalkAMPEnvCfgV15",
+        "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_WR_RSI_CFG",
+    },
+)

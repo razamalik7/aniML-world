@@ -574,6 +574,104 @@ class DeerUsdWalkAMPEnvCfgV12(DeerUsdWalkAMPEnvCfg):
 
 
 @configclass
+class DeerUsdWalkAMPEnvCfgV15(DeerUsdWalkAMPEnvCfg):
+    """Run 27: kick the deer out of the standing-still basin via three
+    independent levers stacked together.
+
+    r26 had the right reward shape (anatomy-aligned tracking + linear
+    fwd reward) but the policy STILL converged to standing-still because:
+      (a) base AMP env spawns deer in default standing pose — episode
+          starts at the local optimum with no incentive to leave
+      (b) idle.npy in the discriminator dataset rewards ~standing as
+          natural-looking, so style reward is high at zero motion
+      (c) linear forward weight 2.0 was outweighed by style+exp_track
+          combination at standing
+
+    Triple fix:
+      1. RSI (reference state initialization): each reset draws a random
+         frame from the baked walk reset states (.pt). Deer arrives in
+         episode mid-walk — has to keep walking or fall.
+      2. Pair with walk+run dataset (no idle) — `DEER_USD_AMP_WALK_RUN_CFG`.
+         Removes idle's standing-as-natural attractor from style reward.
+      3. Bump forward_velocity_linear weight 2.0 → 4.0. Make moving
+         forward the dominant reward.
+
+    Also drops pelvis_too_low termination (RSI starts deer at full speed,
+    early-step "fall recovery" episodes are useful learning, not bugs).
+    Inherits V11's zeroed L2 and V13's narrow command range otherwise.
+    """
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+
+        from training.envs.deer_rewards import (
+            track_forward_vel_anatomical_exp,
+            track_yaw_rate_anatomical_exp,
+            forward_velocity_linear_anatomical,
+            reset_from_amp_motion,
+        )
+
+        # V11's L2 zeroing
+        self.rewards.dof_torques_l2.weight = 0.0
+        self.rewards.dof_acc_l2.weight = 0.0
+        # V13's narrow command range (walk speeds only)
+        self.commands.base_velocity.ranges.lin_vel_x = (0.5, 1.2)
+        self.commands.base_velocity.ranges.lin_vel_y = (-0.2, 0.2)
+        self.commands.base_velocity.ranges.ang_vel_z = (-0.5, 0.5)
+
+        # Disable wrong-axis curriculum
+        for attr in ("ramp_vel_xy", "ramp_vel_yaw"):
+            if hasattr(self.curriculum, attr):
+                setattr(self.curriculum, attr, None)
+
+        # Remove wrong-axis stock rewards
+        for attr in ("track_lin_vel_xy_exp", "track_ang_vel_z_exp"):
+            if hasattr(self.rewards, attr):
+                delattr(self.rewards, attr)
+
+        # Anatomy-aligned exp tracking (body -Z forward)
+        self.rewards.track_forward_vel = RewTerm(
+            func=track_forward_vel_anatomical_exp,
+            weight=1.5,
+            params={"command_name": "base_velocity", "std": 0.5},
+        )
+        self.rewards.track_yaw_rate = RewTerm(
+            func=track_yaw_rate_anatomical_exp,
+            weight=0.5,
+            params={"command_name": "base_velocity", "std": 0.5},
+        )
+        # Bumped from r26's 2.0 → 4.0. Forward motion is now the dominant
+        # reward signal even when the discriminator likes standing-still.
+        self.rewards.forward_velocity_linear = RewTerm(
+            func=forward_velocity_linear_anatomical,
+            weight=4.0,
+            params={"command_name": "base_velocity", "clip_max": 1.5},
+        )
+
+        # --- THE KEY FIX: RSI ---
+        # Replace default reset events with one that initializes from
+        # a random frame of the baked walk motion. Deer arrives mid-walk
+        # with appropriate joint vels and forward body velocity.
+        if hasattr(self.events, "reset_robot_joints"):
+            self.events.reset_robot_joints = None
+        self.events.reset_base = EventTerm(
+            func=reset_from_amp_motion,
+            mode="reset",
+            params={
+                "asset_cfg": SceneEntityCfg("robot"),
+                "base_height_m": 0.93,
+                "pose_jitter": 0.05,
+                "vel_jitter": 0.1,
+            },
+        )
+
+        # Drop pelvis_too_low termination — RSI starts deer at full speed,
+        # so first-step fall-recovery episodes are useful learning.
+        if hasattr(self.terminations, "pelvis_too_low"):
+            self.terminations.pelvis_too_low = None
+
+
+@configclass
 class DeerUsdWalkAMPEnvCfgV14(DeerUsdWalkAMPEnvCfg):
     """Run 26: FIX the wrong-axis velocity tracking reward + add a linear
     forward-velocity reward to break the standing-still local optimum.

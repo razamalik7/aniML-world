@@ -433,6 +433,15 @@ DEER_USD_AMP_WRI_FWDFIX_CFG: dict[str, Any] = {
 }
 
 
+# r27: walk+run dataset (no idle — that was the standing-still attractor)
+# paired with V15 env (RSI from walk + bumped fwd reward + axis fix).
+DEER_USD_AMP_WR_RSI_CFG: dict[str, Any] = {
+    **DEER_USD_AMP_WALK_RUN_CFG,
+    "experiment_name": "animl_deer_amp_wr_rsi",
+    "seed": 54,
+}
+
+
 try:
     from isaaclab.utils import configclass
 
