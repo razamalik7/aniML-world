@@ -467,6 +467,14 @@ DEER_USD_AMP_FREE_ACTION_CFG: dict[str, Any] = {
 }
 
 
+# r31: V19 (lowered command 0.5 m/s, mild action_rate=-0.005, tighter std)
+DEER_USD_AMP_LOW_CMD_CFG: dict[str, Any] = {
+    **DEER_USD_AMP_WALK_RUN_CFG,
+    "experiment_name": "animl_deer_amp_low_cmd",
+    "seed": 58,
+}
+
+
 try:
     from isaaclab.utils import configclass
 

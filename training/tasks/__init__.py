@@ -366,3 +366,16 @@ gym.register(
         "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_FREE_ACTION_CFG",
     },
 )
+
+# Run 31: V19 = lowered command (0.5 m/s) + mild action_rate (-0.005) +
+# tighter exp std (0.3 instead of 0.5). Run with task_reward_ratio 0.85
+# via CLI for max velocity-tracking pressure.
+gym.register(
+    id="AniML-Deer-USD-Walk-AMP-v23",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_amp_env_cfg:DeerUsdWalkAMPEnvCfgV19",
+        "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_LOW_CMD_CFG",
+    },
+)

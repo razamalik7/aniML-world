@@ -574,6 +574,82 @@ class DeerUsdWalkAMPEnvCfgV12(DeerUsdWalkAMPEnvCfg):
 
 
 @configclass
+class DeerUsdWalkAMPEnvCfgV19(DeerUsdWalkAMPEnvCfg):
+    """Run 31: lower commanded speed to 0.5 m/s, restore mild
+    action_rate_l2 to tame noise_std. Pair with task_reward_ratio 0.85
+    via train_amp.py CLI for stronger velocity pressure.
+
+    r28-r30 all converged to ~0.04 m/s actual speed regardless of
+    commanded value (1.0). Likely the policy can't generate the joint
+    activations needed for 1.0 m/s walk under the AMP style constraint.
+    Lower the bar: command 0.5 m/s, half the target. If it still
+    plateaus at 0.04 m/s under task=0.85 dominance, AMP itself is the
+    blocker.
+
+    Restore action_rate_l2 = -0.005 (half of original -0.01). r30 had
+    noise_std drift to 4.2 with weight 0; that's too wild. -0.005 should
+    keep std bounded without fully blocking fast joint changes.
+    """
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+
+        from training.envs.deer_rewards import (
+            track_forward_vel_anatomical_exp,
+            track_yaw_rate_anatomical_exp,
+            forward_velocity_linear_anatomical,
+            reset_from_amp_motion,
+        )
+
+        # Mild smoothness penalty (compromise between V17 -0.01 and V18 0)
+        self.rewards.dof_torques_l2.weight = 0.0
+        self.rewards.dof_acc_l2.weight = 0.0
+        self.rewards.action_rate_l2.weight = -0.005
+
+        # LOWER COMMAND: 0.5 m/s only
+        self.commands.base_velocity.ranges.lin_vel_x = (0.5, 0.5)
+        self.commands.base_velocity.ranges.lin_vel_y = (0.0, 0.0)
+        self.commands.base_velocity.ranges.ang_vel_z = (0.0, 0.0)
+        self.commands.base_velocity.rel_standing_envs = 0.0
+
+        for attr in ("ramp_vel_xy", "ramp_vel_yaw"):
+            if hasattr(self.curriculum, attr):
+                setattr(self.curriculum, attr, None)
+        for attr in ("track_lin_vel_xy_exp", "track_ang_vel_z_exp"):
+            if hasattr(self.rewards, attr):
+                delattr(self.rewards, attr)
+
+        self.rewards.track_forward_vel = RewTerm(
+            func=track_forward_vel_anatomical_exp,
+            weight=1.5,
+            params={"command_name": "base_velocity", "std": 0.3},  # tighter than 0.5
+        )
+        self.rewards.track_yaw_rate = RewTerm(
+            func=track_yaw_rate_anatomical_exp,
+            weight=0.5,
+            params={"command_name": "base_velocity", "std": 0.5},
+        )
+        self.rewards.forward_velocity_linear = RewTerm(
+            func=forward_velocity_linear_anatomical,
+            weight=4.0,
+            params={"command_name": "base_velocity", "clip_max": 1.0},
+        )
+
+        if hasattr(self.events, "reset_robot_joints"):
+            self.events.reset_robot_joints = None
+        self.events.reset_base = EventTerm(
+            func=reset_from_amp_motion,
+            mode="reset",
+            params={
+                "asset_cfg": SceneEntityCfg("robot"),
+                "base_height_m": 0.93,
+                "pose_jitter": 0.05,
+                "vel_jitter": 0.1,
+            },
+        )
+
+
+@configclass
 class DeerUsdWalkAMPEnvCfgV18(DeerUsdWalkAMPEnvCfg):
     """Run 30: V17 + zero action_rate_l2 weight to free up high-frequency
     joint motion needed for real walking speed.
