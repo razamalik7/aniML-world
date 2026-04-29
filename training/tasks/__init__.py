@@ -379,3 +379,17 @@ gym.register(
         "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_LOW_CMD_CFG",
     },
 )
+
+# Run 32: V20 = V19 + forward_velocity_linear weight 4.0 -> 8.0.
+# Run with --task_reward_ratio 0.95 to make forward speed unambiguously
+# the dominant reward source. If still plateaus at 0.05 m/s, the
+# in-place reference clip is the binding constraint.
+gym.register(
+    id="AniML-Deer-USD-Walk-AMP-v24",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_amp_env_cfg:DeerUsdWalkAMPEnvCfgV20",
+        "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_MAX_PUSH_CFG",
+    },
+)

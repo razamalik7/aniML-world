@@ -475,6 +475,14 @@ DEER_USD_AMP_LOW_CMD_CFG: dict[str, Any] = {
 }
 
 
+# r32: V20 (V19 + fwd weight 4.0->8.0). Pair with task_reward_ratio 0.95.
+DEER_USD_AMP_MAX_PUSH_CFG: dict[str, Any] = {
+    **DEER_USD_AMP_WALK_RUN_CFG,
+    "experiment_name": "animl_deer_amp_max_push",
+    "seed": 59,
+}
+
+
 try:
     from isaaclab.utils import configclass
 
