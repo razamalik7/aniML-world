@@ -576,6 +576,80 @@ class DeerUsdWalkAMPEnvCfgV12(DeerUsdWalkAMPEnvCfg):
 
 
 @configclass
+class DeerUsdWalkAMPEnvCfgV24(DeerUsdWalkAMPEnvCfg):
+    """Run 37: V23 + broader command (0.3-1.0 m/s)."""
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+
+        from training.envs.deer_rewards import (
+            track_forward_vel_anatomical_exp,
+            track_yaw_rate_anatomical_exp,
+            forward_velocity_linear_anatomical,
+            reset_from_amp_motion,
+            pelvis_too_low,
+        )
+        import isaaclab.envs.mdp as mdp_rewards
+
+        self.rewards.dof_torques_l2.weight = 0.0
+        self.rewards.dof_acc_l2.weight = 0.0
+        self.rewards.action_rate_l2.weight = -0.005
+
+        self.commands.base_velocity.ranges.lin_vel_x = (0.3, 1.0)
+        self.commands.base_velocity.ranges.lin_vel_y = (0.0, 0.0)
+        self.commands.base_velocity.ranges.ang_vel_z = (0.0, 0.0)
+        self.commands.base_velocity.rel_standing_envs = 0.0
+
+        for attr in ("ramp_vel_xy", "ramp_vel_yaw"):
+            if hasattr(self.curriculum, attr):
+                setattr(self.curriculum, attr, None)
+        for attr in ("track_lin_vel_xy_exp", "track_ang_vel_z_exp"):
+            if hasattr(self.rewards, attr):
+                delattr(self.rewards, attr)
+
+        self.rewards.track_forward_vel = RewTerm(
+            func=track_forward_vel_anatomical_exp,
+            weight=1.5,
+            params={"command_name": "base_velocity", "std": 0.3},
+        )
+        self.rewards.track_yaw_rate = RewTerm(
+            func=track_yaw_rate_anatomical_exp,
+            weight=0.5,
+            params={"command_name": "base_velocity", "std": 0.5},
+        )
+        self.rewards.forward_velocity_linear = RewTerm(
+            func=forward_velocity_linear_anatomical,
+            weight=8.0,
+            params={"command_name": "base_velocity", "clip_max": 1.0},
+        )
+        self.rewards.base_height = RewTerm(
+            func=mdp_rewards.base_height_l2,
+            weight=-30.0,
+            params={"target_height": 0.85},
+        )
+
+        if hasattr(self.events, "reset_robot_joints"):
+            self.events.reset_robot_joints = None
+        self.events.reset_base = EventTerm(
+            func=reset_from_amp_motion,
+            mode="reset",
+            params={
+                "asset_cfg": SceneEntityCfg("robot"),
+                "base_height_m": 0.93,
+                "pose_jitter": 0.05,
+                "vel_jitter": 0.1,
+            },
+        )
+        self.terminations.pelvis_too_low = DoneTerm(
+            func=pelvis_too_low,
+            params={
+                "asset_cfg": SceneEntityCfg("robot"),
+                "min_height": 0.55,
+            },
+        )
+
+
+@configclass
 class DeerUsdWalkAMPEnvCfgV23(DeerUsdWalkAMPEnvCfg):
     """Run 36: V22 + slightly variable command range (0.4-0.7 m/s).
 

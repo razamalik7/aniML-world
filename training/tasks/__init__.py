@@ -431,3 +431,14 @@ gym.register(
         "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_VARSPEED1_CFG",
     },
 )
+
+# Run 37: V24 = V22 + broader command (0.3-1.0 m/s). Warm-start r36.
+gym.register(
+    id="AniML-Deer-USD-Walk-AMP-v28",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_amp_env_cfg:DeerUsdWalkAMPEnvCfgV24",
+        "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_VARSPEED2_CFG",
+    },
+)
