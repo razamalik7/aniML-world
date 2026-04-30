@@ -419,3 +419,15 @@ gym.register(
         "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_NO_BELLY_CFG",
     },
 )
+
+# Run 36: V23 = V22 + variable command (0.4-0.7 m/s). Test if r35's
+# upright walking generalizes to variable speeds. Warm-start r35.
+gym.register(
+    id="AniML-Deer-USD-Walk-AMP-v27",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_amp_env_cfg:DeerUsdWalkAMPEnvCfgV23",
+        "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_VARSPEED1_CFG",
+    },
+)

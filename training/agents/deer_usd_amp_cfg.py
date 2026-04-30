@@ -499,6 +499,14 @@ DEER_USD_AMP_NO_BELLY_CFG: dict[str, Any] = {
 }
 
 
+# r36: V23 (V22 + variable command 0.4-0.7).
+DEER_USD_AMP_VARSPEED1_CFG: dict[str, Any] = {
+    **DEER_USD_AMP_WALK_RUN_CFG,
+    "experiment_name": "animl_deer_amp_varspeed1",
+    "seed": 63,
+}
+
+
 try:
     from isaaclab.utils import configclass
 
