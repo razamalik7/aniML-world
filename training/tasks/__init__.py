@@ -442,3 +442,14 @@ gym.register(
         "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_VARSPEED2_CFG",
     },
 )
+
+# Run 38: V25 = V24 + yaw rate (-0.3, 0.3). Add turning capability.
+gym.register(
+    id="AniML-Deer-USD-Walk-AMP-v29",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_amp_env_cfg:DeerUsdWalkAMPEnvCfgV25",
+        "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_TURN_CFG",
+    },
+)

@@ -515,6 +515,14 @@ DEER_USD_AMP_VARSPEED2_CFG: dict[str, Any] = {
 }
 
 
+# r38: V25 (V24 + yaw rate commands).
+DEER_USD_AMP_TURN_CFG: dict[str, Any] = {
+    **DEER_USD_AMP_WALK_RUN_CFG,
+    "experiment_name": "animl_deer_amp_turn",
+    "seed": 65,
+}
+
+
 try:
     from isaaclab.utils import configclass
 
