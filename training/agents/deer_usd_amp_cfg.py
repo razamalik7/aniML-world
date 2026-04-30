@@ -491,6 +491,14 @@ DEER_USD_AMP_LONG_EP_CFG: dict[str, Any] = {
 }
 
 
+# r35: V22 (V20 + tighter pelvis_too_low + base_height_l2 reward).
+DEER_USD_AMP_NO_BELLY_CFG: dict[str, Any] = {
+    **DEER_USD_AMP_WALK_RUN_CFG,
+    "experiment_name": "animl_deer_amp_no_belly",
+    "seed": 62,
+}
+
+
 try:
     from isaaclab.utils import configclass
 

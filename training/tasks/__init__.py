@@ -406,3 +406,16 @@ gym.register(
         "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_LONG_EP_CFG",
     },
 )
+
+# Run 35: V22 = V20 + tightened pelvis_too_low termination (min_height
+# 0.10 -> 0.55) + base_height_l2 reward (target z=0.85, weight -30).
+# Fixes the belly-slide local optimum r32-r34 fell into.
+gym.register(
+    id="AniML-Deer-USD-Walk-AMP-v26",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_amp_env_cfg:DeerUsdWalkAMPEnvCfgV22",
+        "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_NO_BELLY_CFG",
+    },
+)

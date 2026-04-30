@@ -32,6 +32,8 @@ from isaaclab.managers import TerminationTermCfg as DoneTerm
 from isaaclab.utils import configclass
 from isaaclab.utils.noise import AdditiveUniformNoiseCfg as Unoise
 
+from isaaclab.managers import TerminationTermCfg as DoneTerm
+
 from training.envs.deer_usd_rough_env_cfg import DeerUsdWalkEnvCfg
 
 
@@ -571,6 +573,106 @@ class DeerUsdWalkAMPEnvCfgV12(DeerUsdWalkAMPEnvCfg):
         self.commands.base_velocity.ranges.lin_vel_x = (0.3, 2.5)
         self.commands.base_velocity.ranges.lin_vel_y = (-0.3, 0.3)
         self.commands.base_velocity.ranges.ang_vel_z = (-0.7, 0.7)
+
+
+@configclass
+class DeerUsdWalkAMPEnvCfgV22(DeerUsdWalkAMPEnvCfg):
+    """Run 35: KILL THE BELLY-SLIDE.
+
+    r32-r34 trajectory inspection revealed the deer's pelvis stays at
+    z=0.30-0.32 for entire 30s playback while moving forward at 0.16
+    m/s. It's belly-sliding, not walking. Root cause: the inherited
+    pelvis_too_low termination uses min_height=0.10 (default), so a
+    deer with pelvis at 0.30 doesn't trigger termination. Policy
+    found "belly-slide = max forward reward, no termination, full
+    ep_len" as the optimal local minimum.
+
+    V22 fixes the pelvis floor:
+      1. Override pelvis_too_low termination with min_height=0.55
+         (catches belly-slides)
+      2. Add base_height_l2 reward pulling pelvis toward target z=0.85
+         (active reward pressure to stand tall)
+
+    Inherits V20's speed-breakthrough config: forward weight 8.0,
+    locked command 0.5 m/s, RSI from walk, 20s episodes.
+    """
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+
+        from training.envs.deer_rewards import (
+            track_forward_vel_anatomical_exp,
+            track_yaw_rate_anatomical_exp,
+            forward_velocity_linear_anatomical,
+            reset_from_amp_motion,
+            pelvis_too_low,
+        )
+        import isaaclab.envs.mdp as mdp_rewards
+
+        self.rewards.dof_torques_l2.weight = 0.0
+        self.rewards.dof_acc_l2.weight = 0.0
+        self.rewards.action_rate_l2.weight = -0.005
+
+        self.commands.base_velocity.ranges.lin_vel_x = (0.5, 0.5)
+        self.commands.base_velocity.ranges.lin_vel_y = (0.0, 0.0)
+        self.commands.base_velocity.ranges.ang_vel_z = (0.0, 0.0)
+        self.commands.base_velocity.rel_standing_envs = 0.0
+
+        for attr in ("ramp_vel_xy", "ramp_vel_yaw"):
+            if hasattr(self.curriculum, attr):
+                setattr(self.curriculum, attr, None)
+        for attr in ("track_lin_vel_xy_exp", "track_ang_vel_z_exp"):
+            if hasattr(self.rewards, attr):
+                delattr(self.rewards, attr)
+
+        self.rewards.track_forward_vel = RewTerm(
+            func=track_forward_vel_anatomical_exp,
+            weight=1.5,
+            params={"command_name": "base_velocity", "std": 0.3},
+        )
+        self.rewards.track_yaw_rate = RewTerm(
+            func=track_yaw_rate_anatomical_exp,
+            weight=0.5,
+            params={"command_name": "base_velocity", "std": 0.5},
+        )
+        self.rewards.forward_velocity_linear = RewTerm(
+            func=forward_velocity_linear_anatomical,
+            weight=8.0,
+            params={"command_name": "base_velocity", "clip_max": 1.0},
+        )
+
+        # NEW: explicit pelvis-height reward
+        # Penalizes deviation from target z=0.85 (close to the 0.93 spawn
+        # height). Heavy negative weight -- this is the critical fix.
+        self.rewards.base_height = RewTerm(
+            func=mdp_rewards.base_height_l2,
+            weight=-30.0,
+            params={"target_height": 0.85},
+        )
+
+        # RSI from walk
+        if hasattr(self.events, "reset_robot_joints"):
+            self.events.reset_robot_joints = None
+        self.events.reset_base = EventTerm(
+            func=reset_from_amp_motion,
+            mode="reset",
+            params={
+                "asset_cfg": SceneEntityCfg("robot"),
+                "base_height_m": 0.93,
+                "pose_jitter": 0.05,
+                "vel_jitter": 0.1,
+            },
+        )
+
+        # CRITICAL: tighten pelvis_too_low termination so belly-slide
+        # at z=0.30 actually triggers it.
+        self.terminations.pelvis_too_low = DoneTerm(
+            func=pelvis_too_low,
+            params={
+                "asset_cfg": SceneEntityCfg("robot"),
+                "min_height": 0.55,
+            },
+        )
 
 
 @configclass
