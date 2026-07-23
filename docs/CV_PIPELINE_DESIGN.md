@@ -337,16 +337,25 @@ extrapolated from AP-10K.
   (from-scratch 61.8 → ImageNet 51.8 → COCO 47.4 PA-MPJPE), which dwarfs it.
 - **Antler effects on head keypoints are entirely unstudied.** Moose (0.547) vs
   deer (0.767) is a weak proxy. 20 minutes of SuperAnimal zero-shot on antlered
-  vs antlerless frames would settle it.
+  vs antlerless frames would settle it. Partly mitigated now: SuperAnimal
+  supervises antlers explicitly, and our schema emits antler tips, so they can be
+  trained as signal rather than ignored as clutter.
 - **Temporal-gap tolerance: no data at all**, for AMP or tracking.
 - **The npj Robotics 2025 paper is the closest prior work and neither agent could
   read its full text** (paywall). Its extraction-accuracy numbers and
   discriminator spec remain unconfirmed. Worth institutional access before
   treating anything in it as load-bearing.
-- **SuperAnimal-Quadruped's ordered 39-keypoint list was not obtained.** The model
-  card defers to a figures repo that did not resolve. `deer_keypoints.py` leaves
-  `SUPERANIMAL_QUADRUPED_FROM_CANONICAL = None` deliberately rather than guessing
-  — an off-by-one in keypoint order produces silent garbage.
+- ~~SuperAnimal-Quadruped's ordered 39-keypoint list was not obtained.~~
+  **RESOLVED.** Read from the primary source —
+  `DeepLabCut/deeplabcut/modelzoo/project_configs/superanimal_quadruped.yaml`
+  (the model card does not publish it; the figures repo it defers to 404s).
+  `deer_keypoints.SUPERANIMAL_TO_CANONICAL` maps 26 of the 39 slots.
+  Notably that vocabulary **includes four antler keypoints**, so the model was
+  trained with antlers as labelled structure rather than unlabelled clutter —
+  which is better than AP-10K for deer and softens the antler unknown below.
+  Antler *tips* are now supplied by `MESH_KEYPOINTS` (lateral extremes of the
+  skull vertex group, read per frame from the posed mesh), taking the schema to
+  37 keypoints.
 
 ---
 

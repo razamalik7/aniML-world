@@ -77,6 +77,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from deer_keypoints import (  # noqa: E402
     CANONICAL_KEYPOINTS,
     KEYPOINT_NAMES,
+    MESH_KEYPOINTS,
+    MESH_KEYPOINT_NAMES,
     REQUIRED_BONES,
     SKELETON_EDGES,
 )
@@ -555,6 +557,56 @@ def bone_world_points(rig) -> dict[str, Vector]:
     return out
 
 
+def resolve_mesh_keypoints(mesh_obj) -> dict[str, int]:
+    """Pick the fixed vertex index for each mesh-anchored keypoint, once.
+
+    Resolved at REST by an extremum rule over a vertex group (e.g. the most +X
+    vertex weighted to the skull = the left antler tip). The index is then fixed
+    for the whole run, and the position is read per frame from the evaluated
+    mesh -- so skinning does the posing and we never do frame algebra.
+    """
+    groups = {g.name: g.index for g in mesh_obj.vertex_groups}
+    out: dict[str, int] = {}
+    for name, group, axis, sign, min_w in MESH_KEYPOINTS:
+        gi = groups.get(group)
+        if gi is None:
+            print(f"[synth] WARNING: vertex group {group!r} absent; "
+                  f"mesh keypoint {name!r} skipped")
+            continue
+        best_i, best_v = None, -1e18
+        for v in mesh_obj.data.vertices:
+            w = 0.0
+            for g in v.groups:
+                if g.group == gi:
+                    w = g.weight
+                    break
+            if w < min_w:
+                continue
+            val = sign * v.co[axis]
+            if val > best_v:
+                best_i, best_v = v.index, val
+        if best_i is None:
+            print(f"[synth] WARNING: no vertex in {group!r} above weight "
+                  f"{min_w}; mesh keypoint {name!r} skipped")
+            continue
+        out[name] = best_i
+    return out
+
+
+def mesh_keypoint_positions(mesh_obj, indices: dict[str, int]
+                            ) -> dict[str, Vector]:
+    """World positions of the mesh-anchored keypoints at the CURRENT pose."""
+    if not indices:
+        return {}
+    dg = bpy.context.evaluated_depsgraph_get()
+    ev = mesh_obj.evaluated_get(dg)
+    me = ev.to_mesh()
+    mw = mesh_obj.matrix_world
+    out = {name: mw @ me.vertices[i].co.copy() for name, i in indices.items()}
+    ev.to_mesh_clear()
+    return out
+
+
 def bone_rotations(rig) -> dict[str, list[float]]:
     out: dict[str, list[float]] = {}
     for pb in rig.pose.bones:
@@ -706,6 +758,12 @@ def main() -> None:
               "trained on it learns the wrong pose distribution. The shipped "
               ".blend contains idle/walk/run actions -- prefer those.")
 
+    mesh_kp_idx = resolve_mesh_keypoints(mesh_obj)
+    all_kp_names = KEYPOINT_NAMES + [n for n in MESH_KEYPOINT_NAMES
+                                     if n in mesh_kp_idx]
+    if mesh_kp_idx:
+        print(f"[synth] mesh-anchored keypoints resolved: {mesh_kp_idx}")
+
     mn, mx = subject_bounds(rig)
     print(f"[synth] skeleton bbox min={tuple(round(v,3) for v in mn)} "
           f"max={tuple(round(v,3) for v in mx)}")
@@ -762,10 +820,11 @@ def main() -> None:
         bpy.ops.render.render(write_still=True)
 
         world_kp = bone_world_points(rig)
+        world_kp.update(mesh_keypoint_positions(mesh_obj, mesh_kp_idx))
         kp2d: list[list[float]] = []
         kp3d: list[list[float]] = []
         vis: list[int] = []
-        for name in KEYPOINT_NAMES:
+        for name in all_kp_names:
             wp = world_kp[name]
             px, py, depth = project_point(cam, scene, wp, args.width,
                                           args.height)
@@ -781,7 +840,7 @@ def main() -> None:
             "image": img_rel,
             "width": args.width,
             "height": args.height,
-            "keypoint_names": KEYPOINT_NAMES,
+            "keypoint_names": all_kp_names,
             "keypoints_2d": kp2d,
             "visibility": vis,
             "keypoints_3d": kp3d,
@@ -805,7 +864,7 @@ def main() -> None:
 
         if args.debug_overlay:
             ok = draw_overlay(img_path, out_dir / "overlays" / f"{stem}.png",
-                              kp2d, vis, KEYPOINT_NAMES)
+                              kp2d, vis, all_kp_names)
             if not ok and i == 0:
                 print("[synth] NOTE: Pillow unavailable inside Blender; "
                       "overlays skipped. Run tools/cv/overlay_keypoints.py "
@@ -815,12 +874,13 @@ def main() -> None:
         index.append({"stem": stem, "image": img_rel,
                       "label": f"labels/{stem}.json", "num_visible": n_vis})
         print(f"[synth] {i+1}/{args.num} {stem} visible={n_vis}/"
-              f"{len(KEYPOINT_NAMES)}", flush=True)
+              f"{len(all_kp_names)}", flush=True)
 
     (out_dir / "dataset.json").write_text(json.dumps({
         "schema_version": 1,
-        "keypoint_names": KEYPOINT_NAMES,
+        "keypoint_names": all_kp_names,
         "skeleton_edges": SKELETON_EDGES,
+        "mesh_keypoints": mesh_kp_idx,
         "num_samples": len(index),
         "config": vars(args),
         "source_blend": bpy.data.filepath,

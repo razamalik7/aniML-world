@@ -46,11 +46,16 @@ public vocabularies matters more than precision:
 
 STATUS OF THE PUBLIC-VOCABULARY MAPPINGS
 ----------------------------------------
-AP10K_FROM_CANONICAL is VERIFIED against the AP-10K paper's 17-keypoint
-definition. SUPERANIMAL_QUADRUPED_FROM_CANONICAL is UNVERIFIED -- the DeepLabCut
-model card does not publish the ordered bodypart list and the referenced figure
-repo was not reachable. Resolve before relying on it; see the module-level
-constant's docstring.
+Both VERIFIED against primary sources on 2026-07-23.
+
+`AP10K_FROM_CANONICAL` against the AP-10K paper's 17-keypoint definition
+(arXiv 2108.12617): 15/17 mapped, the two eyes excluded.
+
+`SUPERANIMAL_TO_CANONICAL` against the ordered `bodyparts:` list in
+`DeepLabCut/deeplabcut/modelzoo/project_configs/superanimal_quadruped.yaml`
+(the HuggingFace model card does not publish it): 26/39 mapped. That vocabulary
+includes four ANTLER keypoints, which matters for deer -- antler tips are
+supplied here by `MESH_KEYPOINTS`.
 """
 
 from __future__ import annotations
@@ -186,33 +191,108 @@ AP10K_FROM_CANONICAL: dict[str, str | None] = {
     "R_B_Paw":      "HR_hoof",
 }
 
-# SuperAnimal-Quadruped (DeepLabCut model zoo, Nature Comms 2024) reportedly
-# uses a 39-keypoint vocabulary.
+# SuperAnimal-Quadruped (DeepLabCut model zoo, Nature Comms 2024), 39 keypoints.
 #
-# !! UNVERIFIED !! The HuggingFace model card for
-# `mwmathis/DeepLabCutModelZoo-SuperAnimal-Quadruped` does NOT publish the
-# ordered bodypart list; it defers to a figures repo that did not resolve on
-# 2026-07-23. Do not trust the mapping below until the real ordered list is
-# obtained -- an off-by-one in keypoint order silently produces garbage with no
-# error, which is exactly the failure mode that has bitten this project before
-# (see the AMP `preserve_order` gotcha in CLAUDE.md).
+# VERIFIED 2026-07-23 against the primary source: the ordered `bodyparts:` list in
+#   DeepLabCut/deeplabcut/modelzoo/project_configs/superanimal_quadruped.yaml
+# (the HuggingFace model card does not publish it; the figures repo it defers to
+# did not resolve). Order below is the file's order and must not be reordered --
+# an off-by-one in keypoint order produces silent garbage, which is exactly the
+# failure mode behind the AMP `preserve_order` gotcha in CLAUDE.md.
 #
-# TO RESOLVE: install deeplabcut and read
-#   deeplabcut/modelzoo/superanimal_configs/superanimal_quadruped.yaml
-# or inspect the released checkpoint's head dimensionality + config.
+# Licence: Modified MIT, academic/non-commercial; commercial use requires
+# contacting the authors. Fine to use for bootstrapping labels; do not vendor the
+# weights into a public repo.
 #
-# Also note the licence: Modified MIT, academic/non-commercial, "commercial use
-# requires contacting the authors" (verified on the model card 2026-07-23).
-SUPERANIMAL_QUADRUPED_FROM_CANONICAL: dict[str, str] | None = None
+# NOTE FOR DEER: this vocabulary includes four ANTLER keypoints. The model was
+# trained with antlers as labelled structure rather than unlabelled clutter,
+# which is better than AP-10K (17 keypoints, no antlers) for our species.
+SUPERANIMAL_QUADRUPED_ORDER: list[str] = [
+    "nose", "upper_jaw", "lower_jaw", "mouth_end_right", "mouth_end_left",
+    "right_eye", "right_earbase", "right_earend",
+    "right_antler_base", "right_antler_end",
+    "left_eye", "left_earbase", "left_earend",
+    "left_antler_base", "left_antler_end",
+    "neck_base", "neck_end", "throat_base", "throat_end",
+    "back_base", "back_end", "back_middle",
+    "tail_base", "tail_end",
+    "front_left_thai", "front_left_knee", "front_left_paw",
+    "front_right_thai", "front_right_knee", "front_right_paw",
+    "back_left_paw", "back_left_thai", "back_right_thai",
+    "back_left_knee", "back_right_knee", "back_right_paw",
+    "belly_bottom", "body_middle_right", "body_middle_left",
+]
 
-# Keypoints we would need to derive from MESH geometry rather than bones,
-# should we ever want full AP-10K coverage. Populated as (name, strategy).
-MESH_DERIVED_KEYPOINTS: list[tuple[str, str]] = [
-    ("L_Eye", "nearest mesh vertex to a manually-picked point on the skull, "
-              "captured once in rest pose and carried by skinning weights"),
+# SuperAnimal slot -> our canonical keypoint, or None where we have no
+# bone-anchored equivalent. Used to seed hand-labelling from zero-shot
+# predictions (the model card says it is not precise enough to use directly, but
+# correcting pre-placed points is much faster than placing them).
+#
+# "thai" is the upstream spelling of "thigh". SuperAnimal gives 3 points per
+# limb where we have 5, so the mapping is deliberately lossy: their per-limb
+# "knee" is the visually prominent middle joint, which is the carpus on a foreleg
+# and the hock on a hind leg.
+SUPERANIMAL_TO_CANONICAL: dict[str, str | None] = {
+    "nose": "nose",
+    "upper_jaw": None, "lower_jaw": None,
+    "mouth_end_right": None, "mouth_end_left": None,
+    "right_eye": None, "left_eye": None,        # no eye bones; see MESH_DERIVED
+    "right_earbase": "ear_R_base", "right_earend": "ear_R_tip",
+    "left_earbase": "ear_L_base", "left_earend": "ear_L_tip",
+    # Antler TIPS come from MESH_KEYPOINTS (lateral extremes of the skull vertex
+    # group), so SuperAnimal's antler supervision is usable. The antler BASES have
+    # no reliable extremum rule and stay unmapped.
+    "right_antler_base": None, "left_antler_base": None,   # no bone/extremum
+    "right_antler_end": "antler_R_tip", "left_antler_end": "antler_L_tip",
+    "neck_base": "neck_base", "neck_end": "neck_upper",
+    "throat_base": None, "throat_end": None,
+    "back_base": "withers", "back_middle": "back_mid", "back_end": "croup",
+    "tail_base": "tail_base", "tail_end": "tail_tip",
+    "front_left_thai": "FL_shoulder", "front_left_knee": "FL_carpus",
+    "front_left_paw": "FL_hoof",
+    "front_right_thai": "FR_shoulder", "front_right_knee": "FR_carpus",
+    "front_right_paw": "FR_hoof",
+    "back_left_thai": "HL_hip", "back_left_knee": "HL_hock",
+    "back_left_paw": "HL_hoof",
+    "back_right_thai": "HR_hip", "back_right_knee": "HR_hock",
+    "back_right_paw": "HR_hoof",
+    "belly_bottom": None,
+    "body_middle_right": None, "body_middle_left": None,
+}
+
+# ---------------------------------------------------------------------------
+# Mesh-anchored keypoints
+# ---------------------------------------------------------------------------
+# Some landmarks have no bone to hang on. Antler tips are the important case:
+# SuperAnimal-Quadruped supervises four antler keypoints, and antlers are the one
+# deer-specific feature the animal-pose literature has never studied, so having
+# them is worth the extra machinery.
+#
+# These are resolved ONCE to fixed mesh vertex indices by an extremum rule, then
+# read per frame from the EVALUATED (skinned, posed) mesh. That is exact and
+# needs no frame algebra: Blender's skinning has already put the vertex where it
+# belongs, so `deer.matrix_world @ evaluated_mesh.vertices[i].co` is the answer at
+# any pose. Deriving a bone-local offset instead would reintroduce exactly the
+# rig-frame confusion this module warns about.
+#
+# Entries: (keypoint name, vertex group, axis index, sign, min weight)
+# axis/sign select the extremum, e.g. (0, +1) = most +X vertex = anatomical LEFT.
+# X is shared between the mesh and armature object transforms in this .blend
+# (both matrices have row0 = (1,0,0)), so the lateral extremes are unambiguous.
+MESH_KEYPOINTS: list[tuple[str, str, int, float, float]] = [
+    ("antler_L_tip", "scull", 0, +1.0, 0.5),
+    ("antler_R_tip", "scull", 0, -1.0, 0.5),
+]
+
+MESH_KEYPOINT_NAMES: list[str] = [k[0] for k in MESH_KEYPOINTS]
+
+# Still unresolved, and only needed for full AP-10K coverage. Eyes carry no
+# articulation information for a locomotion reference, so leaving them out costs
+# nothing; both are excluded from PCK rather than guessed.
+UNRESOLVED_MESH_KEYPOINTS: list[tuple[str, str]] = [
+    ("L_Eye", "no automatic extremum rule finds an eye; would need a "
+              "hand-picked vertex index captured once in rest pose"),
     ("R_Eye", "mirror of L_Eye across the X=0 plane"),
-    ("antler_L_tip", "extreme mesh vertex in the skull vertex-group, +X half"),
-    ("antler_R_tip", "extreme mesh vertex in the skull vertex-group, -X half"),
 ]
 
 
@@ -253,12 +333,19 @@ def describe() -> str:
     for i, (name, (bone, end)) in enumerate(CANONICAL_KEYPOINTS):
         lines.append(f"{i:>3}  {name:<14} {bone:<20} {end}")
     mapped = sum(1 for v in AP10K_FROM_CANONICAL.values() if v is not None)
+    sa_mapped = sum(1 for v in SUPERANIMAL_TO_CANONICAL.values()
+                    if v is not None)
+    sa_unmapped = [k for k, v in SUPERANIMAL_TO_CANONICAL.items() if v is None]
     lines += [
         "",
         f"AP-10K coverage: {mapped}/{len(AP10K_KEYPOINT_ORDER)} slots mapped "
         f"(unmapped: {[k for k, v in AP10K_FROM_CANONICAL.items() if v is None]})",
-        "SuperAnimal-Quadruped mapping: NOT YET DEFINED (ordered bodypart list "
-        "unverified -- see module docstring)",
+        f"SuperAnimal-Quadruped coverage: {sa_mapped}/"
+        f"{len(SUPERANIMAL_QUADRUPED_ORDER)} slots mapped",
+        f"  unmapped: {sa_unmapped}",
+        "  (their order VERIFIED against DeepLabCut's project config; the four "
+        "antler slots are unmapped only because our armature has no antler "
+        "bones -- the antlers are baked into skull_visual.stl)",
     ]
     return "\n".join(lines)
 
