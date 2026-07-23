@@ -1,0 +1,91 @@
+{
+ "source": "C:\\Users\\nars7\\Projects\\aniML-world\\.claude\\worktrees\\jolly-clarke-e00da9\\assets\\motions\\deer_walk.npy",
+ "seed": 0,
+ "true_vel_rms": 1.6071793550060098,
+ "variants": [
+  {
+   "name": "jitter_0deg",
+   "joint_vel_rms": 1.5455437872533277,
+   "loader_vel_rms": 1.6071793550060098,
+   "joint_pos_rms": 0.37823238593288644
+  },
+  {
+   "name": "jitter_0.5deg",
+   "joint_vel_rms": 1.5564713403285846,
+   "loader_vel_rms": 1.64974921278347,
+   "joint_pos_rms": 0.3780330691255541
+  },
+  {
+   "name": "jitter_0.5deg_smoothed",
+   "joint_vel_rms": 1.535383950489294,
+   "loader_vel_rms": 1.5877782965257479,
+   "joint_pos_rms": 0.37791137478879727
+  },
+  {
+   "name": "jitter_1deg",
+   "joint_vel_rms": 1.5742684125502815,
+   "loader_vel_rms": 1.7356811004878863,
+   "joint_pos_rms": 0.37915997731342566
+  },
+  {
+   "name": "jitter_1deg_smoothed",
+   "joint_vel_rms": 1.534659783208127,
+   "loader_vel_rms": 1.5907204957622296,
+   "joint_pos_rms": 0.37887037316776556
+  },
+  {
+   "name": "jitter_2deg",
+   "joint_vel_rms": 1.7543790550859384,
+   "loader_vel_rms": 2.2338756228791077,
+   "joint_pos_rms": 0.38246204043611515
+  },
+  {
+   "name": "jitter_2deg_smoothed",
+   "joint_vel_rms": 1.6256177535141958,
+   "loader_vel_rms": 1.704268782740094,
+   "joint_pos_rms": 0.3813785735950922
+  },
+  {
+   "name": "jitter_3deg",
+   "joint_vel_rms": 1.8698385160216244,
+   "loader_vel_rms": 2.804298366671159,
+   "joint_pos_rms": 0.38090923431350765
+  },
+  {
+   "name": "jitter_3deg_smoothed",
+   "joint_vel_rms": 1.6248083991370594,
+   "loader_vel_rms": 1.7456357783419616,
+   "joint_pos_rms": 0.37852432416595616
+  },
+  {
+   "name": "jitter_5deg",
+   "joint_vel_rms": 2.4866737682534574,
+   "loader_vel_rms": 4.19769436791652,
+   "joint_pos_rms": 0.39545342352219454
+  },
+  {
+   "name": "jitter_5deg_smoothed",
+   "joint_vel_rms": 1.8250312757024347,
+   "loader_vel_rms": 1.9838398259009438,
+   "joint_pos_rms": 0.3891695108113959
+  },
+  {
+   "name": "rootspeed_x0.5",
+   "joint_vel_rms": 1.5455437872533277,
+   "loader_vel_rms": 1.6071793550060098,
+   "joint_pos_rms": 0.37823238593288644
+  },
+  {
+   "name": "rootspeed_x2",
+   "joint_vel_rms": 1.5455437872533277,
+   "loader_vel_rms": 1.6071793550060098,
+   "joint_pos_rms": 0.37823238593288644
+  },
+  {
+   "name": "jointscale_x1.1",
+   "joint_vel_rms": 1.7000981659786605,
+   "loader_vel_rms": 1.7678972905066108,
+   "joint_pos_rms": 0.41605562452617506
+  }
+ ]
+}

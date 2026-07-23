@@ -1,0 +1,212 @@
+{
+ "scale_artist_over_urdf": 1.0000003718148065,
+ "axial_residual_mean_cm": 7.607362719845118e-05,
+ "axial_residual_max_cm": 0.00012465785502488485,
+ "limb_rows": [
+  {
+   "urdf": "L_shoulder",
+   "nearest": "front_thigh.L.head",
+   "dist_cm": 7.871117164578564e-05,
+   "by_name": "FL_shoulder",
+   "by_name_cm": 30.819835378436878,
+   "shifted": "FL_elbow",
+   "shifted_cm": 7.871117164578564e-05
+  },
+  {
+   "urdf": "L_elbow",
+   "nearest": "front_shin.L.head",
+   "dist_cm": 8.114279335180288e-05,
+   "by_name": "FL_elbow",
+   "by_name_cm": 22.862707911401657,
+   "shifted": "FL_carpus",
+   "shifted_cm": 8.114279335180288e-05
+  },
+  {
+   "urdf": "L_f_ankle",
+   "nearest": "front_foot.L.head",
+   "dist_cm": 8.095163541429273e-05,
+   "by_name": "FL_carpus",
+   "by_name_cm": 28.639564206173212,
+   "shifted": "FL_fetlock",
+   "shifted_cm": 8.095163541429273e-05
+  },
+  {
+   "urdf": "L_f_toe",
+   "nearest": "front_foot.L.head",
+   "dist_cm": 27.55524733039247,
+   "by_name": "FL_fetlock",
+   "by_name_cm": 27.55524733039247,
+   "shifted": "FL_hoof",
+   "shifted_cm": 55.25561111852086
+  },
+  {
+   "urdf": "R_shoulder",
+   "nearest": "front_thigh.R.head",
+   "dist_cm": 7.753135220894862e-05,
+   "by_name": "FR_shoulder",
+   "by_name_cm": 30.819924961781446,
+   "shifted": "FR_elbow",
+   "shifted_cm": 7.753135220894862e-05
+  },
+  {
+   "urdf": "R_elbow",
+   "nearest": "front_shin.R.head",
+   "dist_cm": 4.3369612243087924e-05,
+   "by_name": "FR_elbow",
+   "by_name_cm": 22.8625909168669,
+   "shifted": "FR_carpus",
+   "shifted_cm": 4.3369612243087924e-05
+  },
+  {
+   "urdf": "R_f_ankle",
+   "nearest": "front_foot.R.head",
+   "dist_cm": 3.072707537062795e-05,
+   "by_name": "FR_carpus",
+   "by_name_cm": 28.639409180199536,
+   "shifted": "FR_fetlock",
+   "shifted_cm": 3.072707537062795e-05
+  },
+  {
+   "urdf": "R_f_toe",
+   "nearest": "front_shin.R.tail",
+   "dist_cm": 27.555241041885083,
+   "by_name": "FR_fetlock",
+   "by_name_cm": 27.55527445481431,
+   "shifted": "FR_hoof",
+   "shifted_cm": 53.88037302006319
+  },
+  {
+   "urdf": "L_hip",
+   "nearest": "thigh.L.head",
+   "dist_cm": 8.624847539538258e-05,
+   "by_name": "HL_hip",
+   "by_name_cm": 23.248829697748967,
+   "shifted": "HL_knee",
+   "shifted_cm": 8.624847539538258e-05
+  },
+  {
+   "urdf": "L_knee",
+   "nearest": "shin.L.head",
+   "dist_cm": 7.317336227982299e-05,
+   "by_name": "HL_knee",
+   "by_name_cm": 33.33392878931083,
+   "shifted": "HL_hock",
+   "shifted_cm": 7.317336227982299e-05
+  },
+  {
+   "urdf": "L_h_ankle",
+   "nearest": "shin.L.tail",
+   "dist_cm": 4.2808153385693274e-05,
+   "by_name": "HL_hock",
+   "by_name_cm": 27.520138014997432,
+   "shifted": "HL_fetlock",
+   "shifted_cm": 0.00012465785503324757
+  },
+  {
+   "urdf": "L_h_toe",
+   "nearest": "shin.L.head",
+   "dist_cm": 16.68638910515304,
+   "by_name": "HL_fetlock",
+   "by_name_cm": 33.898390763076605,
+   "shifted": "HL_hoof",
+   "shifted_cm": 68.00738627378139
+  },
+  {
+   "urdf": "R_hip",
+   "nearest": "thigh.R.head",
+   "dist_cm": 4.058451994122786e-05,
+   "by_name": "HR_hip",
+   "by_name_cm": 23.24899130393882,
+   "shifted": "HR_knee",
+   "shifted_cm": 4.058451994122786e-05
+  },
+  {
+   "urdf": "R_knee",
+   "nearest": "shin.R.head",
+   "dist_cm": 0.00010678575899522687,
+   "by_name": "HR_knee",
+   "by_name_cm": 33.33404504977442,
+   "shifted": "HR_hock",
+   "shifted_cm": 0.00010678575899522687
+  },
+  {
+   "urdf": "R_h_ankle",
+   "nearest": "foot.R.head",
+   "dist_cm": 8.899991452098793e-05,
+   "by_name": "HR_hock",
+   "by_name_cm": 27.520164064909054,
+   "shifted": "HR_fetlock",
+   "shifted_cm": 8.899991452098793e-05
+  },
+  {
+   "urdf": "R_h_toe",
+   "nearest": "shin.R.head",
+   "dist_cm": 16.686288897342234,
+   "by_name": "HR_fetlock",
+   "by_name_cm": 33.89843746886878,
+   "shifted": "HR_hoof",
+   "shifted_cm": 68.00761989212694
+  },
+  {
+   "urdf": "L_f_hoof",
+   "nearest": "front_foot.L.tail",
+   "dist_cm": 10.12904901669999,
+   "by_name": null,
+   "by_name_cm": NaN,
+   "shifted": null,
+   "shifted_cm": NaN
+  },
+  {
+   "urdf": "R_f_hoof",
+   "nearest": "front_foot.R.tail",
+   "dist_cm": 9.76010357047493,
+   "by_name": null,
+   "by_name_cm": NaN,
+   "shifted": null,
+   "shifted_cm": NaN
+  },
+  {
+   "urdf": "L_h_hoof",
+   "nearest": "foot.L.tail",
+   "dist_cm": 10.01697392491456,
+   "by_name": null,
+   "by_name_cm": NaN,
+   "shifted": null,
+   "shifted_cm": NaN
+  },
+  {
+   "urdf": "R_h_hoof",
+   "nearest": "foot.R.tail",
+   "dist_cm": 10.01686385970134,
+   "by_name": null,
+   "by_name_cm": NaN,
+   "shifted": null,
+   "shifted_cm": NaN
+  }
+ ],
+ "hypothesis_by_name_mean_cm": 28.484842468293206,
+ "hypothesis_shifted_mean_cm": 15.321993949251173,
+ "winner": "shifted",
+ "nearest_map": {
+  "L_shoulder": "front_thigh.L.head",
+  "L_elbow": "front_shin.L.head",
+  "L_f_ankle": "front_foot.L.head",
+  "L_f_toe": "front_foot.L.head",
+  "R_shoulder": "front_thigh.R.head",
+  "R_elbow": "front_shin.R.head",
+  "R_f_ankle": "front_foot.R.head",
+  "R_f_toe": "front_shin.R.tail",
+  "L_hip": "thigh.L.head",
+  "L_knee": "shin.L.head",
+  "L_h_ankle": "shin.L.tail",
+  "L_h_toe": "shin.L.head",
+  "R_hip": "thigh.R.head",
+  "R_knee": "shin.R.head",
+  "R_h_ankle": "foot.R.head",
+  "R_h_toe": "shin.R.head",
+  "L_f_hoof": "front_foot.L.tail",
+  "R_f_hoof": "front_foot.R.tail",
+  "L_h_hoof": "foot.L.tail",
+  "R_h_hoof": "foot.R.tail"
+ }
+}
