@@ -520,3 +520,64 @@ stance phase by construction, and this hand-authored clip never will.
 `rig_correspondence.py`, `blender_dump_rig.py`, `rebuild_reference_clips.py`
 (writes corrected copies to `assets/motions/v2/`, never in place),
 `make_noise_suite.py` (14 corrupted variants + manifest, ready for the GPU).
+
+---
+
+## 12. Addendum — the URDF fit is built, and the accuracy chain is tight
+
+`tools/cv/fit_urdf_to_keypoints.py` implements stage [C] (2D keypoints → root
+pose + 25 joint angles, least-squares with a soft joint-limit barrier) and a
+synthetic round-trip self-test that measures it against known ground truth. No
+GPU, no real footage needed.
+
+```bash
+python tools/cv/fit_urdf_to_keypoints.py --selftest --trials 10 --noise-px 1
+```
+
+**Result 1 — 21 of 25 DOF are recovered exactly from noiseless 2D; four are
+structurally unobservable.** Median joint error is 0.000° for every joint except
+the four `*_foot_to_*_toe`, which land at 10–34°.
+
+The cause is provable rather than mysterious: **no keypoint lies distal to the toe
+joint**, so rotating it moves nothing in the image. The schema's `*_toe` keypoints
+are the toe link's *origin* (which the toe joint rotates *about*), and the hoof
+keypoints are anchored to the **foot** mesh — because the toe links have no
+`<visual>` geometry, which `keypoint_schema.py` says in its own comment.
+
+So this traces back to the same rig gap noted in §9: promoting the existing
+`*_toe_collision.stl` to `<visual>` would make the toe DOF observable *and* fix
+the missing hooves in playback renders. Until then, the toe joints should be
+fixed at a prior rather than left free. They are not in the 15-joint AMP
+reference set, so this does not block the current path.
+
+**Result 2 — the accuracy chain is tighter than is comfortable.** Fitting the
+real walk clip's poses through a known camera with **1 px** of keypoint noise:
+
+| method | median | mean | p90 |
+|---|---|---|---|
+| per-frame, no smoothing | 1.76° | 5.22° | 8.16° |
+| sequence, smoothness w=10 | **1.31°** | 4.78° | 22.9° |
+| sequence, w=40 | 1.26° | 4.89° | 22.9° |
+| sequence, w=150 | 2.68° | 6.07° | 22.9° |
+
+On randomly sampled poses (a harder distribution) per-frame error is ~3.8° median
+at 1 px, and ~8° at 3 px.
+
+Read against §0.5: **1° of joint jitter already injects ~45% noise into the
+discriminator's velocity channel.** So even 1 px of 2D keypoint error — far better
+than any animal-pose network actually achieves; PCK@0.05 on a 400 px bounding box
+is a 20 px tolerance — puts us at or over budget.
+
+Temporal smoothing helps the median (~28%) but my implementation degrades the
+tail, and over-smoothing is worse than none. A better fit (stronger initialisation,
+physical priors, contact constraints) should do better — this is a first
+implementation, not a ceiling.
+
+**What this means for the plan.** The predicted 1° bar is hard to hit through a
+monocular fit. That makes the **noise-tolerance experiment the gating question,
+not a nice-to-have**: if AMP tolerates 3–5° the pipeline is comfortable; if the
+predicted knee at 1–2° is real, video-derived reference motion needs either much
+stronger priors than built here or a different approach entirely. The suite is
+ready in `assets/motions/noise_suite/`.
+
+That experiment should now be run **before** further investment in the CV stages.
