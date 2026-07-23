@@ -22,12 +22,20 @@ The rig exists in two forms and **they are not the same geometry**:
 renders the URDF, so the animal in policy-review videos is always slightly
 disassembled — worth remembering when judging gait by eye.
 
-⚠️ **The two keypoint schemas are not yet reconciled.** `keypoint_schema.py`
-anchors 31 keypoints to URDF link origins; `deer_keypoints.py` anchors 35 to
-artist armature bone heads/tails. A spot check says they do not trivially align.
-Establishing the correspondence is **the next integration task** — it is the link
-between labels in image space and the joint angles the URDF fit solves for. See
-`docs/CV_PIPELINE_DESIGN.md` §9.
+✅ **The two keypoint schemas are reconciled, and the rigs are geometrically
+identical.** `keypoint_schema.py` anchors 31 keypoints to URDF link origins;
+`deer_keypoints.py` anchors 35 to artist armature bone heads/tails. Anchoring the
+fit on true joint centres gives **scale 1.0000, rotation 0.00°, residual 0.00 cm
+on all 12 limb joints** — a pure translation of `(0, -1.0206, 0.2905)`.
+
+The one thing to know: **the URDF skips the armature's `shoulder.*` bone**, so
+`URDF hip ↔ armature thigh.head`, one segment further down than the bone names
+suggest. Verify with `python tools/cv/rig_correspondence.py --anchor limbs`.
+
+The URDF's *surface* keypoints (nose, withers, eyes, antler tips, hooves,
+tail_root) are derived from convex-hull proxy meshes and are **not** reliable —
+`withers` sits 19 cm from its armature counterpart. Use joint centres for
+anything quantitative.
 
 ## Modules
 

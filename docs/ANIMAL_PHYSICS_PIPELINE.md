@@ -313,6 +313,80 @@ For ungulates (deer, horses, etc.), **front knees bend forward** (like a human k
 ### 7. Reward simplicity wins
 Many weak, competing rewards create exploitable local minima (e.g., "sploot" — lying flat satisfies foot-on-ground, low-torque, and upright-bonus simultaneously). One strong, unfakeable signal (pelvis-to-foot vertical gap) works better.
 
+### 8. Front-knee-walk (cannon-on-ground exploit) — Phase 2A finding (2026-05-04)
+
+**Symptom**: deer trains successfully (high reward, ep_len ~800), gait is on
+all 4 legs, BUT the front feet are bent flat at the carpus joint such that
+the cannon (shin-foot junction) acts as the contact patch. Visually looks
+like the deer is "kneeling" on its front knees while hind legs walk normally.
+A more refined version of the lying-on-calves exploit, with the deer in
+proper standing posture but using the wrong contact patch on the front legs.
+
+**Root cause**: the URDF "foot" link in v3 was a single rigid body containing
+both the cannon (metacarpus) AND the phalanges/hoof. Contact sensors on
+that body fire whether contact is at the hoof (correct) or the cannon
+(wrong). `gait_contact_match` and `feet_air_time` rewards saw "foot in
+contact" and gave reward, even though the actual contact was via the
+upper part of the foot link.
+
+**The fix (URDF v4)**: split each foot link into FOOT (cannon segment) +
+TOE (phalanges + hoof) connected by a pastern (fetlock) joint. Now:
+  - Contact sensors on TOE bodies = real hoof-on-ground signal
+  - Contact sensors on FOOT bodies = cannon-on-ground = bad
+  - `undesired_contacts` regex extended to include `*_foot` (cannon)
+  - `gait_contact_match` reads `*_toe` bodies for the hoof timing reward
+
+This matches real ungulate anatomy (4 leg segments: hip→stifle→hock→pastern)
+and provides clean separation of "good contact" vs "bad contact." See
+`tools/rebuild_deer_urdf_v4.py` for the URDF generation and
+`docs/overnight_2026-05-05_phase2a.md` for the iteration narrative.
+
+**Other Phase 2A findings worth keeping:**
+
+- **Antlers as separate rigid body**: 1.5 kg with fixed joint to skull. Mass
+  CoM should be CLOSE to the pedicle (e.g., 10cm forward + 10cm up), NOT at
+  the antler tine tips. Aggressive forward-up CoM caused chin-tuck behavior
+  as the policy compensated for the front-heavy load.
+- **Front:hind actuator gain split**: front legs Kp=40 / Kd=4, hind Kp=70 / Kd=4.
+  Encodes the published cervid biomech result that forelimbs act as elastic
+  struts (decelerating impulses) while hindlimbs are active drivers
+  (accelerating impulses). Don't use uniform leg gains.
+- **Per-link convex decomposition tuning** is essential for performance.
+  Default 32 hulls per body = 544 collision pieces per deer = 5-8× slower
+  training than necessary. Tune to actual concavity:
+  antlers 24 (preserve tine geometry), skull/chest 6, pelvis 4, neck 3,
+  limb segments 2, toes 3. ~80 pieces/deer.
+- **Gait reward signal source**: read TOE contacts (not foot) for trot timing.
+  Reading FOOT contacts when the foot is split rewards cannon-on-ground.
+- **Stilt-walk failure mode**: even with correct contact geometry, if
+  `action_rate_l2` weight is high (-0.01) and there's no positive incentive
+  for knee variation, the policy converges to hip-only motion (knees stay
+  near default angle, foot lifts via hip rotation alone). Counter with:
+  (a) explicit `knee_flex_during_swing` reward (+1.5) targeting knee
+  deviation from default during gait swing phase; (b) softer `action_rate_l2`
+  weight (-0.005); (c) higher `feet_swing_clearance` target (8 cm vs 5 cm)
+  to force a knee-bend foot-lift trajectory.
+
+**Warm-start gotcha**: when changing the URDF (adding/removing joints), the
+action and observation dimensions both change. v3 had 21-DOF action +
+83-dim obs; v4 has 25-DOF action + 95-dim obs (joint_pos/vel/last_action
+each grow by 4 for the pasterns). To warm-start a v3 policy on v4 physics,
+pad BOTH the input layer (`mlp.0.weight`) along the obs dim AND the output
+layer (`mlp.6.weight` + `distribution.std_param`) along the action dim, with
+zero columns/rows at the v4 indices corresponding to the new joints. See
+`tools/pad_v3_policy_for_v4.py` for the joint-order-aware index mapping.
+
+### 9. Kneeling-on-calves local minimum (front-leg shin-on-ground sploot)
+**Symptom**: deer trains successfully against `pelvis_height_ramp` + `base_height_l2` and gets ep_len ~800-900, time_out 80%+, but visually it's lying with its **front shins flat on the ground** while pelvis floats high (rear legs roughly correct). The "lying on calves" pose game-able by tucking the front legs under the chest with shin links touching ground — pelvis stays at target height, so the height-based rewards saturate, but the deer is not actually walking.
+
+**Why height rewards don't catch it**: pelvis_z stays at ~0.85m (matches target), pelvis_too_low termination doesn't fire (height > 0.55m), base_orientation_too_tilted doesn't fire (deer is roughly horizontal-pelvis). The height-based safeguards see "deer at standing height" without seeing "deer on its feet."
+
+**The fix (Lee/Margolis/Hwangbo recipe)**: enable `undesired_contacts` reward at weight ~−1.0, with `body_names=".*(thigh|shin)"` (or whatever regex matches your leg-segment links above the foot). The reward fires every step a non-foot leg link touches the ground. Per-step penalty is small but cumulative across the episode — kneeling becomes strictly worse than standing-and-walking. Found in `isaaclab_tasks.manager_based.locomotion.velocity.velocity_env_cfg:RewardsCfg.undesired_contacts` (default weight −1.0). The deer's parent class `DeerUsdRoughEnvCfg` already wires the body regex to `.*(thigh|shin|calf|knee|shank)` — just don't zero its weight.
+
+**What we tried that didn't work**: enabling `base_contact` termination on chest/neck/skull bodies. Threshold 1 N or 200 N both fired at 100% on spawn — the deer's `enabled_self_collisions=True` produces high inter-mesh contact forces between chest and front-leg thigh meshes that aren't real ground contacts. Walk-These-Ways' default config also keeps `terminate_after_contacts_on = []` empty. The graded `undesired_contacts` REWARD penalty (−1.0) is sufficient — terminations on chest contact aren't needed.
+
+**Empirical impact** (Stage 1 r2 → r3 fix): ep_len 689 → 992, time_out 51% → 99%, base_tilted 49% → 0.6%, `undesired_contacts` reward total per-episode tiny (−0.029) confirming the deer's leg segments rarely touch ground. Mean reward 60.9 → 67.7. The training trajectory is qualitatively different — deer is genuinely on its feet rather than gaming height rewards.
+
 ---
 
 ## File Reference

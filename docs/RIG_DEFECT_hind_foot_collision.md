@@ -154,3 +154,49 @@ within the rig (no external ground truth, no coordinate-convention assumptions):
 A mirrored mesh raises no error anywhere in the URDF → USD → PhysX → training
 chain. The only symptom is a policy that behaves oddly for reasons nobody can
 pin down.
+
+---
+
+## The suggested fix is VERIFIED to work (tested on a throwaway copy)
+
+Applied to a **copy** of the URDF in a scratch directory — nothing live was
+modified — with exactly two changes:
+
+1. `HL_foot` / `HR_foot` collision meshes repointed from `*_collision_v3.stl` to
+   the legacy `*_collision.stl`;
+2. `FL_shin_to_FL_foot` / `FR_shin_to_FR_foot` limits changed from
+   `lower="-0.3" upper="1.6"` to `lower="-1.6" upper="0.3"` (the separate
+   fetlock defect, see `docs/REFERENCE_CLIP_FINDINGS.md` §1).
+
+`python tools/cv/check_rig_geometry.py --urdf <patched copy>`:
+
+| | before | after |
+|---|---|---|
+| mirrored-mesh failures | 3 | **0** |
+| FL lowest collision point | +0.977 m | +0.977 m |
+| FR | +0.982 m | +0.982 m |
+| **HL** | **+0.647 m** | **+1.031 m** |
+| **HR** | **+0.647 m** | **+1.031 m** |
+| front/hind spread | **33 cm** | **5.4 cm** |
+| exit code | 1 | **0** |
+
+The hind hooves now reach *slightly lower* than the front, which is what the
+artist rig says is correct (hind hoof 1.21 m vs front 1.12 m). The fix needs no
+new geometry — the correct mesh has been sitting in the repo all along.
+
+### Two caveats
+
+- **The hind toe collision meshes are still mirrored** and this patch does not
+  address them; there is no legacy toe mesh to swap to, so they need regenerating
+  or mirroring in Y. They no longer dominate the leg's reach, so the checker
+  passes, but the geometry is still wrong.
+- **`check_rig_geometry.py` cannot detect toe mirroring**, because its
+  visual-vs-collision test needs both meshes and the toe links have no visual.
+  That is a real gap in the guard. Promoting the existing `*_toe_collision.stl`
+  and `antler_collision_v2.stl` to `<visual>` elements would close it and fix the
+  missing hooves in playback renders at the same time.
+
+After applying to the real URDF, regenerate the USD
+(`tools/import_world_urdf_v3.py`) and re-run the checker against the USD as well
+— the current USD demonstrably inherited the defect, so the URDF fix alone is not
+sufficient.
