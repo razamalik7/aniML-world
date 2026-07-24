@@ -37,7 +37,7 @@ RenderSettings:
   m_ReflectionBounces: 1
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
-  m_Sun: {fileID: 0}
+  m_Sun: {fileID: 2122057816}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -232,6 +232,24 @@ MonoBehaviour:
     Prefab: {fileID: 2227800126355991095, guid: edc60a1e0e58abc478b2618e4f5ff6da, type: 3}
   - Key: Cave
     Prefab: {fileID: 750861617443481599, guid: 29ba4fe0ad079494f8498d4873be3018, type: 3}
+  - Key: LavaPool
+    Prefab: {fileID: 675512647728000602, guid: aa4e5f944cc601d4b94bd9a289eed5fd, type: 3}
+  - Key: LavaRiverA
+    Prefab: {fileID: 2694566669582941673, guid: 1108c1b1697c5eb4c81c60ef19526733, type: 3}
+  - Key: LavaRiverB
+    Prefab: {fileID: 1559594230412574214, guid: 9119c4f4de22cc149b952b830f677843, type: 3}
+  - Key: LavaRiverC
+    Prefab: {fileID: 2602451029321741735, guid: 990c058d8fcd8f34daa3a02cf5253bf2, type: 3}
+  - Key: LavaRiverD
+    Prefab: {fileID: 8149674691508188411, guid: 6acb4b292bc3a4748a2e6e3735f82711, type: 3}
+  - Key: LavaRiverE
+    Prefab: {fileID: 2454471806871614816, guid: 963561d19150b1743989c13f99f159aa, type: 3}
+  - Key: LavaSpreadA
+    Prefab: {fileID: 3925971017226929698, guid: 3e2502f01f961b240a8a6c572be3bcf3, type: 3}
+  - Key: LavaEmbers
+    Prefab: {fileID: 1028970867693538119, guid: 3d0a145a623d21042a46a6cbd3239d96, type: 3}
+  - Key: LavaSmoke
+    Prefab: {fileID: 5257574430155130744, guid: f52387eb9fb473e49a758a99267d09da, type: 3}
   matSlots:
   - Key: RedArch
     Mat: {fileID: 2100000, guid: ebf4b1a93b49a084b94b2b829dff1f13, type: 2}

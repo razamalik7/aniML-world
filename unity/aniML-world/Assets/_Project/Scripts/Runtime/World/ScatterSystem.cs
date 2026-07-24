@@ -208,6 +208,10 @@ namespace AniML.World
                     if (layer.ForestSuppression > 0f)
                         accept *= 1f - layer.ForestSuppression * _world.ForestDensity01(x, z);
 
+                    // Little grows in volcanic ash.
+                    if (layer.IsVegetation)
+                        accept *= 1f - _world.VolcanoAsh01(x, z) * 0.92f;
+
                     if (layer.PreferRocky)
                         accept *= 0.12f + 0.88f * _world.SampleCragginess01(x, z);
 

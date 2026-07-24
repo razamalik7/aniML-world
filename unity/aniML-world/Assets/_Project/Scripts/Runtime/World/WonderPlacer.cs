@@ -135,6 +135,45 @@ namespace AniML.World
                         Spawn(root, "Cave", site.Pos + Vector3.up * (3.0f * site.Scale), site.YawDeg,
                             Vector3.one * site.Scale);
                         break;
+
+                    case "LavaCrater":
+                        // The lava lake sits seated IN the caldera floor.
+                        Spawn(root, "LavaPool", site.Pos + Vector3.down * 1.2f, site.YawDeg,
+                            Vector3.one * 5f);
+                        Spawn(root, "LavaEmbers", site.Pos + Vector3.up * 2f, 0f, Vector3.one * 2f);
+                        Spawn(root, "LavaSmoke", site.Pos + Vector3.up * 3f, 0f, Vector3.one * 2.5f);
+                        break;
+
+                    case "LavaFlow":
+                        // Walk the flank downhill from the rim, chaining lava
+                        // river pieces along the actual gradient, ending in a
+                        // cooled spread at the foot.
+                        {
+                            var p = new Vector2(site.Pos.x, site.Pos.z);
+                            for (int i = 0; i < 15; i++)
+                            {
+                                const float e = 2f;
+                                var grad = new Vector2(
+                                    world.SampleHeight(p.x + e, p.y) - world.SampleHeight(p.x - e, p.y),
+                                    world.SampleHeight(p.x, p.y + e) - world.SampleHeight(p.x, p.y - e));
+                                if (grad.sqrMagnitude < 1e-5f)
+                                    break;
+                                var down = -grad.normalized;
+                                float yaw = Mathf.Atan2(down.x, down.y) * Mathf.Rad2Deg;
+                                float y = world.SampleHeight(p.x, p.y);
+                                string piece = "LavaRiver" + (char)('A' + (i % 5));
+                                Spawn(root, piece, new Vector3(p.x, y - 0.25f, p.y), yaw,
+                                    Vector3.one * 1.15f);
+                                p += down * 8.5f;
+                                // Stop once the flank flattens out.
+                                if (grad.magnitude / (2f * e) < 0.09f)
+                                    break;
+                            }
+                            float endY = world.SampleHeight(p.x, p.y);
+                            Spawn(root, "LavaSpreadA", new Vector3(p.x, endY - 0.15f, p.y),
+                                site.YawDeg, Vector3.one * 1.3f);
+                        }
+                        break;
                 }
             }
 

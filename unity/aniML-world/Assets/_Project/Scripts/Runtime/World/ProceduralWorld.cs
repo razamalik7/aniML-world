@@ -277,7 +277,8 @@ namespace AniML.World
             DetectLakes();
             BakeMoistureGrid();
             ComputeSummits();      // raises summit pedestals in the grid,
-            PlaceForests();        // so everything after sees them
+            ComputeVolcano();      // (or the cone does) so everything after
+            PlaceForests();        // sees them
             ComputeBurnScar();
             PlaceOutcrops();
             TraceCoastCliffs();
@@ -402,6 +403,28 @@ namespace AniML.World
             // honestly glacier ice — so it lives where ice belongs).
             TryPlaceWonder(rng, "IceArch", 240,
                 (x, z) => SampleBiome(x, z) == Biome.Snow);
+
+            // THE crater: a lava lake in the caldera, and a flow down the
+            // flank the placer walks with real downhill queries.
+            if (_hasVolcano)
+            {
+                _wonders.Add(new WonderSite
+                {
+                    Kind = "LavaCrater",
+                    Pos = VolcanoCrater,
+                    YawDeg = (float)rng.NextDouble() * 360f,
+                    Scale = 1f,
+                });
+                float flowAng = (float)rng.NextDouble() * Mathf.PI * 2f;
+                var rim = _volcanoPos + new Vector2(Mathf.Cos(flowAng), Mathf.Sin(flowAng)) * 40f;
+                _wonders.Add(new WonderSite
+                {
+                    Kind = "LavaFlow",
+                    Pos = new Vector3(rim.x, SampleHeight(rim.x, rim.y), rim.y),
+                    YawDeg = flowAng * Mathf.Rad2Deg,
+                    Scale = 1f,
+                });
+            }
 
             // THE cave: bored into the tallest mossy cliff face — the shell
             // mesh provides the overhang a heightfield can't.
@@ -1653,6 +1676,107 @@ namespace AniML.World
             }
         }
 
+        // ---- The volcano (VolcanoIsle profile) ----
+
+        private Vector2 _volcanoPos;
+        private float _volcanoR, _volcanoPeakY, _craterFloorY;
+        private bool _hasVolcano;
+        public bool HasVolcano => _hasVolcano;
+        public Vector3 VolcanoCrater =>
+            new(_volcanoPos.x, _craterFloorY, _volcanoPos.y);
+        public float VolcanoRadius => _volcanoR;
+        public float VolcanoRimY => _volcanoPeakY;
+
+        /// <summary>0 in the green lowlands, 1 on the ash cone.</summary>
+        public float VolcanoAsh01(float x, float z)
+        {
+            if (!_hasVolcano)
+                return 0f;
+            float dx = x - _volcanoPos.x, dz = z - _volcanoPos.y;
+            float d = Mathf.Sqrt(dx * dx + dz * dz);
+            return Mathf.SmoothStep(1f, 0f, d / (_volcanoR * 1.08f));
+        }
+
+        /// <summary>
+        /// Stamp the cone and crater into the height grid. Sited away from
+        /// the rivers so no watercourse crosses the lava country.
+        /// </summary>
+        private void ComputeVolcano()
+        {
+            _hasVolcano = false;
+            if (!_dials.Volcano)
+                return;
+
+            var rng = new System.Random(settings.Seed * 173 + 29);
+            float half = settings.WorldSize * 0.5f;
+            const float R = 185f;
+            for (int attempt = 0; attempt < 60 && !_hasVolcano; attempt++)
+            {
+                float ang = (float)rng.NextDouble() * Mathf.PI * 2f;
+                float dist = 90f + (float)rng.NextDouble() * 130f;
+                var p = new Vector2(Mathf.Cos(ang), Mathf.Sin(ang)) * dist;
+                if (SampleHeight(p.x, p.y) - settings.SeaLevel < 8f)
+                    continue;
+                bool nearRiver = false;
+                foreach (var river in _rivers)
+                {
+                    foreach (var rp in river)
+                    {
+                        float dx = rp.x - p.x, dz = rp.z - p.y;
+                        if (dx * dx + dz * dz < 110f * 110f) { nearRiver = true; break; }
+                    }
+                    if (nearRiver) break;
+                }
+                if (nearRiver)
+                    continue;
+                _volcanoPos = p;
+                _hasVolcano = true;
+            }
+            if (!_hasVolcano)
+            {
+                // Fallback: island center, rivers or not.
+                _volcanoPos = Vector2.zero;
+                _hasVolcano = true;
+            }
+
+            _volcanoR = R;
+            _volcanoPeakY = settings.SeaLevel + 102f;
+            _craterFloorY = _volcanoPeakY - 24f;
+            const float craterR = 34f;
+
+            int reach = Mathf.CeilToInt(R / _heightCell) + 2;
+            int cgx = Mathf.RoundToInt((_volcanoPos.x + half) / _heightCell);
+            int cgz = Mathf.RoundToInt((_volcanoPos.y + half) / _heightCell);
+            for (int dz = -reach; dz <= reach; dz++)
+            {
+                for (int dx = -reach; dx <= reach; dx++)
+                {
+                    int gx = cgx + dx, gz = cgz + dz;
+                    if (gx < 0 || gz < 0 || gx >= _heightRes || gz >= _heightRes)
+                        continue;
+                    float d = Mathf.Sqrt(dx * dx + dz * dz) * _heightCell;
+                    if (d > R)
+                        continue;
+
+                    if (d < craterR)
+                    {
+                        // Inside the crater: bowl from rim down to the floor.
+                        float t = Mathf.SmoothStep(0f, 1f, d / craterR);
+                        _heightGrid[gx, gz] = Mathf.Lerp(_craterFloorY, _volcanoPeakY, t);
+                    }
+                    else
+                    {
+                        // Concave flank: steep near the rim, easing to the base.
+                        float t = Mathf.InverseLerp(craterR, R, d);
+                        float cone = _volcanoPeakY
+                                     - Mathf.Pow(t, 1.35f) * (_volcanoPeakY - settings.SeaLevel - 6f);
+                        if (cone > _heightGrid[gx, gz])
+                            _heightGrid[gx, gz] = cone;
+                    }
+                }
+            }
+        }
+
         /// <summary>Max of badlands rockiness and local crag fields — drives
         /// rock scatter and large cliff-mesh placement.</summary>
         public float SampleCragginess01(float x, float z)
@@ -2008,12 +2132,15 @@ namespace AniML.World
             float moisture = SampleMoisture(x, z);
             float river = RiverInfluence01(x, z);
 
-            // The old burn chars the ground toward soot.
+            // The old burn chars the ground toward soot; the volcano buries
+            // its cone in dark ash.
             float scar = BurnScar01(x, z);
-            if (scar > 0.03f)
+            float ash = VolcanoAsh01(x, z);
+            if (scar > 0.03f || ash > 0.03f)
             {
                 var baseCol = SampleBiomeColorUnscarred(x, z, height, h, moisture, river);
-                return Color.Lerp(baseCol, new Color(0.16f, 0.14f, 0.12f), scar * 0.62f);
+                baseCol = Color.Lerp(baseCol, new Color(0.16f, 0.14f, 0.12f), scar * 0.62f);
+                return Color.Lerp(baseCol, new Color(0.18f, 0.16f, 0.15f), ash * 0.9f);
             }
             return SampleBiomeColorUnscarred(x, z, height, h, moisture, river);
         }
@@ -2224,10 +2351,16 @@ namespace AniML.World
             dirt = Mathf.Max(dirt, river);
             dirt *= (1f - rock) * (1f - snow);
 
-            // The burn is bare charred dirt.
+            // The burn is bare charred dirt; the cone is ash and rock.
             float scar = BurnScar01(x, z);
             if (scar > 0f)
                 dirt = Mathf.Max(dirt, scar * 0.85f * (1f - rock) * (1f - snow));
+            float ash = VolcanoAsh01(x, z);
+            if (ash > 0f)
+            {
+                snow = 0f;
+                dirt = Mathf.Max(dirt, ash * 0.7f * (1f - rock));
+            }
 
             // Deep canyon walls are bare red rock — never snowbound, never
             // grassed over.

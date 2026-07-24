@@ -148,6 +148,11 @@ namespace AniML.EditorTools
                             eye = site.Pos - facing * 26f + Vector3.up * 14f;
                             target = site.Pos + facing * 20f + Vector3.down * 6f;
                             break;
+                        case "LavaCrater":
+                            // From above the rim, looking down into the lake.
+                            eye = site.Pos + new Vector3(-40f, 42f, -40f);
+                            target = site.Pos;
+                            break;
                         default:
                             eye = site.Pos + new Vector3(34f, 26f, -34f);
                             break;
@@ -827,6 +832,9 @@ namespace AniML.EditorTools
         [MenuItem("AniML/World/Profile/Canyonlands")]
         public static void ProfileCanyonlands() => SetProfileAndGenerate(LandformProfile.Canyonlands);
 
+        [MenuItem("AniML/World/Profile/Volcano Isle")]
+        public static void ProfileVolcano() => SetProfileAndGenerate(LandformProfile.VolcanoIsle);
+
         private static void SetProfileAndGenerate(LandformProfile p)
         {
             var s = LoadOrCreateSettings();
@@ -929,6 +937,15 @@ namespace AniML.EditorTools
             Wire("SummitRangeC", AlpineRoot, "SM_Env_MountainRange_03");
             Wire("RedArch", AridRoot, "SM_Env_Rock_Arch_01");
             placer.SetMatSlot("RedArch", AssetDatabase.LoadAssetAtPath<Material>(RedRockMatPath));
+            Wire("LavaPool", AridRoot, "SM_Env_Lava_Pool_01");
+            Wire("LavaRiverA", AridRoot, "SM_Env_Lava_River_01");
+            Wire("LavaRiverB", AridRoot, "SM_Env_Lava_River_02");
+            Wire("LavaRiverC", AridRoot, "SM_Env_Lava_River_03");
+            Wire("LavaRiverD", AridRoot, "SM_Env_Lava_River_04");
+            Wire("LavaRiverE", AridRoot, "SM_Env_Lava_River_05");
+            Wire("LavaSpreadA", AridRoot, "SM_Env_Lava_Spread_01");
+            Wire("LavaEmbers", AridRoot, "FX_Lava_Ember_01");
+            Wire("LavaSmoke", AridRoot, "FX_Smoke_Large_01");
             Wire("IceArch", AlpineRoot, "SM_Env_Rock_Cliff_Arch_01");
             Wire("Cave", TropicalRoot, "SM_Env_Rock_Cave_01");
             EditorUtility.SetDirty(placer);
