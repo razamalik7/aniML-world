@@ -448,12 +448,13 @@ namespace AniML.World
                     for (int s = 0; s < subCount; s++)
                     {
                         if (mats[s] == null) continue;
-                        mats[s].enableInstancing = true;
+                        var mat = layer.OverrideMaterial != null ? layer.OverrideMaterial : mats[s];
+                        mat.enableInstancing = true;
                         result.Add(new VariantRenderer
                         {
                             Mesh = mf.sharedMesh,
                             SubMesh = s,
-                            Material = mats[s],
+                            Material = mat,
                             Local = local,
                         });
                     }

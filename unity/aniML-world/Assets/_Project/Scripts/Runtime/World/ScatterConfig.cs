@@ -54,6 +54,8 @@ namespace AniML.World
         [Tooltip("This layer dresses inland cliff walls of one rock family: instances come from the slope tracer.")]
         public bool InlandWall = false;
         public CliffFamily InlandFamily = CliffFamily.Granite;
+        [Tooltip("Render every mesh of this layer with this material instead of the prefab's own (e.g. the pack's red rock variant).")]
+        public Material OverrideMaterial;
         [Tooltip("Temperature band this species tolerates (0 cold .. 1 warm). Overlapping bands blend at borders.")]
         public float MinTemp01 = 0f;
         public float MaxTemp01 = 1f;

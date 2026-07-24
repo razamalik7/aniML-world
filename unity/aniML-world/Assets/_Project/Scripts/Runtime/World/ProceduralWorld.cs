@@ -66,6 +66,100 @@ namespace AniML.World
         // Which river carries THE canyon (-1 = none).
         private int _gorgeRiver = -1;
 
+        // Every dial a LandformProfile moves, resolved once per generation.
+        private struct ProfileDials
+        {
+            public float BaseMoisture, RainShadow, MoistureDecay, FreshGain;
+            public float MountainAmpMul, MaskThresholdDelta;
+            public float TempOffset;
+            public float CanyonDepth;
+            public int SummitCount;
+            public float GraniteAltitude;
+            public bool MesaTerraces;
+            public int RiverCount, PondCount;
+            public float MinLakeDepth;
+            public int ForestCount;
+            public float CliffSlopeOn;   // slope (deg) that seeds a cliff wall
+        }
+        private ProfileDials _dials;
+
+        private void ResolveProfileDials()
+        {
+            switch (settings.Profile)
+            {
+                case LandformProfile.AlpineGranite:
+                    _dials = new ProfileDials
+                    {
+                        BaseMoisture = settings.BaseMoisture + 0.04f,
+                        RainShadow = settings.RainShadowStrength,
+                        MoistureDecay = settings.MoistureDecayDistance,
+                        FreshGain = 0.62f,
+                        MountainAmpMul = 1.25f,
+                        MaskThresholdDelta = -0.04f,   // more of the island is range
+                        TempOffset = -0.14f,           // snowline drops
+                        CanyonDepth = 22f,
+                        SummitCount = 3,
+                        GraniteAltitude = 34f,
+                        MesaTerraces = false,
+                        RiverCount = settings.RiverCount,
+                        PondCount = 4,
+                        MinLakeDepth = 0.9f,
+                        ForestCount = settings.ForestCount,
+                        // With this much steep ground, dress only the truly
+                        // sheer — crags at crests, not full rock armor.
+                        CliffSlopeOn = 47f,
+                    };
+                    break;
+
+                case LandformProfile.Canyonlands:
+                    _dials = new ProfileDials
+                    {
+                        // A desert is dry because water is SCARCE, not just
+                        // distant: one river, no ponds, weak freshwater reach.
+                        BaseMoisture = 0.10f,
+                        RainShadow = 0.55f,
+                        MoistureDecay = 130f,
+                        FreshGain = 0.30f,
+                        MountainAmpMul = 0.55f,        // mesas, not peaks
+                        MaskThresholdDelta = 0.06f,
+                        TempOffset = 0.18f,            // no snow anywhere
+                        CanyonDepth = 38f,
+                        SummitCount = 0,               // no alpine ranges here
+                        GraniteAltitude = 999f,        // red rock owns the heights
+                        MesaTerraces = true,
+                        RiverCount = 1,                // THE canyon's river, alone
+                        PondCount = 0,
+                        MinLakeDepth = 4.5f,           // shallow basins stay dry playas;
+                                                       // only true deeps become oases
+                        ForestCount = 3,               // cottonwood stands, not woodland
+                        CliffSlopeOn = 40f,
+                    };
+                    break;
+
+                default: // TemperateIsles — the tuned baseline, unchanged.
+                    _dials = new ProfileDials
+                    {
+                        BaseMoisture = settings.BaseMoisture,
+                        RainShadow = settings.RainShadowStrength,
+                        MoistureDecay = settings.MoistureDecayDistance,
+                        FreshGain = 0.62f,
+                        MountainAmpMul = 1f,
+                        MaskThresholdDelta = 0f,
+                        TempOffset = 0f,
+                        CanyonDepth = 30f,
+                        SummitCount = 2,
+                        GraniteAltitude = 46f,
+                        MesaTerraces = false,
+                        RiverCount = settings.RiverCount,
+                        PondCount = 4,
+                        MinLakeDepth = 0.9f,
+                        ForestCount = settings.ForestCount,
+                        CliffSlopeOn = 40f,
+                    };
+                    break;
+            }
+        }
+
         private float[,] _freshDistGrid;
 
         // Natural wonders: singular one-per-world features at computed sites.
@@ -118,6 +212,7 @@ namespace AniML.World
             if (_heightNoise != null || settings == null)
                 return;
             _gridReady = false;
+            ResolveProfileDials();
             _heightNoise = new FractalNoise(settings.Seed, settings.Octaves, settings.Lacunarity, settings.Persistence);
             _moistureNoise = new FractalNoise(settings.Seed + 7919, 3, 2.1f, 0.5f);
             _mountainNoise = new FractalNoise(settings.Seed + 104729, 4, 2.2f, 0.5f);
@@ -622,7 +717,7 @@ namespace AniML.World
                     }
 
                     // Keep real lakes; discard puddles.
-                    if (lake.Cells.Count >= 60 && maxDepth >= 0.9f)
+                    if (lake.Cells.Count >= 60 && maxDepth >= _dials.MinLakeDepth)
                     {
                         foreach (var (cx, cz) in lake.Cells)
                             _lakeCellIndex[((long)cx << 32) ^ (uint)cz] = _lakes.Count;
@@ -672,7 +767,7 @@ namespace AniML.World
             float half = settings.WorldSize * 0.5f;
             int attempts = 0;
 
-            while (_ponds.Count < 4 && attempts++ < 260)
+            while (_ponds.Count < _dials.PondCount && attempts++ < 260)
             {
                 float x = ((float)rng.NextDouble() * 2f - 1f) * half * 0.72f;
                 float z = ((float)rng.NextDouble() * 2f - 1f) * half * 0.72f;
@@ -719,9 +814,10 @@ namespace AniML.World
             float ridge = 1f - Mathf.Abs(2f * ridgeSrc - 1f);      // fold: peaks at 0.5
             ridge = Mathf.Pow(ridge, 1.5f);                          // sharpen crests, keep broad shoulders
             float maskSrc = _mountainMaskNoise.Sample(w.x, w.y, 1f / settings.MountainMaskFeatureSize);
+            float maskThreshold = settings.MountainMaskThreshold + _dials.MaskThresholdDelta;
             float mountainMask = Mathf.SmoothStep(0f, 1f,
-                Mathf.InverseLerp(settings.MountainMaskThreshold, settings.MountainMaskThreshold + 0.18f, maskSrc));
-            float mountains = ridge * mountainMask * settings.MountainAmplitude;
+                Mathf.InverseLerp(maskThreshold, maskThreshold + 0.18f, maskSrc));
+            float mountains = ridge * mountainMask * settings.MountainAmplitude * _dials.MountainAmpMul;
 
             // Rocky badlands: jagged high-frequency relief inside a
             // low-frequency rockiness mask — breaks the everything-smooth
@@ -732,6 +828,13 @@ namespace AniML.World
                 float roughSrc = _mountainNoise.Sample(w.x + 4096f, w.y - 2048f, 1f / settings.RockRoughFeatureSize);
                 float rough = (1f - Mathf.Abs(2f * roughSrc - 1f)) * settings.RockRoughAmplitude;
                 baseHeight += rough * rockiness;
+
+                // Canyonlands: badlands zones quantize into stepped mesas.
+                if (_dials.MesaTerraces && rockiness > 0.15f)
+                {
+                    float stepped = Mathf.Round(baseHeight / 8f) * 8f;
+                    baseHeight = Mathf.Lerp(baseHeight, stepped, Mathf.Min(rockiness, 0.85f));
+                }
             }
 
             // Island falloff on warped distance — an irregular coastline.
@@ -764,6 +867,7 @@ namespace AniML.World
             float latitude = z / settings.WorldSize; // -0.5 south .. +0.5 north
             float h = Mathf.Max(0f, SampleHeight(x, z) - settings.SeaLevel);
             float t = 0.62f
+                + _dials.TempOffset
                 - latitude * settings.LatitudeTempRange
                 - h * settings.AltitudeLapse
                 + (_moistureNoise.Sample(x + 977f, z + 331f, 1f / 400f) - 0.5f) * 0.08f;
@@ -816,8 +920,8 @@ namespace AniML.World
                     float z = gz * MoistureCellSize - half;
                     // Fresh water dominates moisture; the sea contributes a
                     // narrow humid coastal band only.
-                    float m = settings.BaseMoisture
-                              + 0.62f * Mathf.Exp(-dist[gx, gz] / settings.MoistureDecayDistance)
+                    float m = _dials.BaseMoisture
+                              + _dials.FreshGain * Mathf.Exp(-dist[gx, gz] / _dials.MoistureDecay)
                               + 0.20f * Mathf.Exp(-oceanDist[gx, gz] / 90f);
                     m = Mathf.Min(m, 1f);
 
@@ -830,7 +934,7 @@ namespace AniML.World
                         float uz = z - wind.y * s * 35f;
                         maxUpwind = Mathf.Max(maxUpwind, RawHeight(ux, uz) - hHere);
                     }
-                    float shadow = Mathf.Clamp01((maxUpwind - 18f) / 45f) * settings.RainShadowStrength;
+                    float shadow = Mathf.Clamp01((maxUpwind - 18f) / 45f) * _dials.RainShadow;
                     _moistureGrid[gx, gz] = Mathf.Clamp01(m - shadow);
                 }
             }
@@ -937,7 +1041,7 @@ namespace AniML.World
             float half = settings.WorldSize * 0.5f;
             int attempts = 0;
 
-            while (_forestSeeds.Count < settings.ForestCount && attempts++ < 400)
+            while (_forestSeeds.Count < _dials.ForestCount && attempts++ < 400)
             {
                 float x = ((float)rng.NextDouble() * 2f - 1f) * half * 0.85f;
                 float z = ((float)rng.NextDouble() * 2f - 1f) * half * 0.85f;
@@ -1171,9 +1275,9 @@ namespace AniML.World
             _inlandCliffs.Clear();
             var rng = new System.Random(settings.Seed * 59 + 11);
             float half = settings.WorldSize * 0.5f;
-            const float slopeOn = 40f;   // slope (deg) that seeds a wall
-            const float slopeOff = 32f;  // hysteresis: runs continue down to this
-            const float step = 6.5f;     // meters between chained pieces
+            float slopeOn = _dials.CliffSlopeOn;   // slope (deg) that seeds a wall
+            float slopeOff = slopeOn - 8f;         // hysteresis: runs continue down to this
+            const float step = 6.5f;               // meters between chained pieces
 
             var visited = new bool[_heightRes, _heightRes];
 
@@ -1277,7 +1381,7 @@ namespace AniML.World
                     var biome = SampleBiome(x, z);
                     CliffFamily fam;
                     if (biome == Biome.Snow || biome == Biome.Rock || biome == Biome.AlpineMeadow
-                        || h - settings.SeaLevel > 46f)
+                        || h - settings.SeaLevel > _dials.GraniteAltitude)
                         fam = CliffFamily.Granite;
                     else if (biome == Biome.Scrub
                              || (SampleMoisture(x, z) < 0.36f && SampleTemperature01(x, z) > 0.5f))
@@ -1327,6 +1431,8 @@ namespace AniML.World
         private void ComputeSummits()
         {
             _summits.Clear();
+            if (_dials.SummitCount <= 0)
+                return;   // e.g. Canyonlands: mesas, no alpine ranges
             var rng = new System.Random(settings.Seed * 83 + 7);
             float floor = settings.SeaLevel + 55f;
             float half = settings.WorldSize * 0.5f;
@@ -1352,7 +1458,7 @@ namespace AniML.World
 
             foreach (var (h, gx, gz) in peaks)
             {
-                if (_summits.Count >= 3)
+                if (_summits.Count >= _dials.SummitCount)
                     break;
                 float x = gx * _heightCell - half;
                 float z = gz * _heightCell - half;
@@ -1460,14 +1566,14 @@ namespace AniML.World
         {
             _rivers.Clear();
             _riverGrid.Clear();
-            if (settings.RiverCount <= 0)
+            if (_dials.RiverCount <= 0)
                 return;
 
             var rng = new System.Random(settings.Seed * 31 + 5);
             float half = settings.WorldSize * 0.5f;
             int attempts = 0;
 
-            while (_rivers.Count < settings.RiverCount && attempts++ < 60)
+            while (_rivers.Count < _dials.RiverCount && attempts++ < 60)
             {
                 float sx = ((float)rng.NextDouble() * 2f - 1f) * half * 0.7f;
                 float sz = ((float)rng.NextDouble() * 2f - 1f) * half * 0.7f;
@@ -1556,7 +1662,7 @@ namespace AniML.World
                     if (gorge > 0f)
                     {
                         var p = path[i];
-                        p.y -= gorge * 30f;         // deepen the bed
+                        p.y -= gorge * _dials.CanyonDepth;
                         p.w *= 1f - gorge * 0.15f;  // narrow the slot
                         path[i] = p;
                     }
@@ -1784,6 +1890,26 @@ namespace AniML.World
             float moisture = SampleMoisture(x, z);
             float river = RiverInfluence01(x, z);
 
+            // Canyonlands: every steep mesa step face is banded red rock,
+            // river or no river.
+            if (_dials.MesaTerraces && h > 3f)
+            {
+                const float e = 2f;
+                float sgx = SampleHeight(x + e, z) - SampleHeight(x - e, z);
+                float sgz = SampleHeight(x, z + e) - SampleHeight(x, z - e);
+                float faceSlope = Mathf.Atan(Mathf.Sqrt(sgx * sgx + sgz * sgz) / (2f * e)) * Mathf.Rad2Deg;
+                if (faceSlope > 30f)
+                {
+                    int mband = Mathf.FloorToInt(height / 3.5f);
+                    float mn = (Mathf.PerlinNoise(x * 0.11f, z * 0.11f) - 0.5f) * 0.10f;
+                    var mc = (mband & 1) == 0 ? settings.CanyonRockDark : settings.CanyonRockLight;
+                    return new Color(
+                        Mathf.Clamp01(mc.r + mn),
+                        Mathf.Clamp01(mc.g + mn * 0.8f),
+                        Mathf.Clamp01(mc.b + mn * 0.6f));
+                }
+            }
+
             // River channels read as wet mud banks (blended, not a hard cut).
             if (river > 0.25f && h > 0f)
             {
@@ -1965,6 +2091,19 @@ namespace AniML.World
             };
             dirt = Mathf.Max(dirt, river);
             dirt *= (1f - rock) * (1f - snow);
+
+            // Deep canyon walls are bare red rock — never snowbound, never
+            // grassed over.
+            if (river > 0.2f)
+            {
+                GetRiverData(x, z, out _, out float bed);
+                if (height - bed > 9f)
+                {
+                    snow = 0f;
+                    rock = Mathf.Max(rock, 0.75f);
+                    dirt = Mathf.Min(dirt, 1f - rock);
+                }
+            }
 
             float grass = Mathf.Clamp01(1f - rock - snow - dirt);
             return new Vector4(grass, dirt, rock, snow);

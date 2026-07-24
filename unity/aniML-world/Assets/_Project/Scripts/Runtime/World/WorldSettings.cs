@@ -3,6 +3,18 @@ using UnityEngine;
 namespace AniML.World
 {
     /// <summary>
+    /// The world's landform character. One coherent drama palette per world:
+    /// Utah and the Rockies are both generatable, never accidentally mixed.
+    /// Every dial the profile moves lives in ProceduralWorld.ResolveProfileDials.
+    /// </summary>
+    public enum LandformProfile
+    {
+        TemperateIsles,   // green island, mixed forests, one alpine massif
+        AlpineGranite,    // colder, bigger ranges, low snowline, granite country
+        Canyonlands,      // hot and dry: mesas, red rock, THE canyon writ large
+    }
+
+    /// <summary>
     /// All parameters of the procedural world. One asset = one world recipe;
     /// the same data drives generation, editing brushes (later), and the sim's
     /// reads (biome lookups). Deterministic per seed.
@@ -10,6 +22,10 @@ namespace AniML.World
     [CreateAssetMenu(menuName = "AniML/World Settings", fileName = "WorldSettings")]
     public sealed class WorldSettings : ScriptableObject
     {
+        [Header("Landform profile")]
+        [Tooltip("Which drama palette this world uses. Same seed + profile = same world.")]
+        public LandformProfile Profile = LandformProfile.TemperateIsles;
+
         [Header("Dimensions")]
         [Tooltip("World is square, worldSize x worldSize meters, centered on origin.")]
         public float WorldSize = 1024f;
@@ -95,8 +111,8 @@ namespace AniML.World
         public Color Rock = new Color(0.52f, 0.48f, 0.44f);
         public Color Snow = new Color(0.94f, 0.95f, 0.97f);
         public Color RiverMud = new Color(0.55f, 0.48f, 0.34f);
-        public Color CanyonRockLight = new Color(0.72f, 0.45f, 0.28f);
-        public Color CanyonRockDark = new Color(0.52f, 0.29f, 0.20f);
+        public Color CanyonRockLight = new Color(0.80f, 0.42f, 0.22f);
+        public Color CanyonRockDark = new Color(0.58f, 0.26f, 0.15f);
         public Color Scrub = new Color(0.63f, 0.58f, 0.33f);
         public Color Wetland = new Color(0.30f, 0.46f, 0.31f);
         public Color AlpineMeadow = new Color(0.47f, 0.60f, 0.40f);

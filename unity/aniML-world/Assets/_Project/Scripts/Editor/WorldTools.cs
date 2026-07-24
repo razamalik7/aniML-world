@@ -24,6 +24,18 @@ namespace AniML.EditorTools
             var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
 
             var settings = LoadOrCreateSettings();
+
+            // Batch runs can pick the landform profile via env var.
+            var profEnv = System.Environment.GetEnvironmentVariable("ANIML_PROFILE");
+            if (!string.IsNullOrEmpty(profEnv)
+                && System.Enum.TryParse(profEnv, true, out LandformProfile prof)
+                && settings.Profile != prof)
+            {
+                settings.Profile = prof;
+                EditorUtility.SetDirty(settings);
+                AssetDatabase.SaveAssets();
+            }
+
             var material = LoadOrCreateTerrainMaterial();
 
             // Legacy flat ground from the first bootstrap is superseded.
@@ -224,27 +236,34 @@ namespace AniML.EditorTools
             };
         }
 
-        private static ScatterLayer[] BuildCliffWallLayers() => new[]
+        private const string RedRockMatPath =
+            "Assets/Synty/PolygonNatureBiomes/PNB_Arid_Desert/Materials/Rock_Triplanar_Red_01.mat";
+
+        private static ScatterLayer[] BuildCliffWallLayers()
         {
             // NOTE: Alpine's "Rock_Cliff" set is GLACIER ICE (refractive
             // shader) — real granite is the plain Rock / Rock_Rough meshes,
             // scaled up to wall size.
-            CliffWallLayer("CliffWallGranite", CliffFamily.Granite, AlpineRoot,
+            var granite = CliffWallLayer("CliffWallGranite", CliffFamily.Granite, AlpineRoot,
                 new Vector2(1.5f, 2.2f),
                 "SM_Env_Rock_Rough_01", "SM_Env_Rock_Rough_02",
-                "SM_Env_Rock_01", "SM_Env_Rock_010"),
-            CliffWallLayer("CliffWallRedRock", CliffFamily.RedRock, AridRoot,
+                "SM_Env_Rock_01", "SM_Env_Rock_010");
+            var red = CliffWallLayer("CliffWallRedRock", CliffFamily.RedRock, AridRoot,
                 new Vector2(0.85f, 1.2f),
                 "SM_Env_Rock_Cliff_01", "SM_Env_Rock_Cliff_02", "SM_Env_Rock_Cliff_03",
                 "SM_Env_Rock_Cliff_04", "SM_Env_Rock_Cliff_05", "SM_Env_Rock_Cliff_06",
                 "SM_Env_Rock_Cliff_07", "SM_Env_Rock_Cliff_08", "SM_Env_Rock_Cliff_09",
                 "SM_Env_Rock_Cliff_10", "SM_Env_Rock_Cliff_11", "SM_Env_Rock_Cliff_12",
                 "SM_Env_Rock_Cliff_13", "SM_Env_Rock_Cliff_14", "SM_Env_Rock_Cliff_15",
-                "SM_Env_Rock_Cliff_16"),
-            CliffWallLayer("CliffWallMossy", CliffFamily.Mossy, MeadowRoot,
+                "SM_Env_Rock_Cliff_16");
+            // The default arid rock material is sandstone-tan; Synty ships a
+            // proper red variant — use it so red rock is actually RED.
+            red.OverrideMaterial = AssetDatabase.LoadAssetAtPath<Material>(RedRockMatPath);
+            var mossy = CliffWallLayer("CliffWallMossy", CliffFamily.Mossy, MeadowRoot,
                 new Vector2(0.85f, 1.2f),
-                "SM_Env_Rock_Cliff_01", "SM_Env_Rock_Cliff_02", "SM_Env_Rock_Cliff_03"),
-        };
+                "SM_Env_Rock_Cliff_01", "SM_Env_Rock_Cliff_02", "SM_Env_Rock_Cliff_03");
+            return new[] { granite, red, mossy };
+        }
 
         /// <summary>
         /// Idempotent migration for pre-existing config assets: wetland
@@ -682,7 +701,36 @@ namespace AniML.EditorTools
                 AssetDatabase.CreateAsset(s, SettingsPath);
                 AssetDatabase.SaveAssets();
             }
+            // Migrate: assets serialized before the red-rock pass carry the
+            // washed-out tan strata colors — punch them to actual red.
+            if (s.CanyonRockLight == new Color(0.72f, 0.45f, 0.28f))
+            {
+                s.CanyonRockLight = new Color(0.80f, 0.42f, 0.22f);
+                s.CanyonRockDark = new Color(0.58f, 0.26f, 0.15f);
+                EditorUtility.SetDirty(s);
+                AssetDatabase.SaveAssets();
+            }
             return s;
+        }
+
+        // ---- Landform profiles ----
+
+        [MenuItem("AniML/World/Profile/Temperate Isles")]
+        public static void ProfileTemperate() => SetProfileAndGenerate(LandformProfile.TemperateIsles);
+
+        [MenuItem("AniML/World/Profile/Alpine Granite")]
+        public static void ProfileAlpine() => SetProfileAndGenerate(LandformProfile.AlpineGranite);
+
+        [MenuItem("AniML/World/Profile/Canyonlands")]
+        public static void ProfileCanyonlands() => SetProfileAndGenerate(LandformProfile.Canyonlands);
+
+        private static void SetProfileAndGenerate(LandformProfile p)
+        {
+            var s = LoadOrCreateSettings();
+            s.Profile = p;
+            EditorUtility.SetDirty(s);
+            AssetDatabase.SaveAssets();
+            GenerateInScene();
         }
 
         private static Material LoadOrCreateTerrainMaterial()
@@ -777,6 +825,7 @@ namespace AniML.EditorTools
             Wire("SummitRangeB", AlpineRoot, "SM_Env_MountainRange_02");
             Wire("SummitRangeC", AlpineRoot, "SM_Env_MountainRange_03");
             Wire("RedArch", AridRoot, "SM_Env_Rock_Arch_01");
+            placer.SetMatSlot("RedArch", AssetDatabase.LoadAssetAtPath<Material>(RedRockMatPath));
             Wire("IceArch", AlpineRoot, "SM_Env_Rock_Cliff_Arch_01");
             Wire("Cave", TropicalRoot, "SM_Env_Rock_Cave_01");
             EditorUtility.SetDirty(placer);

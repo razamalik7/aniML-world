@@ -21,7 +21,15 @@ namespace AniML.World
             public GameObject Prefab;
         }
 
+        [Serializable]
+        public struct MatSlot
+        {
+            public string Key;
+            public Material Mat;
+        }
+
         [SerializeField] private List<Slot> slots = new();
+        [SerializeField] private List<MatSlot> matSlots = new();
 
         public bool IsWired => slots.Count > 0;
 
@@ -36,6 +44,21 @@ namespace AniML.World
                 }
             }
             slots.Add(new Slot { Key = key, Prefab = prefab });
+        }
+
+        /// <summary>Render this slot's instance with a different material
+        /// (e.g. the pack's red rock variant instead of the default tan).</summary>
+        public void SetMatSlot(string key, Material mat)
+        {
+            for (int i = 0; i < matSlots.Count; i++)
+            {
+                if (matSlots[i].Key == key)
+                {
+                    matSlots[i] = new MatSlot { Key = key, Mat = mat };
+                    return;
+                }
+            }
+            matSlots.Add(new MatSlot { Key = key, Mat = mat });
         }
 
         private void Start()
@@ -145,6 +168,20 @@ namespace AniML.World
             go.transform.localScale = scale;
             go.transform.SetParent(parent.transform, true);
             go.hideFlags = HideFlags.DontSave;
+
+            foreach (var m in matSlots)
+            {
+                if (m.Key != key || m.Mat == null)
+                    continue;
+                foreach (var r in go.GetComponentsInChildren<MeshRenderer>())
+                {
+                    var shared = r.sharedMaterials;
+                    for (int i = 0; i < shared.Length; i++)
+                        shared[i] = m.Mat;
+                    r.sharedMaterials = shared;
+                }
+                break;
+            }
         }
     }
 }

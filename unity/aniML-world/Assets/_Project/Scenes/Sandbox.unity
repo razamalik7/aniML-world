@@ -228,6 +228,9 @@ MonoBehaviour:
     Prefab: {fileID: 2227800126355991095, guid: edc60a1e0e58abc478b2618e4f5ff6da, type: 3}
   - Key: Cave
     Prefab: {fileID: 750861617443481599, guid: 29ba4fe0ad079494f8498d4873be3018, type: 3}
+  matSlots:
+  - Key: RedArch
+    Mat: {fileID: 2100000, guid: ebf4b1a93b49a084b94b2b829dff1f13, type: 2}
 --- !u!1 &981988358
 GameObject:
   m_ObjectHideFlags: 0
