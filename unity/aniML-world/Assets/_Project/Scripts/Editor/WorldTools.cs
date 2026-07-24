@@ -37,6 +37,11 @@ namespace AniML.EditorTools
             }
 
             var material = LoadOrCreateTerrainMaterial();
+            if (material.HasProperty("_SeaLevel"))
+            {
+                material.SetFloat("_SeaLevel", settings.SeaLevel);
+                EditorUtility.SetDirty(material);
+            }
 
             // Legacy flat ground from the first bootstrap is superseded.
             var oldGround = GameObject.Find("Ground");
@@ -78,11 +83,23 @@ namespace AniML.EditorTools
             if (sky == null)
                 sky = root.AddComponent<SkySystem>();
             if (sunGo != null)
-                sky.Configure(sunGo.GetComponent<Light>());
+            {
+                var sunLight = sunGo.GetComponent<Light>();
+                sky.Configure(sunLight);
+                // Cloud shadows: a soft dapple cookie that drifts in Play.
+                sunLight.cookie = EnsureCloudCookie();
+                var lightData = sunGo.GetComponent<UnityEngine.Rendering.Universal.UniversalAdditionalLightData>();
+                if (lightData == null)
+                    lightData = sunGo.AddComponent<UnityEngine.Rendering.Universal.UniversalAdditionalLightData>();
+                lightData.lightCookieSize = new Vector2(430f, 430f);
+            }
             RenderSettings.fog = true;
             RenderSettings.fogMode = FogMode.Exponential;
             RenderSettings.fogDensity = 0.0005f;   // subtle depth cue only
             sky.Apply();
+
+            if (root.GetComponent<UnderwaterTint>() == null)
+                root.AddComponent<UnderwaterTint>();
 
             var weather = root.GetComponent<WeatherSystem>();
             if (weather == null)
@@ -92,6 +109,8 @@ namespace AniML.EditorTools
             EditorUtility.SetDirty(weather);
 
             EnableFoliageColourVariation();
+            EnableFoliageWind();
+            EnsurePostProcessing();
             EnsureWaterPlane(settings);
 
             // Warm trilight ambient lifts saturation vs the default grey SH.
@@ -237,6 +256,9 @@ namespace AniML.EditorTools
             cam.nearClipPlane = 0.3f;
             cam.farClipPlane = 4000f;
             cam.clearFlags = CameraClearFlags.Skybox;
+            cam.allowHDR = true;
+            UnityEngine.Rendering.Universal.CameraExtensions
+                .GetUniversalAdditionalCameraData(cam).renderPostProcessing = true;
 
             const int w = 1600, h = 900;
             var rt = new RenderTexture(w, h, 24);
@@ -886,6 +908,124 @@ namespace AniML.EditorTools
             AssignTexture(m, "_SnowTex", AlpineRoot, "Snow_01");
             EditorUtility.SetDirty(m);
             return m;
+        }
+
+        private const string PostProfilePath = "Assets/_Project/Settings/PostProfile.asset";
+        private const string CloudCookiePath = "Assets/_Project/Art/Textures/T_CloudCookie.asset";
+
+        /// <summary>Soft procedural cloud-shadow cookie for the sun.</summary>
+        private static Texture2D EnsureCloudCookie()
+        {
+            var t = AssetDatabase.LoadAssetAtPath<Texture2D>(CloudCookiePath);
+            if (t != null)
+                return t;
+            System.IO.Directory.CreateDirectory("Assets/_Project/Art/Textures");
+            const int res = 256;
+            t = new Texture2D(res, res, TextureFormat.RGBA32, true, true)
+            {
+                wrapMode = TextureWrapMode.Repeat,
+                name = "T_CloudCookie",
+            };
+            for (int y = 0; y < res; y++)
+            {
+                for (int x = 0; x < res; x++)
+                {
+                    float n = 0f, amp = 1f, freq = 3f;
+                    for (int o = 0; o < 3; o++)
+                    {
+                        // Tileable-ish: sample far from origin, mirror-free.
+                        n += Mathf.PerlinNoise(x / (float)res * freq + 31.7f,
+                            y / (float)res * freq + 57.3f) * amp;
+                        amp *= 0.5f;
+                        freq *= 2f;
+                    }
+                    n /= 1.75f;
+                    float cloud = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.52f, 0.78f, n));
+                    float v = 1f - cloud * 0.42f;   // shadows, never black
+                    t.SetPixel(x, y, new Color(v, v, v, 1f));
+                }
+            }
+            t.Apply(true);
+            AssetDatabase.CreateAsset(t, CloudCookiePath);
+            AssetDatabase.SaveAssets();
+            return t;
+        }
+
+        /// <summary>
+        /// One global post-processing volume: bloom (lava, fireflies, and
+        /// sun-glint actually glow), gentle grade, soft vignette. The art
+        /// direction stays "stylized, not cartoonish" — all subtle.
+        /// </summary>
+        private static void EnsurePostProcessing()
+        {
+            var profile = AssetDatabase.LoadAssetAtPath<UnityEngine.Rendering.VolumeProfile>(PostProfilePath);
+            if (profile == null)
+            {
+                profile = ScriptableObject.CreateInstance<UnityEngine.Rendering.VolumeProfile>();
+                AssetDatabase.CreateAsset(profile, PostProfilePath);
+
+                var bloom = profile.Add<UnityEngine.Rendering.Universal.Bloom>(false);
+                bloom.intensity.Override(0.55f);
+                bloom.threshold.Override(1.0f);
+                bloom.scatter.Override(0.6f);
+
+                var vignette = profile.Add<UnityEngine.Rendering.Universal.Vignette>(false);
+                vignette.intensity.Override(0.22f);
+                vignette.smoothness.Override(0.42f);
+
+                var grade = profile.Add<UnityEngine.Rendering.Universal.ColorAdjustments>(false);
+                grade.saturation.Override(9f);
+                grade.contrast.Override(6f);
+
+                AssetDatabase.SaveAssets();
+            }
+
+            var go = GameObject.Find("PostVolume");
+            if (go == null)
+                go = new GameObject("PostVolume");
+            var vol = go.GetComponent<UnityEngine.Rendering.Volume>();
+            if (vol == null)
+                vol = go.AddComponent<UnityEngine.Rendering.Volume>();
+            vol.isGlobal = true;
+            vol.sharedProfile = profile;
+        }
+
+        /// <summary>
+        /// Turn on the Synty foliage shader's per-material light wind so
+        /// trees and grass sway (their demos do; the dials ship zeroed in
+        /// several packs).
+        /// </summary>
+        private static void EnableFoliageWind()
+        {
+            var guids = AssetDatabase.FindAssets("t:Material", new[] { "Assets/Synty" });
+            int touched = 0;
+            foreach (var guid in guids)
+            {
+                var mat = AssetDatabase.LoadAssetAtPath<Material>(AssetDatabase.GUIDToAssetPath(guid));
+                if (mat == null || mat.shader == null || !mat.shader.name.Contains("Foliage"))
+                    continue;
+                bool dirty = false;
+                if (mat.HasProperty("_Enable_Light_Wind") && mat.GetFloat("_Enable_Light_Wind") < 0.5f)
+                {
+                    mat.SetFloat("_Enable_Light_Wind", 1f);
+                    dirty = true;
+                }
+                if (mat.HasProperty("_Light_Wind_Strength") && mat.GetFloat("_Light_Wind_Strength") < 0.01f)
+                {
+                    mat.SetFloat("_Light_Wind_Strength", 0.45f);
+                    dirty = true;
+                }
+                if (dirty)
+                {
+                    EditorUtility.SetDirty(mat);
+                    touched++;
+                }
+            }
+            if (touched > 0)
+            {
+                AssetDatabase.SaveAssets();
+                Debug.Log($"[AniML] Enabled light wind on {touched} foliage materials.");
+            }
         }
 
         /// <summary>

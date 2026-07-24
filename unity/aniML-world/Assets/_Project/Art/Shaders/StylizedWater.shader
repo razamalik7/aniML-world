@@ -87,8 +87,15 @@ Shader "AniML/StylizedWater"
             Varyings vert(Attributes IN)
             {
                 Varyings OUT;
-                OUT.positionWS = TransformObjectToWorld(IN.positionOS.xyz);
-                OUT.positionHCS = TransformWorldToHClip(OUT.positionWS);
+                float3 wp = TransformObjectToWorld(IN.positionOS.xyz);
+                // Gentle swell on still water; rivers keep their flat run.
+                if (_FlowUV < 0.5)
+                {
+                    wp.y += (sin(wp.x * 0.11 + _Time.y * 1.15)
+                             + cos(wp.z * 0.083 + _Time.y * 1.45)) * 0.07;
+                }
+                OUT.positionWS = wp;
+                OUT.positionHCS = TransformWorldToHClip(wp);
                 OUT.uv = IN.uv;
                 OUT.screenPos = ComputeScreenPos(OUT.positionHCS);
                 return OUT;

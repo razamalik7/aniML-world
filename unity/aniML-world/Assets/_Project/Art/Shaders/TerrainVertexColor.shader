@@ -14,6 +14,7 @@ Shader "AniML/TerrainVertexColor"
         _BaseColor("Global Tint", Color) = (1, 1, 1, 1)
         _ToonSteps("Toon Steps (0 = smooth)", Range(0, 6)) = 0
         _ShadowStrength("Shadow Strength", Range(0, 1)) = 0.75
+        _SeaLevel("Sea Level (world Y)", Float) = 0
     }
     SubShader
     {
@@ -61,6 +62,7 @@ Shader "AniML/TerrainVertexColor"
                 float _TintStrength;
                 float _ToonSteps;
                 float _ShadowStrength;
+                float _SeaLevel;
             CBUFFER_END
 
             Varyings vert(Attributes IN)
@@ -81,11 +83,25 @@ Shader "AniML/TerrainVertexColor"
                 float total = max(w.x + w.y + w.z + w.w, 1e-4);
                 w /= total;
 
+                float3 n = normalize(IN.normalWS);
+
                 float3 tex =
                     SAMPLE_TEXTURE2D(_GrassTex, sampler_GrassTex, uv).rgb * w.x +
                     SAMPLE_TEXTURE2D(_DirtTex,  sampler_DirtTex,  uv).rgb * w.y +
                     SAMPLE_TEXTURE2D(_RockTex,  sampler_RockTex,  uv).rgb * w.z +
                     SAMPLE_TEXTURE2D(_SnowTex,  sampler_SnowTex,  uv).rgb * w.w;
+
+                // Steep faces resample rock projected along the wall
+                // (triplanar-lite) so cliffs stop smearing top-down tiling.
+                float steep = saturate((1.0 - n.y) * 2.2 - 0.9);
+                if (steep > 0.01)
+                {
+                    float2 uvSide = (abs(n.x) > abs(n.z))
+                        ? IN.positionWS.zy * _TileScale
+                        : IN.positionWS.xy * _TileScale;
+                    float3 rockSide = SAMPLE_TEXTURE2D(_RockTex, sampler_RockTex, uvSide).rgb;
+                    tex = lerp(tex, rockSide, steep * saturate(w.z + w.y));
+                }
 
                 // Biome tint recolors the texture toward the palette without
                 // flattening it (strength 0 = raw texture, 1 = full tint).
@@ -93,7 +109,11 @@ Shader "AniML/TerrainVertexColor"
                 float3 tinted = lerp(tex, IN.color.rgb * (texLuma * 1.6 + 0.2), _TintStrength);
                 float3 albedo = tinted * _BaseColor.rgb;
 
-                float3 n = normalize(IN.normalWS);
+                // The shore stays damp: a darkened band hugging sea level,
+                // fading out both up the beach and down the seabed.
+                float wet = (1.0 - saturate((IN.positionWS.y - _SeaLevel - 0.12) / 0.95))
+                          * saturate((IN.positionWS.y - _SeaLevel + 2.6) / 2.1);
+                albedo *= lerp(1.0, 0.74, saturate(wet) * 0.9);
                 float4 shadowCoord = TransformWorldToShadowCoord(IN.positionWS);
                 Light mainLight = GetMainLight(shadowCoord);
 

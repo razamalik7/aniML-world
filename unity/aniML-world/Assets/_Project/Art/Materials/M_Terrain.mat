@@ -41,6 +41,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _SeaLevel: 0
     - _ShadowStrength: 0.75
     - _TileScale: 0.35
     - _TintStrength: 0.55

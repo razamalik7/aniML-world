@@ -36,6 +36,8 @@ namespace AniML.World
             sun = sunLight;
         }
 
+        private UnityEngine.Rendering.Universal.UniversalAdditionalLightData _sunData;
+
         private void Update()
         {
             if (Application.isPlaying && HoursPerSecond > 0f)
@@ -46,6 +48,15 @@ namespace AniML.World
             else if (!Application.isPlaying)
             {
                 Apply();
+            }
+
+            // Clouds drift: scroll the sun's shadow cookie.
+            if (Application.isPlaying && sun != null)
+            {
+                if (_sunData == null)
+                    _sunData = sun.GetComponent<UnityEngine.Rendering.Universal.UniversalAdditionalLightData>();
+                if (_sunData != null)
+                    _sunData.lightCookieOffset += new Vector2(1.7f, 0.9f) * Time.deltaTime;
             }
         }
 
