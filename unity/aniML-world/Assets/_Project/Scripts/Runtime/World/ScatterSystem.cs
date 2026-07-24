@@ -31,6 +31,9 @@ namespace AniML.World
             public Material Material;
             public Matrix4x4 LocalPart;          // renderer offset inside prefab
             public readonly List<Matrix4x4> Matrices = new();
+            // Parallel to Matrices: which layer each transform came from,
+            // so fire (and later the ecosystem) can remove vegetation only.
+            public readonly List<int> MatrixLayers = new();
         }
 
         private sealed class Chunk
@@ -279,6 +282,7 @@ namespace AniML.World
                 {
                     var batch = FindBatch(chunk, vr);
                     batch.Matrices.Add(matrix * vr.Local);
+                    batch.MatrixLayers.Add(c.LayerIndex);
                 }
 
                 minY = Mathf.Min(minY, c.Pos.y);
@@ -315,6 +319,7 @@ namespace AniML.World
                 {
                     var batch = FindBatch(chunk, vr);
                     batch.Matrices.Add(matrix * vr.Local);
+                    batch.MatrixLayers.Add(li);
                 }
                 bounds.Encapsulate(new Bounds(pos, Vector3.one * 40f * scale));
             }
@@ -355,6 +360,7 @@ namespace AniML.World
                     {
                         var batch = FindBatch(chunk, vr);
                         batch.Matrices.Add(matrix * vr.Local);
+                        batch.MatrixLayers.Add(li);
                     }
                     bounds.Encapsulate(new Bounds(pos, Vector3.one * 40f * scale));
                     count++;
@@ -365,6 +371,43 @@ namespace AniML.World
                     chunk.Bounds = bounds;
                     _chunks.Add(chunk);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Remove vegetation instances within a radius (fire, and later
+        /// grazing/trampling). Rocks, walls, and props survive.
+        /// </summary>
+        public void RemoveVegetationInRadius(Vector3 center, float radius)
+        {
+            float r2 = radius * radius;
+            foreach (var chunk in _chunks)
+            {
+                if ((chunk.Bounds.ClosestPoint(center) - center).sqrMagnitude > r2)
+                    continue;
+                foreach (var batch in chunk.Batches)
+                {
+                    for (int i = batch.Matrices.Count - 1; i >= 0; i--)
+                    {
+                        int li = batch.MatrixLayers[i];
+                        if (li < 0 || li >= config.Layers.Count || !config.Layers[li].IsVegetation)
+                            continue;
+                        var m = batch.Matrices[i];
+                        float dx = m.m03 - center.x, dz = m.m23 - center.z;
+                        if (dx * dx + dz * dz > r2)
+                            continue;
+                        batch.Matrices.RemoveAt(i);
+                        batch.MatrixLayers.RemoveAt(i);
+                    }
+                }
+                chunk.Instances.RemoveAll(inst =>
+                {
+                    if (inst.LayerIndex < 0 || inst.LayerIndex >= config.Layers.Count
+                        || !config.Layers[inst.LayerIndex].IsVegetation)
+                        return false;
+                    float dx = inst.Position.x - center.x, dz = inst.Position.z - center.z;
+                    return dx * dx + dz * dz <= r2;
+                });
             }
         }
 

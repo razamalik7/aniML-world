@@ -27,6 +27,14 @@ namespace AniML.World
 
         public Kind Current { get; private set; } = Kind.Clear;
 
+        /// <summary>Meters the snowline is pulled DOWN by accumulated snow
+        /// spells (melts away in clear weather). Read by SkySystem.</summary>
+        public float SnowLineDrop { get; private set; }
+
+        /// <summary>0..1 ground wetness (rain soaks, sun dries). Also pushed
+        /// to the terrain shader.</summary>
+        public float Wetness { get; private set; }
+
         private ProceduralWorld _world;
         private GameObject _activeFX;
         private float _timer;
@@ -71,6 +79,16 @@ namespace AniML.World
             // Ease fog toward the current spell's density.
             RenderSettings.fogDensity = Mathf.Lerp(
                 RenderSettings.fogDensity, _fogTarget, Time.deltaTime * 0.35f);
+
+            // Weather leaves marks: rain soaks the ground, snow spells drag
+            // the snowline downhill; both fade back in clear weather.
+            Wetness = Mathf.MoveTowards(Wetness,
+                Current == Kind.Rain ? 1f : 0f,
+                Time.deltaTime * (Current == Kind.Rain ? 0.10f : 0.02f));
+            Shader.SetGlobalFloat("_AniML_Wetness", Wetness);
+            SnowLineDrop = Mathf.Clamp(SnowLineDrop
+                + (Current == Kind.Snow ? Time.deltaTime * 0.55f : -Time.deltaTime * 0.12f),
+                0f, 26f);
 
             // Precipitation follows the camera.
             if (_activeFX != null && Camera.main != null)

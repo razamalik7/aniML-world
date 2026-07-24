@@ -100,6 +100,22 @@ namespace AniML.EditorTools
 
             if (root.GetComponent<UnderwaterTint>() == null)
                 root.AddComponent<UnderwaterTint>();
+            if (root.GetComponent<VolcanoPulse>() == null)
+                root.AddComponent<VolcanoPulse>();
+
+            var wildfire = root.GetComponent<WildfireSystem>();
+            if (wildfire == null)
+                wildfire = root.AddComponent<WildfireSystem>();
+            void WireFire(string key, string packRoot, string prefabName)
+            {
+                var list = FindPrefabs(packRoot, prefabName);
+                if (list.Count > 0)
+                    wildfire.SetSlot(key, list[0]);
+            }
+            WireFire("Fire", GenericRoot, "FX_Fire_01");
+            WireFire("Smoke", GenericRoot, "FX_Smoke_01");
+            WireFire("Lightning", AridRoot, "FX_Electricity_01");
+            EditorUtility.SetDirty(wildfire);
 
             var weather = root.GetComponent<WeatherSystem>();
             if (weather == null)
@@ -1231,6 +1247,8 @@ namespace AniML.EditorTools
             Wire("VineB", TropicalRoot, "SM_Env_Vines_02");
             Wire("BurnSnagA", AridRoot, "SM_Env_Tree_Dead_01");
             Wire("BurnSnagB", AridRoot, "SM_Env_Tree_Dead_02");
+            Wire("Aurora", AlpineRoot, "FX_Aurora_Mesh_01");
+            Wire("AutumnLeaves", MeadowRoot, "FX_Leaves_Blowing_Meadows_01");
             EditorUtility.SetDirty(fx);
         }
     }

@@ -135,6 +135,8 @@ GameObject:
   - component: {fileID: 779027386}
   - component: {fileID: 779027385}
   - component: {fileID: 779027387}
+  - component: {fileID: 779027389}
+  - component: {fileID: 779027388}
   m_Layer: 0
   m_Name: World
   m_TagString: Untagged
@@ -337,6 +339,10 @@ MonoBehaviour:
     Prefab: {fileID: 7527004103962423645, guid: 5ee5b0b0211fbca44807db7e785feb3e, type: 3}
   - Key: BurnSnagB
     Prefab: {fileID: 7989243879905098700, guid: e13d1e297156f4544ab94d99144112c0, type: 3}
+  - Key: Aurora
+    Prefab: {fileID: 7359004919979851453, guid: e27f804753687be4c8fb3632c81bf8fa, type: 3}
+  - Key: AutumnLeaves
+    Prefab: {fileID: 3113047816120775396, guid: c88f612fc8f7cf04d9a0d491d59c214e, type: 3}
 --- !u!114 &779027385
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -371,6 +377,8 @@ MonoBehaviour:
   TimeOfDay: 10.5
   HoursPerSecond: 0.02
   SunAzimuth: 65
+  Season: 0.4
+  DaysPerYear: 12
   sun: {fileID: 2122057816}
 --- !u!114 &779027387
 MonoBehaviour:
@@ -384,6 +392,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6b26e5fa7fe71c4380abf4e8ed7467c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: AniML.Runtime::AniML.World.UnderwaterTint
+--- !u!114 &779027388
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 779027379}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bef763723c37cb4a9d8d947fb84c880, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: AniML.Runtime::AniML.World.WildfireSystem
+  slots:
+  - Key: Fire
+    Prefab: {fileID: 7583434666778122777, guid: 0115fa89ad0d44a08054ef02d75ca945, type: 3}
+  - Key: Smoke
+    Prefab: {fileID: 6706313033136495122, guid: c5d84bb5cd4148b78a9c805f51d3f6ea, type: 3}
+  - Key: Lightning
+    Prefab: {fileID: 614381241736687245, guid: e678e5799c5647a44be2fba45dbd6792, type: 3}
+  tickSeconds: 1.3
+  maxActiveFireFX: 28
+--- !u!114 &779027389
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 779027379}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bef18147e3e02640b848cd3705c930c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: AniML.Runtime::AniML.World.VolcanoPulse
 --- !u!1 &981988358
 GameObject:
   m_ObjectHideFlags: 0

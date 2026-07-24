@@ -65,6 +65,14 @@ Shader "AniML/TerrainVertexColor"
                 float _SeaLevel;
             CBUFFER_END
 
+            // Set by the runtime sky/weather systems; zero means inert, so
+            // editor captures stay correct without them.
+            float _AniML_Wetness;
+            float _AniML_SnowLineY;
+            float _AniML_BurnMaskOn;
+            float _AniML_WorldSize;
+            TEXTURE2D(_AniML_BurnMask); SAMPLER(sampler_AniML_BurnMask);
+
             Varyings vert(Attributes IN)
             {
                 Varyings OUT;
@@ -80,10 +88,19 @@ Shader "AniML/TerrainVertexColor"
             {
                 float2 uv = IN.positionWS.xz * _TileScale;
                 float4 w = IN.weights;
+                float3 n = normalize(IN.normalWS);
+
+                // The living snowline: winter (and snow spells) pull it down
+                // the slopes; gentle ground whitens above it.
+                if (_AniML_SnowLineY > 0.5)
+                {
+                    float seasonSnow = saturate((IN.positionWS.y - _AniML_SnowLineY) / 12.0)
+                                       * saturate(n.y * 1.6 - 0.35);
+                    w.w = max(w.w, seasonSnow * 2.0);
+                }
+
                 float total = max(w.x + w.y + w.z + w.w, 1e-4);
                 w /= total;
-
-                float3 n = normalize(IN.normalWS);
 
                 float3 tex =
                     SAMPLE_TEXTURE2D(_GrassTex, sampler_GrassTex, uv).rgb * w.x +
@@ -114,6 +131,17 @@ Shader "AniML/TerrainVertexColor"
                 float wet = (1.0 - saturate((IN.positionWS.y - _SeaLevel - 0.12) / 0.95))
                           * saturate((IN.positionWS.y - _SeaLevel + 2.6) / 2.1);
                 albedo *= lerp(1.0, 0.74, saturate(wet) * 0.9);
+
+                // Rain-wet ground, driven by the weather system.
+                albedo *= lerp(1.0, 0.78, saturate(_AniML_Wetness) * 0.85);
+
+                // Live wildfire char, written by the wildfire system.
+                if (_AniML_BurnMaskOn > 0.5)
+                {
+                    float2 buv = IN.positionWS.xz / max(_AniML_WorldSize, 1.0) + 0.5;
+                    float burn = SAMPLE_TEXTURE2D(_AniML_BurnMask, sampler_AniML_BurnMask, buv).r;
+                    albedo = lerp(albedo, float3(0.13, 0.11, 0.10), saturate(burn) * 0.85);
+                }
                 float4 shadowCoord = TransformWorldToShadowCoord(IN.positionWS);
                 Light mainLight = GetMainLight(shadowCoord);
 

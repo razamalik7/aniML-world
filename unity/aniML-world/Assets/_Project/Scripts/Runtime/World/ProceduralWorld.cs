@@ -1425,37 +1425,56 @@ namespace AniML.World
             return density;
         }
 
-        // ---- World memory: the burn scar ----
+        // ---- World memory: the burn scar (a REAL fire, run at genesis) ----
 
         private Vector2 _burnScarPos;
         private float _burnScarRadius;
+        private bool[,] _scarMask;
+        private int _scarRes;
+        private float _scarCell;
         public Vector3 BurnScarCenter =>
             new(_burnScarPos.x, SampleHeight(_burnScarPos.x, _burnScarPos.y), _burnScarPos.y);
         public float BurnScarRadius => _burnScarRadius;
 
-        /// <summary>0 outside, 1 at the heart of the old fire.</summary>
+        /// <summary>0 outside, 1 inside the old fire's actual burned area
+        /// (smoothed over the sim cells).</summary>
         public float BurnScar01(float x, float z)
         {
-            if (_burnScarRadius <= 0f)
+            if (_scarMask == null)
                 return 0f;
-            float dx = x - _burnScarPos.x, dz = z - _burnScarPos.y;
-            float d = Mathf.Sqrt(dx * dx + dz * dz);
-            return d >= _burnScarRadius ? 0f
-                : Mathf.SmoothStep(1f, 0f, d / _burnScarRadius);
+            float half = settings.WorldSize * 0.5f;
+            int gx = Mathf.RoundToInt((x + half) / _scarCell);
+            int gz = Mathf.RoundToInt((z + half) / _scarCell);
+            int hits = 0;
+            for (int dz = -1; dz <= 1; dz++)
+            {
+                for (int dx = -1; dx <= 1; dx++)
+                {
+                    int nx = gx + dx, nz = gz + dz;
+                    if (nx >= 0 && nz >= 0 && nx < _scarRes && nz < _scarRes && _scarMask[nx, nz])
+                        hits++;
+                }
+            }
+            return hits / 9f;
         }
 
         /// <summary>
-        /// Site one ancient wildfire at the edge of a forest — the drier the
-        /// candidate ground, the likelier it burned. History the live fire
-        /// sim will later write at runtime; genesis worlds start with one.
+        /// The old burn is not painted on — worldgen IGNITES a real fire at
+        /// the driest forest edge and runs the same FireRules the live
+        /// wildfire system uses. Whatever actually burned is the scar.
         /// </summary>
         private void ComputeBurnScar()
         {
+            _scarMask = null;
             _burnScarRadius = 0f;
             if (_forestSeeds.Count == 0)
                 return;
             var rng = new System.Random(settings.Seed * 131 + 17);
-            float bestDry = 0.52f;   // only meaningfully dry edges burn
+
+            // Ignition: the driest, fueled forest-edge candidate.
+            float bestScore = 0.3f;
+            Vector2 ignition = default;
+            bool found = false;
             foreach (var seed in _forestSeeds)
             {
                 for (int i = 0; i < 6; i++)
@@ -1464,17 +1483,66 @@ namespace AniML.World
                     var p = seed.Pos + new Vector2(Mathf.Cos(ang), Mathf.Sin(ang)) * seed.Radius * 0.75f;
                     if (SampleHeight(p.x, p.y) - settings.SeaLevel < 3f)
                         continue;
-                    if (StandingWaterDepth(p.x, p.y) > 0f)
-                        continue;
-                    float dry = 1f - SampleMoisture(p.x, p.y);
-                    if (dry > bestDry)
+                    float score = FireRules.Fuel(this, p.x, p.y)
+                                  * FireRules.Dryness(this, p.x, p.y, 0f);
+                    if (score > bestScore)
                     {
-                        bestDry = dry;
-                        _burnScarPos = p;
-                        _burnScarRadius = 26f + (float)rng.NextDouble() * 14f;
+                        bestScore = score;
+                        ignition = p;
+                        found = true;
                     }
                 }
             }
+            if (!found)
+                return;
+
+            // Run the fire on a coarse grid until it dies or is capped.
+            _scarRes = 128;
+            _scarCell = settings.WorldSize / _scarRes;
+            _scarMask = new bool[_scarRes, _scarRes];
+            var state = new byte[_scarRes, _scarRes];   // 0 clear 1 burning 2 burned
+            float half = settings.WorldSize * 0.5f;
+            var wind = settings.WindDirection.normalized;
+            var burning = new List<(int, int)>();
+            int igx = Mathf.Clamp(Mathf.RoundToInt((ignition.x + half) / _scarCell), 1, _scarRes - 2);
+            int igz = Mathf.Clamp(Mathf.RoundToInt((ignition.y + half) / _scarCell), 1, _scarRes - 2);
+            state[igx, igz] = 1;
+            burning.Add((igx, igz));
+            int burnedTotal = 0;
+
+            var nbors = new (int dx, int dz)[] { (1, 0), (-1, 0), (0, 1), (0, -1) };
+            for (int tick = 0; tick < 50 && burning.Count > 0 && burnedTotal < 520; tick++)
+            {
+                var next = new List<(int, int)>();
+                foreach (var (bx, bz) in burning)
+                {
+                    foreach (var (dx, dz) in nbors)
+                    {
+                        int nx = bx + dx, nz = bz + dz;
+                        if (nx < 1 || nz < 1 || nx >= _scarRes - 1 || nz >= _scarRes - 1
+                            || state[nx, nz] != 0)
+                            continue;
+                        float wx = nx * _scarCell - half;
+                        float wz = nz * _scarCell - half;
+                        float chance = FireRules.SpreadChance(
+                            FireRules.Fuel(this, wx, wz),
+                            FireRules.Dryness(this, wx, wz, 0f) * 0.85f,
+                            dx * wind.x + dz * wind.y);
+                        if (rng.NextDouble() < chance)
+                        {
+                            state[nx, nz] = 1;
+                            next.Add((nx, nz));
+                        }
+                    }
+                    state[bx, bz] = 2;
+                    _scarMask[bx, bz] = true;
+                    burnedTotal++;
+                }
+                burning = next;
+            }
+
+            _burnScarPos = ignition;
+            _burnScarRadius = Mathf.Sqrt(burnedTotal * _scarCell * _scarCell / Mathf.PI);
         }
 
         // ---- Biome classification ----

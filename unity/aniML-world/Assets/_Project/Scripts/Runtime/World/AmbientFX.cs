@@ -24,6 +24,19 @@ namespace AniML.World
 
         [SerializeField] private List<Slot> slots = new();
 
+        // Life keeps hours: these lists are toggled by the clock/season.
+        private readonly List<GameObject> _nocturnal = new();
+        private readonly List<GameObject> _diurnal = new();
+        private readonly List<GameObject> _autumnal = new();
+        private bool _nightApplied, _autumnApplied, _gateInit;
+
+        private static bool IsNocturnalKey(string key) =>
+            key == "Fireflies" || key == "Bats" || key == "Aurora";
+
+        private static bool IsDiurnalKey(string key) =>
+            key == "Hawk" || key == "Vulture" || key == "Birds" || key == "Cranes"
+            || key == "Butterflies" || key == "Dragonflies";
+
         public bool IsWired => slots.Count > 0;
 
         public void SetSlot(string key, GameObject prefab)
@@ -46,6 +59,33 @@ namespace AniML.World
             var world = GetComponent<ProceduralWorld>();
             world.EnsureSamplers();
             Place(world);
+        }
+
+        private void Update()
+        {
+            if (!Application.isPlaying)
+                return;
+            var sky = GetComponent<SkySystem>();
+            if (sky == null)
+                return;
+
+            bool night = sky.TimeOfDay > 19.6f || sky.TimeOfDay < 5.8f;
+            bool autumn = sky.Season > 0.62f && sky.Season < 0.88f;
+            if (!_gateInit || night != _nightApplied)
+            {
+                foreach (var go in _nocturnal)
+                    if (go != null) go.SetActive(night);
+                foreach (var go in _diurnal)
+                    if (go != null) go.SetActive(!night);
+                _nightApplied = night;
+            }
+            if (!_gateInit || autumn != _autumnApplied)
+            {
+                foreach (var go in _autumnal)
+                    if (go != null) go.SetActive(autumn);
+                _autumnApplied = autumn;
+            }
+            _gateInit = true;
         }
 
         public void Place(ProceduralWorld world)
@@ -187,6 +227,21 @@ namespace AniML.World
                 Spawn(root, "Bats", w.Pos + facing * 6f + Vector3.up * 5f, w.YawDeg, 1f);
                 n++;
             }
+
+            // Aurora over granite country's highest peak, night-gated.
+            if (s.Profile == LandformProfile.AlpineGranite && world.Summits.Count > 0)
+            {
+                var top = world.Summits[0];
+                Spawn(root, "Aurora", top.Pos + Vector3.up * 65f,
+                    (float)rng.NextDouble() * 360f, 3f);
+                n++;
+            }
+
+            // Falling leaves over the forests, autumn-gated.
+            Species("AutumnLeaves", 5, 7f, 130f, (x, z) =>
+                world.ForestDensity01(x, z) > 0.3f
+                && world.SampleTemperature01(x, z) < 0.62f && Dry(x, z));
+
             return n;
         }
 
@@ -293,6 +348,13 @@ namespace AniML.World
             go.transform.localScale = Vector3.one * scale;
             go.transform.SetParent(parent.transform, true);
             go.hideFlags = HideFlags.DontSave;
+
+            if (IsNocturnalKey(key))
+                _nocturnal.Add(go);
+            else if (IsDiurnalKey(key))
+                _diurnal.Add(go);
+            else if (key == "AutumnLeaves")
+                _autumnal.Add(go);
         }
     }
 }

@@ -16,6 +16,10 @@ namespace AniML.World
         public float HoursPerSecond = 0.02f;
         [Tooltip("Compass direction of sunrise, degrees.")]
         public float SunAzimuth = 65f;
+        [Tooltip("0 = midwinter, 0.5 = midsummer. Advances with the clock.")]
+        [Range(0f, 1f)] public float Season = 0.4f;
+        [Tooltip("Game days per year (seasonal cycle length).")]
+        public float DaysPerYear = 12f;
 
         [SerializeField] private Light sun;
         private Light _moon;   // separate light so the procedural skybox
@@ -42,7 +46,9 @@ namespace AniML.World
         {
             if (Application.isPlaying && HoursPerSecond > 0f)
             {
-                TimeOfDay = (TimeOfDay + Time.deltaTime * HoursPerSecond) % 24f;
+                float dtHours = Time.deltaTime * HoursPerSecond;
+                TimeOfDay = (TimeOfDay + dtHours) % 24f;
+                Season = (Season + dtHours / 24f / Mathf.Max(DaysPerYear, 1f)) % 1f;
                 Apply();
             }
             else if (!Application.isPlaying)
@@ -109,6 +115,19 @@ namespace AniML.World
                     new Color(0.08f, 0.10f, 0.16f),
                     Color.Lerp(new Color(0.75f, 0.82f, 0.92f), new Color(0.95f, 0.68f, 0.45f), low),
                     day);
+            }
+
+            // The living snowline: midwinter drags it far down the slopes,
+            // midsummer pushes it to the peaks; snow spells pull it lower.
+            var world = GetComponent<ProceduralWorld>();
+            if (world != null && world.Settings != null)
+            {
+                float warmth = 0.5f - 0.5f * Mathf.Cos(Season * Mathf.PI * 2f);
+                float snowLine = world.Settings.SeaLevel + Mathf.Lerp(16f, 60f, warmth);
+                var weather = GetComponent<WeatherSystem>();
+                if (weather != null)
+                    snowLine -= weather.SnowLineDrop;
+                Shader.SetGlobalFloat("_AniML_SnowLineY", snowLine);
             }
         }
     }
