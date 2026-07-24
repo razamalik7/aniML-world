@@ -1059,11 +1059,8 @@ namespace AniML.EditorTools
             Wire("Tumbleweed", AridRoot, "FX_TumbleWeed_01");
             Wire("DustBlowing", AridRoot, "FX_Dust_Blowing_01");
             Wire("Bats", SwampRoot, "FX_Bats_01");
-            // World memory props.
-            Wire("BoneSkull", SwampRoot, "SM_Prop_Bone_Skull_01");
-            Wire("BoneRibcage", SwampRoot, "SM_Prop_Bone_Ribcage_01");
-            Wire("BonePile", SwampRoot, "SM_Prop_Bone_Pile_01");
-            Wire("BoneSpine", SwampRoot, "SM_Prop_Bone_Spine_01");
+            // World memory props (non-animal only — bones arrive when the
+            // real ecosystem drops them at actual kills).
             Wire("MushroomA", MeadowRoot, "SM_Prop_Mushroom_01");
             Wire("MushroomB", MeadowRoot, "SM_Prop_Mushroom_02");
             Wire("MushroomC", MeadowRoot, "SM_Prop_Mushroom_03");

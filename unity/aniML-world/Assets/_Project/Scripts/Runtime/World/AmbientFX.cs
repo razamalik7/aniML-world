@@ -205,25 +205,9 @@ namespace AniML.World
             Vector3 Ground(float x, float z) => new(x, world.SampleHeight(x, z), z);
             float Yaw() => (float)rng.NextDouble() * 360f;
 
-            // Kill sites: a ribcage, the skull thrown clear, scattered piles.
-            int killSites = 0;
-            for (int i = 0; i < 200 && killSites < 3; i++)
-            {
-                float x = ((float)rng.NextDouble() * 2f - 1f) * half * 0.85f;
-                float z = ((float)rng.NextDouble() * 2f - 1f) * half * 0.85f;
-                var b = world.SampleBiome(x, z);
-                if (b != Biome.Meadow && b != Biome.Scrub && b != Biome.ForestFloor)
-                    continue;
-                if (world.StandingWaterDepth(x, z) > 0f || world.ForestDensity01(x, z) > 0.4f)
-                    continue;
-                Spawn(root, "BoneRibcage", Ground(x, z), Yaw(), 1.1f);
-                Spawn(root, "BoneSkull", Ground(x + 1.9f, z + 0.8f), Yaw(), 1.1f);
-                Spawn(root, "BonePile", Ground(x - 1.4f, z + 1.6f), Yaw(), 1f);
-                if (rng.NextDouble() > 0.5)
-                    Spawn(root, "BoneSpine", Ground(x + 0.6f, z - 1.8f), Yaw(), 1f);
-                killSites++;
-                n++;
-            }
+            // NOTE deliberately no bone/kill sites here: signs of animal life
+            // must be REAL — the live ecosystem drops bones where actual
+            // kills happen. Genesis places only non-animal history.
 
             // Fairy rings deep in the woods.
             int rings = 0;
