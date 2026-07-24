@@ -37,12 +37,35 @@ namespace AniML.World
         private readonly List<PondStamp> _ponds = new();
         public IReadOnlyList<PondStamp> Ponds => _ponds;
 
+        // Lakes: depressions found by priority-flood on the baked grid.
+        public sealed class Lake
+        {
+            public float WaterLevel;
+            public readonly List<(int gx, int gz)> Cells = new();
+        }
+        private readonly List<Lake> _lakes = new();
+        private readonly Dictionary<long, int> _lakeCellIndex = new();
+        public IReadOnlyList<Lake> Lakes => _lakes;
+
         // Coastal cliff walls: aligned segments along steep coastline runs.
         public struct CoastCliff { public Vector3 Pos; public float YawDeg; public float Scale; }
         private readonly List<CoastCliff> _coastCliffs = new();
         public IReadOnlyList<CoastCliff> CoastCliffs => _coastCliffs;
 
         private float[,] _freshDistGrid;
+
+        // Natural wonders: singular one-per-world features at computed sites.
+        public struct WonderSite { public string Kind; public Vector3 Pos; public float YawDeg; public float Scale; }
+        private readonly List<WonderSite> _wonders = new();
+        public IReadOnlyList<WonderSite> Wonders => _wonders;
+
+        // Baked heightfield: analytic height (with river/pond carves) is
+        // rasterized once per generation, erosion runs on the grid, and all
+        // queries become bilinear samples — faster AND erodible.
+        private float[,] _heightGrid;
+        private int _heightRes;
+        private float _heightCell;
+        private bool _gridReady;
 
         // Forests as objects: seeds with radius/strength, minus clearings.
         private struct ForestSeed { public Vector2 Pos; public float Radius; public float Strength; }
@@ -80,6 +103,7 @@ namespace AniML.World
         {
             if (_heightNoise != null || settings == null)
                 return;
+            _gridReady = false;
             _heightNoise = new FractalNoise(settings.Seed, settings.Octaves, settings.Lacunarity, settings.Persistence);
             _moistureNoise = new FractalNoise(settings.Seed + 7919, 3, 2.1f, 0.5f);
             _mountainNoise = new FractalNoise(settings.Seed + 104729, 4, 2.2f, 0.5f);
@@ -88,10 +112,105 @@ namespace AniML.World
             _warpNoiseZ = new FractalNoise(settings.Seed + 32452843, 3, 2.0f, 0.5f);
             BuildRivers();
             PlacePonds();
+            BakeHeightGrid();
+            DetectLakes();
             BakeMoistureGrid();
             PlaceForests();
             PlaceOutcrops();
             TraceCoastCliffs();
+            ComputeWonders();
+        }
+
+        /// <summary>
+        /// One of each, at sites the terrain and hydrology single out:
+        /// THE waterfall, THE giant tree, THE hot springs, THE whale bones.
+        /// Singularity is the point — landmarks you remember and navigate by.
+        /// </summary>
+        private void ComputeWonders()
+        {
+            _wonders.Clear();
+            var rng = new System.Random(settings.Seed * 71 + 19);
+
+            // Waterfall: the largest single bed drop on any river.
+            float bestDrop = 3.2f;
+            Vector3 fallPos = default; float fallYaw = 0f; float fallScale = 1f;
+            bool found = false;
+            foreach (var river in _rivers)
+            {
+                for (int i = 0; i + 1 < river.Count; i++)
+                {
+                    float drop = river[i].y - river[i + 1].y;
+                    if (drop > bestDrop)
+                    {
+                        bestDrop = drop;
+                        var dir = new Vector2(river[i + 1].x - river[i].x, river[i + 1].z - river[i].z);
+                        fallYaw = Mathf.Atan2(dir.x, dir.y) * Mathf.Rad2Deg;
+                        fallPos = new Vector3(
+                            (river[i].x + river[i + 1].x) * 0.5f,
+                            river[i + 1].y + settings.RiverDepth * 0.55f,
+                            (river[i].z + river[i + 1].z) * 0.5f);
+                        fallScale = Mathf.Clamp(drop / 4f, 1f, 2.4f);
+                        found = true;
+                    }
+                }
+            }
+            if (found)
+                _wonders.Add(new WonderSite { Kind = "Waterfall", Pos = fallPos, YawDeg = fallYaw, Scale = fallScale });
+
+            // Giant tree: the clearing of the largest forest.
+            if (_forestSeeds.Count > 0)
+            {
+                var biggest = _forestSeeds[0];
+                foreach (var f in _forestSeeds)
+                    if (f.Radius > biggest.Radius) biggest = f;
+                Vector2 site = biggest.Pos;
+                foreach (var c in _forestClearings)
+                {
+                    if ((c.Pos - biggest.Pos).magnitude < biggest.Radius)
+                    { site = c.Pos; break; }
+                }
+                _wonders.Add(new WonderSite
+                {
+                    Kind = "GiantTree",
+                    Pos = new Vector3(site.x, SampleHeight(site.x, site.y), site.y),
+                    YawDeg = (float)rng.NextDouble() * 360f,
+                    Scale = 3.4f,
+                });
+            }
+
+            // Hot springs: craggy scrub, relaxing to any dry/rocky ground.
+            if (!TryPlaceWonder(rng, "HotSprings", 240,
+                    (x, z) => SampleBiome(x, z) == Biome.Scrub && SampleCragginess01(x, z) > 0.2f))
+            {
+                if (!TryPlaceWonder(rng, "HotSprings", 240, (x, z) => SampleBiome(x, z) == Biome.Scrub))
+                    TryPlaceWonder(rng, "HotSprings", 240,
+                        (x, z) => SampleCragginess01(x, z) > 0.4f && SampleBiome(x, z) != Biome.Ocean
+                                  && SampleBiome(x, z) != Biome.Snow);
+            }
+            TryPlaceWonder(rng, "WhaleBones", 240,
+                (x, z) => SampleBiome(x, z) == Biome.Beach && SampleOceanDistance(x, z) < 24f);
+        }
+
+        private bool TryPlaceWonder(System.Random rng, string kind, int attempts,
+            System.Func<float, float, bool> suitable)
+        {
+            float half = settings.WorldSize * 0.5f;
+            for (int i = 0; i < attempts; i++)
+            {
+                float x = ((float)rng.NextDouble() * 2f - 1f) * half * 0.92f;
+                float z = ((float)rng.NextDouble() * 2f - 1f) * half * 0.92f;
+                if (!suitable(x, z))
+                    continue;
+                _wonders.Add(new WonderSite
+                {
+                    Kind = kind,
+                    Pos = new Vector3(x, SampleHeight(x, z), z),
+                    YawDeg = (float)rng.NextDouble() * 360f,
+                    Scale = 1f,
+                });
+                return true;
+            }
+            return false;
         }
 
         /// <summary>Domain warp (Quilez): organic boundaries from warped inputs.</summary>
@@ -136,8 +255,28 @@ namespace AniML.World
 
         public float SampleHeight(float x, float z)
         {
+            if (_gridReady)
+            {
+                float half = settings.WorldSize * 0.5f;
+                float gx = Mathf.Clamp((x + half) / _heightCell, 0f, _heightRes - 1.001f);
+                float gz = Mathf.Clamp((z + half) / _heightCell, 0f, _heightRes - 1.001f);
+                int x0 = (int)gx, z0 = (int)gz;
+                float fx = gx - x0, fz = gz - z0;
+                return Mathf.Lerp(
+                    Mathf.Lerp(_heightGrid[x0, z0], _heightGrid[x0 + 1, z0], fx),
+                    Mathf.Lerp(_heightGrid[x0, z0 + 1], _heightGrid[x0 + 1, z0 + 1], fx), fz);
+            }
+            return AnalyticHeight(x, z);
+        }
+
+        private float AnalyticHeight(float x, float z)
+        {
             float raw = RawHeight(x, z);
             GetRiverData(x, z, out float influence, out float bed);
+            // Deep carves (the gorge) get sharpened influence → near-vertical
+            // canyon walls instead of gentle banks.
+            if (influence > 0f && raw - bed > 7f)
+                influence = Mathf.Pow(influence, 0.45f);
             float h = influence <= 0f ? raw
                 // Blend down toward the (monotonically descending) river bed;
                 // min() so banks in local dips are never raised.
@@ -155,6 +294,195 @@ namespace AniML.World
                 }
             }
             return h;
+        }
+
+        /// <summary>
+        /// Rasterize the analytic height (with river/pond carves) into a grid
+        /// aligned with the terrain mesh quads, then run thermal erosion:
+        /// slopes steeper than the talus angle shed material downhill,
+        /// producing scree shoulders and settled, weathered ridges. River
+        /// channels are masked so erosion never breaks the carved beds.
+        /// </summary>
+        private void BakeHeightGrid()
+        {
+            float half = settings.WorldSize * 0.5f;
+            _heightCell = settings.QuadSize;
+            _heightRes = Mathf.RoundToInt(settings.WorldSize / _heightCell) + 1;
+            _heightGrid = new float[_heightRes, _heightRes];
+            var riverMask = new bool[_heightRes, _heightRes];
+
+            for (int gz = 0; gz < _heightRes; gz++)
+            {
+                for (int gx = 0; gx < _heightRes; gx++)
+                {
+                    float x = gx * _heightCell - half;
+                    float z = gz * _heightCell - half;
+                    _heightGrid[gx, gz] = AnalyticHeight(x, z);
+                    riverMask[gx, gz] = RiverInfluence01(x, z) > 0.25f;
+                }
+            }
+
+            // Thermal erosion: talus angle ~33 degrees.
+            float talus = Mathf.Tan(33f * Mathf.Deg2Rad) * _heightCell;
+            const int iterations = 26;
+            for (int it = 0; it < iterations; it++)
+            {
+                for (int gz = 1; gz < _heightRes - 1; gz++)
+                {
+                    for (int gx = 1; gx < _heightRes - 1; gx++)
+                    {
+                        if (riverMask[gx, gz]) continue;
+
+                        float h = _heightGrid[gx, gz];
+                        int lx = gx, lz = gz;
+                        float lowest = h;
+                        if (_heightGrid[gx - 1, gz] < lowest) { lowest = _heightGrid[gx - 1, gz]; lx = gx - 1; lz = gz; }
+                        if (_heightGrid[gx + 1, gz] < lowest) { lowest = _heightGrid[gx + 1, gz]; lx = gx + 1; lz = gz; }
+                        if (_heightGrid[gx, gz - 1] < lowest) { lowest = _heightGrid[gx, gz - 1]; lx = gx; lz = gz - 1; }
+                        if (_heightGrid[gx, gz + 1] < lowest) { lowest = _heightGrid[gx, gz + 1]; lx = gx; lz = gz + 1; }
+
+                        float drop = h - lowest;
+                        if (drop > talus && !riverMask[lx, lz])
+                        {
+                            float move = 0.18f * (drop - talus);
+                            _heightGrid[gx, gz] -= move;
+                            _heightGrid[lx, lz] += move;
+                        }
+                    }
+                }
+            }
+
+            _gridReady = true;
+        }
+
+        /// <summary>
+        /// Priority-flood (Barnes et al.): flood the grid inward from the map
+        /// border with a min-heap; any cell that must be raised to reach an
+        /// outlet is part of a depression. Contiguous flooded cells become
+        /// lakes with a shared water level — water exists exactly where the
+        /// terrain would actually hold it.
+        /// </summary>
+        private void DetectLakes()
+        {
+            _lakes.Clear();
+            _lakeCellIndex.Clear();
+
+            int res = _heightRes;
+            var fill = new float[res, res];
+            var visited = new bool[res, res];
+            var heap = new List<(float h, int gx, int gz)>();
+
+            void HeapPush((float h, int gx, int gz) item)
+            {
+                heap.Add(item);
+                int i = heap.Count - 1;
+                while (i > 0)
+                {
+                    int parent = (i - 1) / 2;
+                    if (heap[parent].h <= heap[i].h) break;
+                    (heap[parent], heap[i]) = (heap[i], heap[parent]);
+                    i = parent;
+                }
+            }
+
+            (float h, int gx, int gz) HeapPop()
+            {
+                var top = heap[0];
+                heap[0] = heap[^1];
+                heap.RemoveAt(heap.Count - 1);
+                int i = 0;
+                while (true)
+                {
+                    int l = i * 2 + 1, r = l + 1, m = i;
+                    if (l < heap.Count && heap[l].h < heap[m].h) m = l;
+                    if (r < heap.Count && heap[r].h < heap[m].h) m = r;
+                    if (m == i) break;
+                    (heap[m], heap[i]) = (heap[i], heap[m]);
+                    i = m;
+                }
+                return top;
+            }
+
+            for (int i = 0; i < res; i++)
+            {
+                foreach (var (gx, gz) in new[] { (i, 0), (i, res - 1), (0, i), (res - 1, i) })
+                {
+                    if (!visited[gx, gz])
+                    {
+                        visited[gx, gz] = true;
+                        fill[gx, gz] = _heightGrid[gx, gz];
+                        HeapPush((fill[gx, gz], gx, gz));
+                    }
+                }
+            }
+
+            var nbors = new (int dx, int dz)[] { (1, 0), (-1, 0), (0, 1), (0, -1) };
+            while (heap.Count > 0)
+            {
+                var (h, gx, gz) = HeapPop();
+                foreach (var (dx, dz) in nbors)
+                {
+                    int nx = gx + dx, nz = gz + dz;
+                    if (nx < 0 || nz < 0 || nx >= res || nz >= res || visited[nx, nz])
+                        continue;
+                    visited[nx, nz] = true;
+                    fill[nx, nz] = Mathf.Max(_heightGrid[nx, nz], h);
+                    HeapPush((fill[nx, nz], nx, nz));
+                }
+            }
+
+            // Group flooded cells (fill above ground and above sea) into lakes.
+            var grouped = new bool[res, res];
+            for (int gz = 1; gz < res - 1; gz++)
+            {
+                for (int gx = 1; gx < res - 1; gx++)
+                {
+                    if (grouped[gx, gz]) continue;
+                    float depth = fill[gx, gz] - _heightGrid[gx, gz];
+                    if (depth < 0.35f || fill[gx, gz] <= settings.SeaLevel + 0.3f) continue;
+
+                    var lake = new Lake { WaterLevel = fill[gx, gz] };
+                    var stack = new Stack<(int, int)>();
+                    stack.Push((gx, gz));
+                    grouped[gx, gz] = true;
+                    float maxDepth = 0f;
+                    while (stack.Count > 0)
+                    {
+                        var (cx, cz) = stack.Pop();
+                        lake.Cells.Add((cx, cz));
+                        maxDepth = Mathf.Max(maxDepth, fill[cx, cz] - _heightGrid[cx, cz]);
+                        foreach (var (dx, dz) in new[] { (1, 0), (-1, 0), (0, 1), (0, -1) })
+                        {
+                            int nx = cx + dx, nz = cz + dz;
+                            if (nx < 1 || nz < 1 || nx >= res - 1 || nz >= res - 1 || grouped[nx, nz])
+                                continue;
+                            if (fill[nx, nz] - _heightGrid[nx, nz] >= 0.35f
+                                && Mathf.Abs(fill[nx, nz] - lake.WaterLevel) < 0.05f)
+                            {
+                                grouped[nx, nz] = true;
+                                stack.Push((nx, nz));
+                            }
+                        }
+                    }
+
+                    // Keep real lakes; discard puddles.
+                    if (lake.Cells.Count >= 60 && maxDepth >= 0.9f)
+                    {
+                        foreach (var (cx, cz) in lake.Cells)
+                            _lakeCellIndex[((long)cx << 32) ^ (uint)cz] = _lakes.Count;
+                        _lakes.Add(lake);
+                    }
+                }
+            }
+        }
+
+        public bool InsideLake(float x, float z)
+        {
+            if (_lakeCellIndex.Count == 0) return false;
+            float half = settings.WorldSize * 0.5f;
+            int gx = Mathf.RoundToInt((x + half) / _heightCell);
+            int gz = Mathf.RoundToInt((z + half) / _heightCell);
+            return _lakeCellIndex.ContainsKey(((long)gx << 32) ^ (uint)gz);
         }
 
         private void PlacePonds()
@@ -285,9 +613,9 @@ namespace AniML.World
                     float x = gx * MoistureCellSize - half;
                     float z = gz * MoistureCellSize - half;
                     bool ocean = RawHeight(x, z) <= settings.SeaLevel + 0.2f;
-                    // FRESH water only — marshes form around rivers and ponds,
+                    // FRESH water only — marshes form around rivers and lakes,
                     // never salt coastline.
-                    bool fresh = RiverInfluence01(x, z) > 0.35f || InsidePondWater(x, z);
+                    bool fresh = RiverInfluence01(x, z) > 0.35f || InsideLake(x, z);
                     dist[gx, gz] = fresh ? 0f : float.MaxValue;
                     oceanDist[gx, gz] = ocean ? 0f : float.MaxValue;
                 }
@@ -544,7 +872,7 @@ namespace AniML.World
                 return Biome.AlpineMeadow;
             // Scrub is the genuinely dry (rain-shadow / far-from-water) tail,
             // and only where it's warm — cold-dry reads alpine instead.
-            if (moisture < 0.2f)
+            if (moisture < 0.3f)
                 return temp > 0.42f ? Biome.Scrub : Biome.AlpineMeadow;
             return Biome.Meadow;
         }
@@ -701,9 +1029,82 @@ namespace AniML.World
                     path[i] = p;
                 }
 
+                // Estuary: the final reach flares out where it meets the sea.
+                int tail = 0;
+                for (int i = path.Count - 1; i >= 0 && path[i].y < settings.SeaLevel + 1.5f; i--)
+                    tail++;
+                for (int k = 0; k < tail; k++)
+                {
+                    int i = path.Count - 1 - k;
+                    var p = path[i];
+                    p.w *= Mathf.Lerp(2.4f, 1f, k / Mathf.Max(tail - 1f, 1f));
+                    path[i] = p;
+                }
+
                 _rivers.Add(path);
 
-                // Hash points plus segment midpoints for gap-free influence.
+            }
+
+            // Tributary confluence: where two rivers meet, the downstream
+            // trunk swells (width adds in quadrature, like drainage area).
+            for (int a = 0; a < _rivers.Count; a++)
+            {
+                for (int b = 0; b < _rivers.Count; b++)
+                {
+                    if (a == b) continue;
+                    var pathA = _rivers[a];
+                    int junction = -1;
+                    foreach (var pb in _rivers[b])
+                    {
+                        for (int i = 0; i < pathA.Count; i++)
+                        {
+                            float dx = pathA[i].x - pb.x, dz = pathA[i].z - pb.z;
+                            if (dx * dx + dz * dz < 64f) { junction = i; break; }
+                        }
+                        if (junction >= 0) break;
+                    }
+                    if (junction >= 0)
+                    {
+                        for (int i = junction; i < pathA.Count; i++)
+                        {
+                            var p = pathA[i];
+                            p.w = Mathf.Min(Mathf.Sqrt(p.w * p.w * 1.9f), settings.RiverMaxWidth * 2.2f);
+                            pathA[i] = p;
+                        }
+                    }
+                }
+            }
+
+            // THE gorge: the river with the highest source cuts a deep,
+            // steep-walled canyon through its mid-run.
+            int gorgeRiver = -1;
+            float bestSource = 24f;
+            for (int i = 0; i < _rivers.Count; i++)
+            {
+                float src = RawHeight(_rivers[i][0].x, _rivers[i][0].z);
+                if (src > bestSource) { bestSource = src; gorgeRiver = i; }
+            }
+            if (gorgeRiver >= 0)
+            {
+                var path = _rivers[gorgeRiver];
+                for (int i = 0; i < path.Count; i++)
+                {
+                    float t = i / (float)(path.Count - 1);
+                    float gorge = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.22f, 0.42f, t))
+                                * Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.8f, 0.6f, t));
+                    if (gorge > 0f)
+                    {
+                        var p = path[i];
+                        p.y -= gorge * 9f;          // deepen the bed
+                        p.w *= 1f - gorge * 0.25f;  // narrow the slot
+                        path[i] = p;
+                    }
+                }
+            }
+
+            // Hash points plus segment midpoints for gap-free influence.
+            foreach (var path in _rivers)
+            {
                 for (int i = 0; i < path.Count; i++)
                 {
                     AddRiverPointToGrid(path[i]);
@@ -815,27 +1216,36 @@ namespace AniML.World
             if (waterMaterial == null)
                 return;
 
-            foreach (var pond in _ponds)
+            // Lake surfaces: one merged quad-per-cell mesh at each lake's
+            // priority-flood water level (ponds are carved basins the flood
+            // detects, so all standing water renders through this one path).
+            float half = settings.WorldSize * 0.5f;
+            foreach (var lake in _lakes)
             {
-                const int segs = 24;
-                var verts = new List<Vector3> { new(pond.Pos.x, pond.WaterY, pond.Pos.y) };
-                var tris = new List<int>();
-                for (int i = 0; i <= segs; i++)
+                var verts = new List<Vector3>(lake.Cells.Count * 4);
+                var tris = new List<int>(lake.Cells.Count * 6);
+                float y = lake.WaterLevel + 0.06f;
+                foreach (var (gx, gz) in lake.Cells)
                 {
-                    float a = i / (float)segs * Mathf.PI * 2f;
-                    verts.Add(new Vector3(
-                        pond.Pos.x + Mathf.Cos(a) * pond.Radius * 0.94f,
-                        pond.WaterY,
-                        pond.Pos.y + Mathf.Sin(a) * pond.Radius * 0.94f));
-                    if (i > 0)
-                        tris.AddRange(new[] { 0, i, i + 1 });
+                    float x0 = gx * _heightCell - half - _heightCell * 0.5f;
+                    float z0 = gz * _heightCell - half - _heightCell * 0.5f;
+                    int b = verts.Count;
+                    verts.Add(new Vector3(x0, y, z0));
+                    verts.Add(new Vector3(x0 + _heightCell, y, z0));
+                    verts.Add(new Vector3(x0, y, z0 + _heightCell));
+                    verts.Add(new Vector3(x0 + _heightCell, y, z0 + _heightCell));
+                    tris.AddRange(new[] { b, b + 2, b + 1, b + 1, b + 2, b + 3 });
                 }
-                var mesh = new Mesh { name = "PondWater" };
+                var mesh = new Mesh
+                {
+                    name = "LakeWater",
+                    indexFormat = UnityEngine.Rendering.IndexFormat.UInt32,
+                };
                 mesh.SetVertices(verts);
                 mesh.SetTriangles(tris, 0);
                 mesh.RecalculateNormals();
                 mesh.RecalculateBounds();
-                var go = new GameObject("PondWater") { hideFlags = HideFlags.DontSave };
+                var go = new GameObject("LakeWater") { hideFlags = HideFlags.DontSave };
                 go.transform.SetParent(transform, false);
                 go.AddComponent<MeshFilter>().sharedMesh = mesh;
                 go.AddComponent<MeshRenderer>().sharedMaterial = waterMaterial;
@@ -1004,7 +1414,13 @@ namespace AniML.World
             Vector3 a, Vector3 b, Vector3 c)
         {
             var centroid = (a + b + c) / 3f;
-            var color = SampleBiomeColor(centroid.x, centroid.z, centroid.y);
+            // Ecotone blending: average four jittered samples so biome borders
+            // hand off through mixed-color transition bands instead of a hard
+            // enum switch on one face.
+            var color = SampleBiomeColor(centroid.x, centroid.z, centroid.y) * 0.4f
+                + SampleBiomeColor(centroid.x + 5f, centroid.z + 1.8f, centroid.y) * 0.2f
+                + SampleBiomeColor(centroid.x - 3.4f, centroid.z + 4.2f, centroid.y) * 0.2f
+                + SampleBiomeColor(centroid.x - 1.6f, centroid.z - 5f, centroid.y) * 0.2f;
             float variation = MacroVariation(centroid.x, centroid.z);
             color = new Color(color.r * variation, color.g * variation, color.b * variation, 1f);
 
@@ -1012,7 +1428,10 @@ namespace AniML.World
             // rock regardless of altitude band.
             var faceNormal = Vector3.Cross(b - a, c - a).normalized;
             float slopeDeg = Vector3.Angle(faceNormal, Vector3.up);
-            var splat = SampleSplatWeights(centroid.x, centroid.z, centroid.y, slopeDeg);
+            var splat = SampleSplatWeights(centroid.x, centroid.z, centroid.y, slopeDeg) * 0.4f
+                + SampleSplatWeights(centroid.x + 5f, centroid.z + 1.8f, centroid.y, slopeDeg) * 0.2f
+                + SampleSplatWeights(centroid.x - 3.4f, centroid.z + 4.2f, centroid.y, slopeDeg) * 0.2f
+                + SampleSplatWeights(centroid.x - 1.6f, centroid.z - 5f, centroid.y, slopeDeg) * 0.2f;
 
             int baseIndex = verts.Count;
             verts.Add(a); verts.Add(b); verts.Add(c);

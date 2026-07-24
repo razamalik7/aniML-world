@@ -48,6 +48,7 @@ namespace AniML.EditorTools
             scatter.Configure(EnsureScatterConfig());
             scatter.Generate();
 
+            PlaceWonders(world);
             EnableFoliageColourVariation();
             EnsureWaterPlane(settings);
 
@@ -79,6 +80,7 @@ namespace AniML.EditorTools
             Capture(new Vector3(30f, 32f, -180f), Quaternion.Euler(9f, -12f, 0f), 60f,
                 Path.Combine(outDir, "world_ground.png"));
 
+            ExportBiomeMap();
             Debug.Log($"[AniML] Wrote verification renders to {outDir}");
         }
 
@@ -571,6 +573,70 @@ namespace AniML.EditorTools
                 AssetDatabase.SaveAssets();
                 Debug.Log($"[AniML] Enabled colour variation on {touched} foliage materials.");
             }
+        }
+
+        /// <summary>
+        /// Instantiate the natural wonders at the sites the generator singled
+        /// out. Real GameObjects (few, singular) rather than instanced
+        /// scatter; never saved into the scene.
+        /// </summary>
+        private static void PlaceWonders(ProceduralWorld world)
+        {
+            var old = GameObject.Find("Wonders");
+            if (old != null)
+                Object.DestroyImmediate(old);
+            var root = new GameObject("Wonders") { hideFlags = HideFlags.DontSave };
+
+            foreach (var site in world.Wonders)
+            {
+                switch (site.Kind)
+                {
+                    case "Waterfall":
+                        Spawn(root, TropicalRoot, "SM_Waterfall_Mesh_01", site.Pos, site.YawDeg,
+                            new Vector3(site.Scale, site.Scale * 1.15f, site.Scale));
+                        Spawn(root, TropicalRoot, "FX_Waterfall_Impact_01",
+                            site.Pos + Vector3.down * 0.4f, site.YawDeg, Vector3.one * site.Scale);
+                        break;
+
+                    case "GiantTree":
+                        Spawn(root, MeadowRoot, "SM_Env_Tree_Meadow_01", site.Pos, site.YawDeg,
+                            Vector3.one * site.Scale);
+                        Spawn(root, MeadowRoot, "SM_Env_Rock_Small_01",
+                            site.Pos + new Vector3(3.2f, 0f, 1.4f), 40f, Vector3.one * 1.2f);
+                        Spawn(root, MeadowRoot, "SM_Env_Rock_Round_01",
+                            site.Pos + new Vector3(-2.6f, 0f, 2.3f), 130f, Vector3.one);
+                        break;
+
+                    case "HotSprings":
+                        Spawn(root, AridRoot, "SM_Env_Sulphur_Ground_01", site.Pos, site.YawDeg, Vector3.one * 1.4f);
+                        Spawn(root, AridRoot, "SM_Env_Sulphur_Pool_01",
+                            site.Pos + new Vector3(0f, 0.05f, 0f), site.YawDeg, Vector3.one);
+                        Spawn(root, AridRoot, "SM_Env_Sulphur_Pool_03",
+                            site.Pos + new Vector3(5.5f, 0.05f, 3f), site.YawDeg + 90f, Vector3.one * 0.8f);
+                        Spawn(root, AridRoot, "SM_Env_Sulphur_Pool_04",
+                            site.Pos + new Vector3(-4.5f, 0.05f, 4f), site.YawDeg + 200f, Vector3.one * 0.7f);
+                        Spawn(root, AridRoot, "FX_Sulphur_Smoke",
+                            site.Pos + new Vector3(0f, 0.4f, 0f), 0f, Vector3.one);
+                        break;
+
+                    case "WhaleBones":
+                        Spawn(root, TropicalRoot, "SM_Prop_Whale_Skeleton_01", site.Pos, site.YawDeg,
+                            Vector3.one * 1.15f);
+                        break;
+                }
+            }
+            Debug.Log($"[AniML] Placed {world.Wonders.Count} natural wonders.");
+        }
+
+        private static void Spawn(GameObject parent, string root, string prefabName,
+            Vector3 pos, float yaw, Vector3 scale)
+        {
+            var list = FindPrefabs(root, prefabName);
+            if (list.Count == 0) return;
+            var go = (GameObject)Object.Instantiate(list[0], pos, Quaternion.Euler(0f, yaw, 0f));
+            go.transform.localScale = scale;
+            go.transform.SetParent(parent.transform, true);
+            go.hideFlags = HideFlags.DontSave;
         }
 
         private static void AssignTexture(Material m, string property, string searchRoot, string name)
