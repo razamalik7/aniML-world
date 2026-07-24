@@ -17,7 +17,7 @@ RenderSettings:
   m_Fog: 1
   m_FogColor: {r: 0.75, g: 0.82, b: 0.92, a: 1}
   m_FogMode: 2
-  m_FogDensity: 0.0012
+  m_FogDensity: 0.0005
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
   m_AmbientSkyColor: {r: 0.62, g: 0.72, b: 0.85, a: 1}
@@ -250,6 +250,22 @@ MonoBehaviour:
     Prefab: {fileID: 1028970867693538119, guid: 3d0a145a623d21042a46a6cbd3239d96, type: 3}
   - Key: LavaSmoke
     Prefab: {fileID: 5257574430155130744, guid: f52387eb9fb473e49a758a99267d09da, type: 3}
+  - Key: StalactiteA
+    Prefab: {fileID: 5526108444403097065, guid: 7b614cd056b0b0948940b8f6f95ebbb9, type: 3}
+  - Key: StalactiteB
+    Prefab: {fileID: 8180809535018329078, guid: c12421756c2aa214f8a8f03d6789ec87, type: 3}
+  - Key: StalactiteC
+    Prefab: {fileID: 3596710438129365299, guid: 701ba436e858e084db1fbb6f2339be1f, type: 3}
+  - Key: StalactiteD
+    Prefab: {fileID: 3384595437860231687, guid: 9f8712d9a066efa48862424553a53b34, type: 3}
+  - Key: GlacierIceA
+    Prefab: {fileID: 8246661524465380592, guid: 9ae9bd8f1f8017a45800a9d29abe39c7, type: 3}
+  - Key: GlacierIceB
+    Prefab: {fileID: 2212370827653360273, guid: 945af48448e95b44981d690f3fee664c, type: 3}
+  - Key: GlacierIceC
+    Prefab: {fileID: 6033234604204231972, guid: cc88508dc238f7e4b883766bd1d8adbd, type: 3}
+  - Key: CaveDrip
+    Prefab: {fileID: 6966166498609379071, guid: 82f406fc0b61e27408e18130ca5eccd4, type: 3}
   matSlots:
   - Key: RedArch
     Mat: {fileID: 2100000, guid: ebf4b1a93b49a084b94b2b829dff1f13, type: 2}

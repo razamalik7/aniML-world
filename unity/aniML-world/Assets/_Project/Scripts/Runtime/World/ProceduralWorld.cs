@@ -81,7 +81,9 @@ namespace AniML.World
             public float MinLakeDepth;
             public int ForestCount;
             public float CliffSlopeOn;   // slope (deg) that seeds a cliff wall
+            public float WetlandReach;   // how far marsh spreads from fresh water
             public bool Volcano;
+            public float HeightMul;      // overall relief multiplier
         }
         private ProfileDials _dials;
 
@@ -102,6 +104,8 @@ namespace AniML.World
                         CanyonDepth = 22f,
                         SummitCount = 3,
                         GraniteAltitude = 34f,
+                        HeightMul = 1f,
+                        WetlandReach = 55f,
                         MesaTerraces = false,
                         RiverCount = settings.RiverCount,
                         PondCount = 4,
@@ -128,6 +132,8 @@ namespace AniML.World
                         CanyonDepth = 38f,
                         SummitCount = 0,               // no alpine ranges here
                         GraniteAltitude = 999f,        // red rock owns the heights
+                        HeightMul = 1f,
+                        WetlandReach = 55f,
                         MesaTerraces = true,
                         RiverCount = 1,                // THE canyon's river, alone
                         PondCount = 0,
@@ -135,6 +141,33 @@ namespace AniML.World
                                                        // only true deeps become oases
                         ForestCount = 3,               // cottonwood stands, not woodland
                         CliffSlopeOn = 40f,
+                    };
+                    break;
+
+                case LandformProfile.SwampDelta:
+                    _dials = new ProfileDials
+                    {
+                        // Everything low, warm, and waterlogged — the wetland
+                        // classifier does the rest and the mangroves take over.
+                        BaseMoisture = 0.5f,
+                        RainShadow = 0.1f,
+                        MoistureDecay = 400f,
+                        FreshGain = 0.7f,
+                        MountainAmpMul = 0.35f,
+                        MaskThresholdDelta = 0.12f,
+                        TempOffset = 0.12f,
+                        CanyonDepth = 8f,
+                        SummitCount = 0,
+                        GraniteAltitude = 999f,
+                        MesaTerraces = false,
+                        RiverCount = 5,           // a braid of channels
+                        PondCount = 6,
+                        MinLakeDepth = 0.5f,      // standing water everywhere
+                        ForestCount = 10,
+                        CliffSlopeOn = 45f,
+                        Volcano = false,
+                        HeightMul = 0.6f,
+                        WetlandReach = 170f,   // the marsh owns the lowlands
                     };
                     break;
 
@@ -152,6 +185,8 @@ namespace AniML.World
                         CanyonDepth = 14f,
                         SummitCount = 0,               // the cone IS the summit
                         GraniteAltitude = 20f,         // dark basalt crags up high
+                        HeightMul = 1f,
+                        WetlandReach = 55f,
                         MesaTerraces = false,
                         RiverCount = 2,
                         PondCount = 2,
@@ -175,6 +210,8 @@ namespace AniML.World
                         CanyonDepth = 30f,
                         SummitCount = 2,
                         GraniteAltitude = 46f,
+                        HeightMul = 1f,
+                        WetlandReach = 55f,
                         MesaTerraces = false,
                         RiverCount = settings.RiverCount,
                         PondCount = 4,
@@ -403,6 +440,22 @@ namespace AniML.World
             // honestly glacier ice — so it lives where ice belongs).
             TryPlaceWonder(rng, "IceArch", 240,
                 (x, z) => SampleBiome(x, z) == Biome.Snow);
+
+            // THE glacier: in granite country, a tongue of ice flows from
+            // the snowfield edge down its valley.
+            if (settings.Profile == LandformProfile.AlpineGranite)
+            {
+                TryPlaceWonder(rng, "GlacierFlow", 300, (x, z) =>
+                {
+                    if (SampleBiome(x, z) != Biome.Snow)
+                        return false;
+                    const float e = 6f;
+                    float gx = SampleHeight(x + e, z) - SampleHeight(x - e, z);
+                    float gz = SampleHeight(x, z + e) - SampleHeight(x, z - e);
+                    float slope = Mathf.Sqrt(gx * gx + gz * gz) / (2f * e);
+                    return slope > 0.14f && slope < 0.55f;   // a flowing valley side
+                });
+            }
 
             // THE crater: a lava lake in the caldera, and a flow down the
             // flank the placer walks with real downhill queries.
@@ -649,6 +702,143 @@ namespace AniML.World
                 }
             }
 
+            // Hydraulic droplet erosion: rain carves the drainage thermal
+            // relaxation can't — dendritic tributary creases feeding the
+            // rivers, sharpened ridges, sediment fans where slopes meet the
+            // plains. Runs BEFORE the landform stamps (pedestals, volcano,
+            // cave floors), which overwrite it wherever drama is authored.
+            // Hard rock (badlands/mesa country) erodes far less, so crisp
+            // features stay crisp. Deterministic per seed.
+            {
+                var hardness = new float[_heightRes, _heightRes];
+                for (int gz = 0; gz < _heightRes; gz++)
+                {
+                    for (int gx = 0; gx < _heightRes; gx++)
+                    {
+                        float x = gx * _heightCell - half;
+                        float z = gz * _heightCell - half;
+                        hardness[gx, gz] = Mathf.Clamp01(SampleRockiness01(x, z) * 1.25f);
+                    }
+                }
+
+                var rng = new System.Random(settings.Seed * 197 + 3);
+                int droplets = (_heightRes * _heightRes) / 7;
+                const float inertia = 0.06f;
+                const float capacityK = 3.6f;
+                const float minCapacity = 0.01f;
+                const float erodeK = 0.28f;
+                const float depositK = 0.28f;
+                const float evaporate = 0.015f;
+                const float gravity = 4f;
+                const int maxSteps = 42;
+
+                for (int d = 0; d < droplets; d++)
+                {
+                    float px = 1f + (float)rng.NextDouble() * (_heightRes - 3);
+                    float pz = 1f + (float)rng.NextDouble() * (_heightRes - 3);
+                    float dirX = 0f, dirZ = 0f, speed = 1f, water = 1f, sediment = 0f;
+
+                    for (int step = 0; step < maxSteps; step++)
+                    {
+                        int ix = (int)px, iz = (int)pz;
+                        float fx = px - ix, fz = pz - iz;
+
+                        float h00 = _heightGrid[ix, iz], h10 = _heightGrid[ix + 1, iz];
+                        float h01 = _heightGrid[ix, iz + 1], h11 = _heightGrid[ix + 1, iz + 1];
+                        float gradX = (h10 - h00) * (1f - fz) + (h11 - h01) * fz;
+                        float gradZ = (h01 - h00) * (1f - fx) + (h11 - h10) * fx;
+                        float height = h00 * (1f - fx) * (1f - fz) + h10 * fx * (1f - fz)
+                                       + h01 * (1f - fx) * fz + h11 * fx * fz;
+
+                        dirX = dirX * inertia - gradX * (1f - inertia);
+                        dirZ = dirZ * inertia - gradZ * (1f - inertia);
+                        float len = Mathf.Sqrt(dirX * dirX + dirZ * dirZ);
+                        if (len < 1e-5f)
+                            break;
+                        dirX /= len;
+                        dirZ /= len;
+                        px += dirX;
+                        pz += dirZ;
+                        if (px < 1f || pz < 1f || px >= _heightRes - 2 || pz >= _heightRes - 2)
+                            break;
+
+                        int nx = (int)px, nz = (int)pz;
+                        float nfx = px - nx, nfz = pz - nz;
+                        float nh = _heightGrid[nx, nz] * (1f - nfx) * (1f - nfz)
+                                   + _heightGrid[nx + 1, nz] * nfx * (1f - nfz)
+                                   + _heightGrid[nx, nz + 1] * (1f - nfx) * nfz
+                                   + _heightGrid[nx + 1, nz + 1] * nfx * nfz;
+                        float dh = nh - height;
+
+                        // Droplets end at carved channels and the sea.
+                        if (riverMask[ix, iz] || nh <= settings.SeaLevel + 0.5f)
+                            break;
+
+                        float capacity = Mathf.Max(-dh * speed * water * capacityK, minCapacity);
+                        if (sediment > capacity || dh > 0f)
+                        {
+                            float amount = dh > 0f
+                                ? Mathf.Min(dh, sediment)
+                                : (sediment - capacity) * depositK;
+                            sediment -= amount;
+                            _heightGrid[ix, iz] += amount * (1f - fx) * (1f - fz);
+                            _heightGrid[ix + 1, iz] += amount * fx * (1f - fz);
+                            _heightGrid[ix, iz + 1] += amount * (1f - fx) * fz;
+                            _heightGrid[ix + 1, iz + 1] += amount * fx * fz;
+                        }
+                        else
+                        {
+                            float soft = 1f - hardness[ix, iz] * 0.82f;
+                            float amount = Mathf.Min((capacity - sediment) * erodeK * soft, -dh);
+                            sediment += amount;
+                            _heightGrid[ix, iz] -= amount * (1f - fx) * (1f - fz);
+                            _heightGrid[ix + 1, iz] -= amount * fx * (1f - fz);
+                            _heightGrid[ix, iz + 1] -= amount * (1f - fx) * fz;
+                            _heightGrid[ix + 1, iz + 1] -= amount * fx * fz;
+                        }
+
+                        speed = Mathf.Sqrt(Mathf.Max(speed * speed - dh * gravity, 0f));
+                        water *= 1f - evaporate;
+                        if (water < 0.05f)
+                            break;
+                    }
+                }
+            }
+
+            // Fill the single-cell pits droplets leave when they die mid-slope
+            // (otherwise priority-flood turns each into a perched puddle).
+            for (int pass = 0; pass < 2; pass++)
+            {
+                for (int gz = 1; gz < _heightRes - 1; gz++)
+                {
+                    for (int gx = 1; gx < _heightRes - 1; gx++)
+                    {
+                        float h = _heightGrid[gx, gz];
+                        float minN = Mathf.Min(
+                            Mathf.Min(_heightGrid[gx - 1, gz], _heightGrid[gx + 1, gz]),
+                            Mathf.Min(_heightGrid[gx, gz - 1], _heightGrid[gx, gz + 1]));
+                        if (h < minN - 0.04f)
+                            _heightGrid[gx, gz] = minN - 0.02f;
+                    }
+                }
+            }
+
+            // Tide shelf: compress the just-underwater band toward a shallow
+            // flat, so gentle coasts get a wide wading littoral (seaweed,
+            // coral, and tide rocks live here) instead of a steep ramp.
+            for (int gz = 0; gz < _heightRes; gz++)
+            {
+                for (int gx = 0; gx < _heightRes; gx++)
+                {
+                    float h = _heightGrid[gx, gz];
+                    float t = Mathf.InverseLerp(settings.SeaLevel - 2.4f, settings.SeaLevel, h);
+                    if (t <= 0f || t >= 1f)
+                        continue;
+                    float target = Mathf.Lerp(settings.SeaLevel - 1.0f, settings.SeaLevel - 0.15f, t * t);
+                    _heightGrid[gx, gz] = Mathf.Lerp(h, target, 0.6f);
+                }
+            }
+
             // Thermal erosion: talus angle ~33 degrees.
             float talus = Mathf.Tan(33f * Mathf.Deg2Rad) * _heightCell;
             const int iterations = 26;
@@ -793,7 +983,10 @@ namespace AniML.World
                     }
 
                     // Keep real lakes; discard puddles.
-                    if (lake.Cells.Count >= 60 && maxDepth >= _dials.MinLakeDepth)
+                    // Real basins are broad relative to their depth; deep,
+                    // narrow candidates are erosion pits — leave them dry.
+                    if (lake.Cells.Count >= 60 && maxDepth >= _dials.MinLakeDepth
+                        && lake.Cells.Count > maxDepth * 45f)
                     {
                         foreach (var (cx, cz) in lake.Cells)
                             _lakeCellIndex[((long)cx << 32) ^ (uint)cz] = _lakes.Count;
@@ -869,6 +1062,42 @@ namespace AniML.World
                     WaterY = ground - 0.7f,
                 });
             }
+
+            // Oxbow lakes: cutoff ponds on the OUTSIDE of sharp lowland
+            // meander bends — the crescent scars a mature river leaves.
+            int oxbows = 0;
+            foreach (var path in _rivers)
+            {
+                for (int i = 10; i + 10 < path.Count && oxbows < 3; i += 6)
+                {
+                    var a = new Vector2(path[i - 8].x, path[i - 8].z);
+                    var b = new Vector2(path[i].x, path[i].z);
+                    var c = new Vector2(path[i + 8].x, path[i + 8].z);
+                    if (RawHeight(b.x, b.y) - settings.SeaLevel > 14f)
+                        continue;   // lowlands only
+                    var d1 = (b - a).normalized;
+                    var d2 = (c - b).normalized;
+                    float turn = Vector2.SignedAngle(d1, d2);
+                    if (Mathf.Abs(turn) < 42f)
+                        continue;
+                    var side = new Vector2(-d1.y, d1.x) * Mathf.Sign(-turn);
+                    var pos = b + side * (path[i].w * 2.6f + 6f);
+                    if (RiverInfluence01(pos.x, pos.y) > 0f)
+                        continue;
+                    float oxGround = RawHeight(pos.x, pos.y);
+                    if (oxGround - settings.SeaLevel < 1.5f)
+                        continue;
+                    _ponds.Add(new PondStamp
+                    {
+                        Pos = pos,
+                        Radius = 9f + path[i].w * 0.8f,
+                        BottomY = oxGround - 2f,
+                        WaterY = oxGround - 0.6f,
+                    });
+                    oxbows++;
+                    i += 30;   // one oxbow per bend at most
+                }
+            }
         }
 
         /// <summary>Terrain height before river carving (rivers march on this).</summary>
@@ -881,7 +1110,8 @@ namespace AniML.World
             // Rolling base terrain, exponent-shaped so lowlands stay walkable
             // and highlands accelerate upward.
             float n = _heightNoise.Sample(w.x, w.y, 1f / settings.HeightFeatureSize);
-            float baseHeight = Mathf.Pow(n, settings.HeightExponent) * settings.HeightAmplitude;
+            float baseHeight = Mathf.Pow(n, settings.HeightExponent) * settings.HeightAmplitude
+                               * _dials.HeightMul;
 
             // Ridged mountain layer, present only where the low-frequency
             // mountain mask says so — gives one coherent range, not spikes
@@ -1268,7 +1498,7 @@ namespace AniML.World
             {
                 if (SampleOceanDistance(x, z) < 30f)
                     return Biome.Beach;
-                return SampleFreshwaterDistance(x, z) < 55f ? Biome.Wetland : Biome.Meadow;
+                return SampleFreshwaterDistance(x, z) < _dials.WetlandReach ? Biome.Wetland : Biome.Meadow;
             }
 
             // Cold-shifted snowline: northern mountains hold snow lower.
@@ -1279,7 +1509,7 @@ namespace AniML.World
                 return Biome.Rock;
 
             // Marshes are freshwater-fed lowlands, never salt coastline.
-            if (SampleFreshwaterDistance(x, z) < 55f && h < 12f)
+            if (SampleFreshwaterDistance(x, z) < _dials.WetlandReach && h < 12f)
                 return Biome.Wetland;
             if (ForestDensity01(x, z) >= settings.ForestDensityCutoff && h < 36f)
                 return Biome.ForestFloor;
@@ -1385,6 +1615,23 @@ namespace AniML.World
                                 Pos = pos,
                                 YawDeg = yaw,
                                 Scale = Mathf.Clamp(inland / 5.5f, 1.2f, 2.6f),
+                            });
+                        }
+
+                        // Sea stacks: long steep runs shed a spire or two
+                        // into the surf — the eroded remnants of the old
+                        // cliff line.
+                        if (i - runStart >= 12 && rng.NextDouble() < 0.65)
+                        {
+                            int j = (runStart + i) / 2;
+                            float angS = j / (float)steps * Mathf.PI * 2f;
+                            float rS = coastR[j] + 12f + (float)rng.NextDouble() * 16f;
+                            _coastCliffs.Add(new CoastCliff
+                            {
+                                Pos = new Vector3(Mathf.Cos(angS) * rS,
+                                    settings.SeaLevel - 3.5f, Mathf.Sin(angS) * rS),
+                                YawDeg = (float)rng.NextDouble() * 360f,
+                                Scale = 2.4f + (float)rng.NextDouble() * 1.2f,
                             });
                         }
                     }
@@ -1809,7 +2056,7 @@ namespace AniML.World
             {
                 float sx = ((float)rng.NextDouble() * 2f - 1f) * half * 0.7f;
                 float sz = ((float)rng.NextDouble() * 2f - 1f) * half * 0.7f;
-                if (RawHeight(sx, sz) < 30f)
+                if (RawHeight(sx, sz) < 30f * _dials.HeightMul)
                     continue;
 
                 var path = MarchRiver(sx, sz, rng);
@@ -1942,6 +2189,7 @@ namespace AniML.World
             float half = settings.WorldSize * 0.5f;
             float traveled = 0f;
             const float step = 5f;
+            float meanderPhase = (float)rng.NextDouble() * Mathf.PI * 2f;
 
             for (int i = 0; i < 900; i++)
             {
@@ -1967,7 +2215,20 @@ namespace AniML.World
                         ? momentum
                         : new Vector2((float)rng.NextDouble() - 0.5f, (float)rng.NextDouble() - 0.5f);
 
-                momentum = (momentum * 0.65f + downhill.normalized * 0.35f).normalized;
+                // Lowland meandering: where the gradient is weak, gravity
+                // stops dictating and the channel snakes — the signature of
+                // a mature river. Steep ground stays gradient-driven.
+                float slopeMag = grad.magnitude / (2f * e);
+                float meander = Mathf.Clamp01(1f - slopeMag / 0.05f);
+                var target = downhill.normalized;
+                if (meander > 0.01f)
+                {
+                    meanderPhase += step * 0.05f;
+                    var side = new Vector2(-momentum.y, momentum.x);
+                    target = (target + side * (Mathf.Sin(meanderPhase) * meander * 0.85f)).normalized;
+                }
+
+                momentum = (momentum * 0.65f + target * 0.35f).normalized;
                 x += momentum.x * step;
                 z += momentum.y * step;
                 traveled += step;
@@ -2041,9 +2302,22 @@ namespace AniML.World
                 // not the hovering stair-step edge of the quad grid.
                 var cells = new HashSet<(int, int)>();
                 foreach (var (cx, cz) in lake.Cells)
+                {
+                    cells.Add((cx, cz));
                     for (int dz = -1; dz <= 1; dz++)
+                    {
                         for (int dx = -1; dx <= 1; dx++)
-                            cells.Add((cx + dx, cz + dz));
+                        {
+                            int nx = cx + dx, nz = cz + dz;
+                            if (nx < 0 || nz < 0 || nx >= _heightRes || nz >= _heightRes)
+                                continue;
+                            // Skirt only onto rising banks — dilating over a
+                            // cliff edge leaves water hanging in the air.
+                            if (_heightGrid[nx, nz] >= lake.WaterLevel - 0.4f)
+                                cells.Add((nx, nz));
+                        }
+                    }
+                }
 
                 var verts = new List<Vector3>(cells.Count * 4);
                 var tris = new List<int>(cells.Count * 6);

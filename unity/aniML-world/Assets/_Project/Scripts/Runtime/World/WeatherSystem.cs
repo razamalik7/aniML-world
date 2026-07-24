@@ -54,8 +54,8 @@ namespace AniML.World
             _rng = new System.Random(Environment.TickCount);
             RenderSettings.fog = true;
             RenderSettings.fogMode = FogMode.Exponential;
-            RenderSettings.fogDensity = 0.0012f;
-            _fogTarget = 0.0012f;
+            RenderSettings.fogDensity = 0.0005f;
+            _fogTarget = 0.0005f;
             _timer = Roll();
         }
 
@@ -95,17 +95,17 @@ namespace AniML.World
             {
                 case Kind.Rain:
                     _activeFX = SpawnFX("Rain");
-                    _fogTarget = 0.004f;
+                    _fogTarget = 0.0022f;
                     break;
                 case Kind.Snow:
                     _activeFX = SpawnFX("Snow");
-                    _fogTarget = 0.005f;
+                    _fogTarget = 0.0028f;
                     break;
                 case Kind.Fog:
-                    _fogTarget = 0.014f;
+                    _fogTarget = 0.010f;
                     break;
                 default:
-                    _fogTarget = 0.0012f;
+                    _fogTarget = 0.0005f;
                     break;
             }
         }

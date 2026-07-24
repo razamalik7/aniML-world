@@ -1104,3 +1104,36 @@ MonoBehaviour:
     ScaleRange: {x: 0.8, y: 1.5}
     PositionJitter: 0.9
     IsVegetation: 0
+  - Name: TideRocks
+    Prefabs:
+    - {fileID: 2404807638410859368, guid: 5fc130c65f02ac04bbfb350fbe21d3cc, type: 3}
+    - {fileID: 5376390175986146221, guid: a6953db8e1209e74b8141f1e9847b94b, type: 3}
+    - {fileID: 1118155114131449006, guid: e1b4f5f50eebd6441919aab5ea3b042f, type: 3}
+    - {fileID: 4259286663014254190, guid: 85d4b66433595d840b0ef5a47fa79d10, type: 3}
+    MinHeight: -0.9
+    MaxHeight: 0.4
+    MaxSlopeDeg: 20
+    MoistureStart: 0
+    MoistureFull: 0
+    DensityPerSqm: 0.004
+    DriveByForestDensity: 0
+    ForestSuppression: 0
+    AllowedBiomes: 0000000001000000
+    WaterNeed: -1
+    CanopyRadius: 0
+    PreferRocky: 0
+    MaxWaterDepth: 0
+    OnWaterSurface: 0
+    MinWaterDepth: 0.2
+    YOffset: -0.1
+    MaxTiltDeg: 8
+    CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
+    OverrideMaterial: {fileID: 0}
+    MinTemp01: 0
+    MaxTemp01: 1
+    YStretch: 0
+    ScaleRange: {x: 0.7, y: 1.4}
+    PositionJitter: 0.9
+    IsVegetation: 0

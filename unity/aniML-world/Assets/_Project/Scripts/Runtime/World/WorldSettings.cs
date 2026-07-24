@@ -13,6 +13,7 @@ namespace AniML.World
         AlpineGranite,    // colder, bigger ranges, low snowline, granite country
         Canyonlands,      // hot and dry: mesas, red rock, THE canyon writ large
         VolcanoIsle,      // tropical lowlands around an ash cone with live lava
+        SwampDelta,       // low, wet, warm: mangrove labyrinth and blackwater
     }
 
     /// <summary>

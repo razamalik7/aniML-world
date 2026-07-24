@@ -134,6 +134,54 @@ namespace AniML.World
                         // the cavity floor meets the carved terrain floor.
                         Spawn(root, "Cave", site.Pos + Vector3.up * (3.0f * site.Scale), site.YawDeg,
                             Vector3.one * site.Scale);
+                        // Interior: stalactites off the ceiling + dripping water.
+                        {
+                            var caveRng = new System.Random(
+                                Mathf.RoundToInt(site.Pos.x * 13f + site.Pos.z * 7f));
+                            for (int s = 0; s < 5; s++)
+                            {
+                                float ang = (float)caveRng.NextDouble() * Mathf.PI * 2f;
+                                float d = 1.5f + (float)caveRng.NextDouble() * 3.5f;
+                                var p = site.Pos
+                                        + new Vector3(Mathf.Cos(ang) * d, 0f, Mathf.Sin(ang) * d)
+                                        + Vector3.up * (5.2f * site.Scale);
+                                Spawn(root, "Stalactite" + (char)('A' + caveRng.Next(4)), p,
+                                    (float)caveRng.NextDouble() * 360f,
+                                    Vector3.one * (0.6f + (float)caveRng.NextDouble() * 0.6f));
+                            }
+                            Spawn(root, "CaveDrip", site.Pos + Vector3.up * (4f * site.Scale),
+                                0f, Vector3.one);
+                        }
+                        break;
+
+                    case "GlacierFlow":
+                        // Chain glacier-ice meshes down the flank from the
+                        // snowfield — the honest home for the Alpine "Rock_Cliff"
+                        // ice set. Walks the real gradient like the lava flow.
+                        {
+                            var p = new Vector2(site.Pos.x, site.Pos.z);
+                            var iceRng = new System.Random(
+                                Mathf.RoundToInt(site.Pos.x * 11f - site.Pos.z * 5f));
+                            for (int i = 0; i < 12; i++)
+                            {
+                                const float e = 2f;
+                                var grad = new Vector2(
+                                    world.SampleHeight(p.x + e, p.y) - world.SampleHeight(p.x - e, p.y),
+                                    world.SampleHeight(p.x, p.y + e) - world.SampleHeight(p.x, p.y - e));
+                                if (grad.sqrMagnitude < 1e-5f)
+                                    break;
+                                var down = -grad.normalized;
+                                float yaw = Mathf.Atan2(down.x, down.y) * Mathf.Rad2Deg
+                                            + ((float)iceRng.NextDouble() - 0.5f) * 24f;
+                                float y = world.SampleHeight(p.x, p.y);
+                                Spawn(root, "GlacierIce" + (char)('A' + iceRng.Next(3)),
+                                    new Vector3(p.x, y - 1.6f, p.y), yaw,
+                                    Vector3.one * (1.1f + (float)iceRng.NextDouble() * 0.5f));
+                                p += down * 9f;
+                                if (grad.magnitude / (2f * e) < 0.07f)
+                                    break;
+                            }
+                        }
                         break;
 
                     case "LavaCrater":

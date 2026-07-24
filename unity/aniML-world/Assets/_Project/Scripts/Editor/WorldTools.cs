@@ -81,7 +81,7 @@ namespace AniML.EditorTools
                 sky.Configure(sunGo.GetComponent<Light>());
             RenderSettings.fog = true;
             RenderSettings.fogMode = FogMode.Exponential;
-            RenderSettings.fogDensity = 0.0012f;
+            RenderSettings.fogDensity = 0.0005f;   // subtle depth cue only
             sky.Apply();
 
             var weather = root.GetComponent<WeatherSystem>();
@@ -337,6 +337,17 @@ namespace AniML.EditorTools
                 MinTemp01 = 0.4f,
                 DensityPerSqm = 0.012f,
                 ScaleRange = new Vector2(0.9f, 1.6f),
+            },
+            new ScatterLayer
+            {
+                Name = "TideRocks",
+                Prefabs = FindPrefabs(MeadowRoot, "SM_Env_Rock_Small_01", "SM_Env_Rock_Small_Pile_01",
+                    "SM_Env_Rock_Small_Pile_02", "SM_Env_Rock_Round_01"),
+                MinHeight = -0.9f, MaxHeight = 0.4f, MaxSlopeDeg = 20f,
+                AllowedBiomes = { Biome.Ocean, Biome.Beach },
+                DensityPerSqm = 0.004f, MaxTiltDeg = 8f, YOffset = -0.1f,
+                ScaleRange = new Vector2(0.7f, 1.4f),
+                IsVegetation = false,
             },
             new ScatterLayer
             {
@@ -835,6 +846,9 @@ namespace AniML.EditorTools
         [MenuItem("AniML/World/Profile/Volcano Isle")]
         public static void ProfileVolcano() => SetProfileAndGenerate(LandformProfile.VolcanoIsle);
 
+        [MenuItem("AniML/World/Profile/Swamp Delta")]
+        public static void ProfileSwampDelta() => SetProfileAndGenerate(LandformProfile.SwampDelta);
+
         private static void SetProfileAndGenerate(LandformProfile p)
         {
             var s = LoadOrCreateSettings();
@@ -946,6 +960,15 @@ namespace AniML.EditorTools
             Wire("LavaSpreadA", AridRoot, "SM_Env_Lava_Spread_01");
             Wire("LavaEmbers", AridRoot, "FX_Lava_Ember_01");
             Wire("LavaSmoke", AridRoot, "FX_Smoke_Large_01");
+            Wire("StalactiteA", GenericRoot, "SM_Gen_Env_Stalactite_01");
+            Wire("StalactiteB", GenericRoot, "SM_Gen_Env_Stalactite_02");
+            Wire("StalactiteC", GenericRoot, "SM_Gen_Env_Stalactite_03");
+            Wire("StalactiteD", GenericRoot, "SM_Gen_Env_Stalactite_04");
+            Wire("CaveDrip", AlpineRoot, "FX_Water_Drip_01");
+            // The Alpine "Rock_Cliff" set IS glacier ice — its honest use.
+            Wire("GlacierIceA", AlpineRoot, "SM_Env_Rock_Cliff_01");
+            Wire("GlacierIceB", AlpineRoot, "SM_Env_Rock_Cliff_04");
+            Wire("GlacierIceC", AlpineRoot, "SM_Env_Rock_Cliff_07");
             Wire("IceArch", AlpineRoot, "SM_Env_Rock_Cliff_Arch_01");
             Wire("Cave", TropicalRoot, "SM_Env_Rock_Cave_01");
             EditorUtility.SetDirty(placer);
