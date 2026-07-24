@@ -19,4 +19,17 @@ namespace AniML.World
         Snow,
         RiverChannel,
     }
+
+    /// <summary>
+    /// Rock character of a cliff wall — which pack's cliff meshes dress it.
+    /// Chosen per wall from the climate fields so a run stays coherent:
+    /// granite in the cold uplands, red rock in the dry, mossy stone in the
+    /// temperate green.
+    /// </summary>
+    public enum CliffFamily
+    {
+        Granite,
+        RedRock,
+        Mossy,
+    }
 }

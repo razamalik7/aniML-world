@@ -104,10 +104,11 @@ namespace AniML.World
             }
 
             EmitCoastCliffs();
+            EmitInlandCliffs();
 
             _generated = true;
             Debug.Log($"[AniML] Scatter generated: {totalInstances} instances across {_chunks.Count} chunks "
-                      + $"(+{_world.CoastCliffs.Count} coastal cliff segments).");
+                      + $"(+{_world.CoastCliffs.Count} coastal, +{_world.InlandCliffs.Count} inland cliff segments).");
         }
 
         private struct Candidate
@@ -129,7 +130,7 @@ namespace AniML.World
             for (int li = 0; li < config.Layers.Count; li++)
             {
                 var layer = config.Layers[li];
-                if (layer.Prefabs.Count == 0 || layer.DensityPerSqm <= 0f || layer.CoastalWall)
+                if (layer.Prefabs.Count == 0 || layer.DensityPerSqm <= 0f || layer.CoastalWall || layer.InlandWall)
                     continue;
 
                 var rng = new System.Random(HashCell(settings.Seed, cx, cz, li));
@@ -153,6 +154,11 @@ namespace AniML.World
 
                     // Nothing grows in the river channel itself.
                     if (_world.RiverInfluence01(x, z) > 0.3f)
+                        continue;
+
+                    // ...or drowned under a lake/pond. Waders (reeds) tolerate
+                    // shallows up to their MaxWaterDepth.
+                    if (_world.StandingWaterDepth(x, z) > layer.MaxWaterDepth)
                         continue;
 
                     // Species grow only in their biomes.
@@ -303,6 +309,49 @@ namespace AniML.World
 
             chunk.Bounds = bounds;
             _chunks.Add(chunk);
+        }
+
+        /// <summary>Inland cliff walls: chained, aligned instances from the
+        /// world's slope tracer — one instanced layer per rock family.</summary>
+        private void EmitInlandCliffs()
+        {
+            if (_world.InlandCliffs.Count == 0)
+                return;
+
+            var rng = new System.Random(_world.Settings.Seed * 67 + 31);
+            for (int li = 0; li < config.Layers.Count; li++)
+            {
+                var layer = config.Layers[li];
+                if (!layer.InlandWall || layer.Prefabs.Count == 0)
+                    continue;
+
+                var chunk = new Chunk();
+                var bounds = new Bounds(Vector3.zero, Vector3.zero);
+                int count = 0;
+                foreach (var cliff in _world.InlandCliffs)
+                {
+                    if (cliff.Family != layer.InlandFamily)
+                        continue;
+                    float scale = cliff.Scale * Mathf.Lerp(layer.ScaleRange.x, layer.ScaleRange.y, (float)rng.NextDouble());
+                    var pos = cliff.Pos + Vector3.up * layer.YOffset * scale;
+                    var matrix = Matrix4x4.TRS(pos, Quaternion.Euler(0f, cliff.YawDeg, 0f), Vector3.one * scale);
+                    chunk.Instances.Add(new Instance { LayerIndex = li, Position = pos, Scale = scale });
+
+                    foreach (var vr in GetVariantRenderers(li, rng.Next(layer.Prefabs.Count), layer))
+                    {
+                        var batch = FindBatch(chunk, vr);
+                        batch.Matrices.Add(matrix * vr.Local);
+                    }
+                    bounds.Encapsulate(new Bounds(pos, Vector3.one * 40f * scale));
+                    count++;
+                }
+
+                if (count > 0)
+                {
+                    chunk.Bounds = bounds;
+                    _chunks.Add(chunk);
+                }
+            }
         }
 
         // ---- Sim-facing API (grows with the ecosystem) ----

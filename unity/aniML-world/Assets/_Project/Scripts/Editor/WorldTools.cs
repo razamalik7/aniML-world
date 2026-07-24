@@ -48,7 +48,12 @@ namespace AniML.EditorTools
             scatter.Configure(EnsureScatterConfig());
             scatter.Generate();
 
-            PlaceWonders(world);
+            var wonders = root.GetComponent<WonderPlacer>();
+            if (wonders == null)
+                wonders = root.AddComponent<WonderPlacer>();
+            WireWonderPrefabs(wonders);
+            wonders.Place(world);
+
             EnableFoliageColourVariation();
             EnsureWaterPlane(settings);
 
@@ -80,8 +85,73 @@ namespace AniML.EditorTools
             Capture(new Vector3(30f, 32f, -180f), Quaternion.Euler(9f, -12f, 0f), 60f,
                 Path.Combine(outDir, "world_ground.png"));
 
+            // Close-ups of every wonder + the primary summit, framed for review.
+            var worldComp = Object.FindFirstObjectByType<ProceduralWorld>();
+            if (worldComp != null)
+            {
+                foreach (var site in worldComp.Wonders)
+                {
+                    Vector3 eye;
+                    if (site.Kind == "Waterfall")
+                    {
+                        // Stand downstream, look back up at the falls.
+                        float rad = site.YawDeg * Mathf.Deg2Rad;
+                        var downstream = new Vector3(Mathf.Sin(rad), 0f, Mathf.Cos(rad));
+                        eye = site.Pos + downstream * 42f + Vector3.up * 12f;
+                    }
+                    else
+                    {
+                        eye = site.Pos + new Vector3(34f, 26f, -34f);
+                    }
+                    Capture(eye, Quaternion.LookRotation(site.Pos + Vector3.up * 5f - eye), 50f,
+                        Path.Combine(outDir, $"wonder_{site.Kind}.png"));
+                }
+                if (worldComp.Summits.Count > 0)
+                {
+                    var s = worldComp.Summits[0];
+                    var eye = s.Pos + new Vector3(-160f, 40f, -160f);
+                    Capture(eye, Quaternion.LookRotation(s.Pos + Vector3.up * 20f - eye), 55f,
+                        Path.Combine(outDir, "summit.png"));
+                }
+            }
+
             ExportBiomeMap();
+            DumpLandformMeshBounds();
             Debug.Log($"[AniML] Wrote verification renders to {outDir}");
+        }
+
+        /// <summary>
+        /// Log the AABBs of the landform-candidate meshes (mountain ranges,
+        /// cliff walls, cave, arches) so placement scales can be calibrated
+        /// without opening the editor.
+        /// </summary>
+        [MenuItem("AniML/World/Dump Landform Mesh Bounds")]
+        public static void DumpLandformMeshBounds()
+        {
+            void Dump(string label, string root, params string[] names)
+            {
+                foreach (var prefab in FindPrefabs(root, names))
+                {
+                    var b = new Bounds();
+                    bool first = true;
+                    foreach (var r in prefab.GetComponentsInChildren<MeshRenderer>())
+                    {
+                        if (first) { b = r.bounds; first = false; }
+                        else b.Encapsulate(r.bounds);
+                    }
+                    Debug.Log($"[AniML] BOUNDS {label}/{prefab.name}: size={b.size:F1} center={b.center:F1}");
+                }
+            }
+
+            Dump("Alpine", AlpineRoot, "SM_Env_MountainRange_01", "SM_Env_MountainRange_02",
+                "SM_Env_MountainRange_03", "SM_Env_MountainRange_04",
+                "SM_Env_Rock_Rough_01", "SM_Env_Rock_Rough_02", "SM_Env_Rock_01",
+                "SM_Env_Rock_02", "SM_Env_Rock_05", "SM_Env_Rock_010",
+                "SM_Env_Rock_Cliff_Arch_01");
+            Dump("Arid", AridRoot, "SM_Env_Rock_Cliff_01", "SM_Env_Rock_Cliff_05",
+                "SM_Env_Rock_Cliff_10", "SM_Env_Rock_Cliff_16", "SM_Env_Rock_Arch_01");
+            Dump("Tropical", TropicalRoot, "SM_Env_Rock_Cave_01", "SM_Env_Rock_Cliff_01");
+            Dump("Meadow", MeadowRoot, "SM_Env_Rock_Cliff_01", "SM_Env_Rock_Cliff_02", "SM_Env_Rock_Cliff_03");
         }
 
         private static void Capture(Vector3 pos, Quaternion rot, float fov, string path,
@@ -125,11 +195,94 @@ namespace AniML.EditorTools
 
         private const string ScatterConfigPath = "Assets/_Project/Settings/ScatterConfig.asset";
 
+        /// <summary>One inland cliff-wall layer (instances come from the
+        /// slope tracer, so only family, prefabs, and looks matter).</summary>
+        private static ScatterLayer CliffWallLayer(string name, CliffFamily family,
+            string root, Vector2 scaleRange, params string[] prefabNames)
+        {
+            return new ScatterLayer
+            {
+                Name = name,
+                Prefabs = FindPrefabs(root, prefabNames),
+                InlandWall = true,
+                InlandFamily = family,
+                YOffset = -0.1f,
+                ScaleRange = scaleRange,
+                IsVegetation = false,
+            };
+        }
+
+        private static ScatterLayer[] BuildCliffWallLayers() => new[]
+        {
+            // NOTE: Alpine's "Rock_Cliff" set is GLACIER ICE (refractive
+            // shader) — real granite is the plain Rock / Rock_Rough meshes,
+            // scaled up to wall size.
+            CliffWallLayer("CliffWallGranite", CliffFamily.Granite, AlpineRoot,
+                new Vector2(1.5f, 2.2f),
+                "SM_Env_Rock_Rough_01", "SM_Env_Rock_Rough_02",
+                "SM_Env_Rock_01", "SM_Env_Rock_02", "SM_Env_Rock_05", "SM_Env_Rock_010"),
+            CliffWallLayer("CliffWallRedRock", CliffFamily.RedRock, AridRoot,
+                new Vector2(0.85f, 1.2f),
+                "SM_Env_Rock_Cliff_01", "SM_Env_Rock_Cliff_02", "SM_Env_Rock_Cliff_03",
+                "SM_Env_Rock_Cliff_04", "SM_Env_Rock_Cliff_05", "SM_Env_Rock_Cliff_06",
+                "SM_Env_Rock_Cliff_07", "SM_Env_Rock_Cliff_08", "SM_Env_Rock_Cliff_09",
+                "SM_Env_Rock_Cliff_10", "SM_Env_Rock_Cliff_11", "SM_Env_Rock_Cliff_12",
+                "SM_Env_Rock_Cliff_13", "SM_Env_Rock_Cliff_14", "SM_Env_Rock_Cliff_15",
+                "SM_Env_Rock_Cliff_16"),
+            CliffWallLayer("CliffWallMossy", CliffFamily.Mossy, MeadowRoot,
+                new Vector2(0.85f, 1.2f),
+                "SM_Env_Rock_Cliff_01", "SM_Env_Rock_Cliff_02", "SM_Env_Rock_Cliff_03"),
+        };
+
+        /// <summary>
+        /// Idempotent migration for pre-existing config assets: wetland
+        /// waders stand in the shallows (serialized MaxWaterDepth defaults
+        /// to 0 = dry ground only), and the inland cliff-wall layers are
+        /// appended if the asset predates the slope tracer.
+        /// </summary>
+        private static void MigrateConfig(ScatterConfig cfg)
+        {
+            var depths = new System.Collections.Generic.Dictionary<string, float>
+            {
+                ["WetlandReeds"] = 0.5f,
+                ["WetlandMoss"] = 0.15f,
+                ["WetlandTrees"] = 0.35f,
+            };
+            bool dirty = false;
+            foreach (var layer in cfg.Layers)
+            {
+                if (depths.TryGetValue(layer.Name, out float d) && layer.MaxWaterDepth != d)
+                {
+                    layer.MaxWaterDepth = d;
+                    dirty = true;
+                }
+            }
+            // The builder is the source of truth for wall layers: replace in
+            // place so prefab-set corrections propagate to existing assets.
+            foreach (var wall in BuildCliffWallLayers())
+            {
+                int idx = cfg.Layers.FindIndex(l => l.Name == wall.Name);
+                if (idx >= 0)
+                    cfg.Layers[idx] = wall;
+                else
+                    cfg.Layers.Add(wall);
+                dirty = true;
+            }
+            if (dirty)
+            {
+                EditorUtility.SetDirty(cfg);
+                AssetDatabase.SaveAssets();
+            }
+        }
+
         private static ScatterConfig EnsureScatterConfig()
         {
             var cfg = AssetDatabase.LoadAssetAtPath<ScatterConfig>(ScatterConfigPath);
             if (cfg != null)
+            {
+                MigrateConfig(cfg);
                 return cfg;
+            }
 
             cfg = ScriptableObject.CreateInstance<ScatterConfig>();
             var L = cfg.Layers;
@@ -266,6 +419,7 @@ namespace AniML.EditorTools
                     "SM_Env_Grass_Swamp_01", "SM_Env_Grass_Swamp_02"),
                 MinHeight = 0.4f, MaxHeight = 10f, MaxSlopeDeg = 22f,
                 AllowedBiomes = { Biome.Wetland }, WaterNeed = 0.92f,
+                MaxWaterDepth = 0.5f,
                 DensityPerSqm = 0.07f,
                 ScaleRange = new Vector2(0.9f, 1.5f),
             });
@@ -275,6 +429,7 @@ namespace AniML.EditorTools
                 Prefabs = FindPrefabs(SwampRoot, "SM_Env_MossMound_01", "SM_Env_MossMound_02", "SM_Env_MossMound_03"),
                 MinHeight = 0.4f, MaxHeight = 9f, MaxSlopeDeg = 20f,
                 AllowedBiomes = { Biome.Wetland }, WaterNeed = 0.85f,
+                MaxWaterDepth = 0.15f,
                 DensityPerSqm = 0.006f, CanopyRadius = 0.9f,
                 ScaleRange = new Vector2(0.8f, 1.4f),
             });
@@ -397,6 +552,7 @@ namespace AniML.EditorTools
                     "SM_Env_Tree_Mangrove_03", "SM_Env_Swamp_Tree_Root_Preset_01", "SM_Env_Swamp_Tree_Root_Preset_02"),
                 MinHeight = 0.5f, MaxHeight = 10f, MaxSlopeDeg = 22f,
                 AllowedBiomes = { Biome.Wetland }, WaterNeed = 0.9f,
+                MaxWaterDepth = 0.35f,
                 DensityPerSqm = 0.006f, CanopyRadius = 3f, YStretch = 0.16f,
                 ScaleRange = new Vector2(0.9f, 1.4f),
             });
@@ -417,6 +573,9 @@ namespace AniML.EditorTools
                 ScaleRange = new Vector2(0.9f, 1.2f),
                 IsVegetation = false,
             });
+
+            foreach (var wall in BuildCliffWallLayers())
+                L.Add(wall);
 
             AssetDatabase.CreateAsset(cfg, ScatterConfigPath);
             AssetDatabase.SaveAssets();
@@ -576,67 +735,36 @@ namespace AniML.EditorTools
         }
 
         /// <summary>
-        /// Instantiate the natural wonders at the sites the generator singled
-        /// out. Real GameObjects (few, singular) rather than instanced
-        /// scatter; never saved into the scene.
+        /// Wire the wonder prefab slots from the packs. AssetDatabase search
+        /// is editor-only; the placer itself is a runtime component, so the
+        /// wonders get built in Play mode too, not just in editor captures.
         /// </summary>
-        private static void PlaceWonders(ProceduralWorld world)
+        private static void WireWonderPrefabs(WonderPlacer placer)
         {
-            var old = GameObject.Find("Wonders");
-            if (old != null)
-                Object.DestroyImmediate(old);
-            var root = new GameObject("Wonders") { hideFlags = HideFlags.DontSave };
-
-            foreach (var site in world.Wonders)
+            void Wire(string key, string packRoot, string prefabName)
             {
-                switch (site.Kind)
-                {
-                    case "Waterfall":
-                        Spawn(root, TropicalRoot, "SM_Waterfall_Mesh_01", site.Pos, site.YawDeg,
-                            new Vector3(site.Scale, site.Scale * 1.15f, site.Scale));
-                        Spawn(root, TropicalRoot, "FX_Waterfall_Impact_01",
-                            site.Pos + Vector3.down * 0.4f, site.YawDeg, Vector3.one * site.Scale);
-                        break;
-
-                    case "GiantTree":
-                        Spawn(root, MeadowRoot, "SM_Env_Tree_Meadow_01", site.Pos, site.YawDeg,
-                            Vector3.one * site.Scale);
-                        Spawn(root, MeadowRoot, "SM_Env_Rock_Small_01",
-                            site.Pos + new Vector3(3.2f, 0f, 1.4f), 40f, Vector3.one * 1.2f);
-                        Spawn(root, MeadowRoot, "SM_Env_Rock_Round_01",
-                            site.Pos + new Vector3(-2.6f, 0f, 2.3f), 130f, Vector3.one);
-                        break;
-
-                    case "HotSprings":
-                        Spawn(root, AridRoot, "SM_Env_Sulphur_Ground_01", site.Pos, site.YawDeg, Vector3.one * 1.4f);
-                        Spawn(root, AridRoot, "SM_Env_Sulphur_Pool_01",
-                            site.Pos + new Vector3(0f, 0.05f, 0f), site.YawDeg, Vector3.one);
-                        Spawn(root, AridRoot, "SM_Env_Sulphur_Pool_03",
-                            site.Pos + new Vector3(5.5f, 0.05f, 3f), site.YawDeg + 90f, Vector3.one * 0.8f);
-                        Spawn(root, AridRoot, "SM_Env_Sulphur_Pool_04",
-                            site.Pos + new Vector3(-4.5f, 0.05f, 4f), site.YawDeg + 200f, Vector3.one * 0.7f);
-                        Spawn(root, AridRoot, "FX_Sulphur_Smoke",
-                            site.Pos + new Vector3(0f, 0.4f, 0f), 0f, Vector3.one);
-                        break;
-
-                    case "WhaleBones":
-                        Spawn(root, TropicalRoot, "SM_Prop_Whale_Skeleton_01", site.Pos, site.YawDeg,
-                            Vector3.one * 1.15f);
-                        break;
-                }
+                var list = FindPrefabs(packRoot, prefabName);
+                if (list.Count > 0)
+                    placer.SetSlot(key, list[0]);
+                else
+                    Debug.LogWarning($"[AniML] Wonder prefab not found: {prefabName} under {packRoot}");
             }
-            Debug.Log($"[AniML] Placed {world.Wonders.Count} natural wonders.");
-        }
 
-        private static void Spawn(GameObject parent, string root, string prefabName,
-            Vector3 pos, float yaw, Vector3 scale)
-        {
-            var list = FindPrefabs(root, prefabName);
-            if (list.Count == 0) return;
-            var go = (GameObject)Object.Instantiate(list[0], pos, Quaternion.Euler(0f, yaw, 0f));
-            go.transform.localScale = scale;
-            go.transform.SetParent(parent.transform, true);
-            go.hideFlags = HideFlags.DontSave;
+            Wire("Waterfall", TropicalRoot, "SM_Waterfall_Mesh_01");
+            Wire("WaterfallFX", TropicalRoot, "FX_Waterfall_Impact_01");
+            Wire("GiantTree", MeadowRoot, "SM_Env_Tree_Meadow_01");
+            Wire("GiantTreeRockA", MeadowRoot, "SM_Env_Rock_Small_01");
+            Wire("GiantTreeRockB", MeadowRoot, "SM_Env_Rock_Round_01");
+            Wire("SulphurGround", AridRoot, "SM_Env_Sulphur_Ground_01");
+            Wire("SulphurPoolA", AridRoot, "SM_Env_Sulphur_Pool_01");
+            Wire("SulphurPoolB", AridRoot, "SM_Env_Sulphur_Pool_03");
+            Wire("SulphurPoolC", AridRoot, "SM_Env_Sulphur_Pool_04");
+            Wire("SulphurSmoke", AridRoot, "FX_Sulphur_Smoke");
+            Wire("WhaleBones", TropicalRoot, "SM_Prop_Whale_Skeleton_01");
+            Wire("SummitRangeA", AlpineRoot, "SM_Env_MountainRange_01");
+            Wire("SummitRangeB", AlpineRoot, "SM_Env_MountainRange_02");
+            Wire("SummitRangeC", AlpineRoot, "SM_Env_MountainRange_03");
+            EditorUtility.SetDirty(placer);
         }
 
         private static void AssignTexture(Material m, string property, string searchRoot, string name)

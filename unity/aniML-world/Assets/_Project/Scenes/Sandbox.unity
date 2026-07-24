@@ -130,6 +130,7 @@ GameObject:
   - component: {fileID: 779027381}
   - component: {fileID: 779027380}
   - component: {fileID: 779027382}
+  - component: {fileID: 779027383}
   m_Layer: 0
   m_Name: World
   m_TagString: Untagged
@@ -180,6 +181,47 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: AniML.Runtime::AniML.World.ScatterSystem
   config: {fileID: 11400000, guid: 091818bdd5067f84bb14ff16dcf57f8c, type: 2}
+--- !u!114 &779027383
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 779027379}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 728f0c9f6ef64e447b998d981ae9b6e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: AniML.Runtime::AniML.World.WonderPlacer
+  slots:
+  - Key: Waterfall
+    Prefab: {fileID: 5314927190205255792, guid: 6875ee2fa38405843a83a4981a7f5aaa, type: 3}
+  - Key: WaterfallFX
+    Prefab: {fileID: 2787229657984615751, guid: 85fbe13ec16cd8246b5de6219299982d, type: 3}
+  - Key: GiantTree
+    Prefab: {fileID: 6954770494557141849, guid: 0f2120e89197acc47bfde23175d19f26, type: 3}
+  - Key: GiantTreeRockA
+    Prefab: {fileID: 2404807638410859368, guid: 5fc130c65f02ac04bbfb350fbe21d3cc, type: 3}
+  - Key: GiantTreeRockB
+    Prefab: {fileID: 4259286663014254190, guid: 85d4b66433595d840b0ef5a47fa79d10, type: 3}
+  - Key: SulphurGround
+    Prefab: {fileID: 1588082297837222664, guid: 347394f6e8a33f24fa9e4c5a7a12dd35, type: 3}
+  - Key: SulphurPoolA
+    Prefab: {fileID: 5033407487733322225, guid: 10f66a4b483f36649a051b2be318366c, type: 3}
+  - Key: SulphurPoolB
+    Prefab: {fileID: 7692969400611222784, guid: 059bbcf6c7e6ef346b58b1792aef99c1, type: 3}
+  - Key: SulphurPoolC
+    Prefab: {fileID: 1411998714798905653, guid: d2d3fc58a1291624089e76c0ed8c5f01, type: 3}
+  - Key: SulphurSmoke
+    Prefab: {fileID: 1207650288328167062, guid: 624624e7c68367b479ed5925347fca6f, type: 3}
+  - Key: WhaleBones
+    Prefab: {fileID: 1582025064182422265, guid: 8005992bf7706d747b4585a797cb786c, type: 3}
+  - Key: SummitRangeA
+    Prefab: {fileID: 3004629837816055927, guid: 3caf6d023ed0fc049b8ee267700a3ceb, type: 3}
+  - Key: SummitRangeB
+    Prefab: {fileID: 4393315211883067336, guid: a18b414b23a963446970ba21b7ac90dc, type: 3}
+  - Key: SummitRangeC
+    Prefab: {fileID: 973752906179598168, guid: 426622f3fd75b334da7d7c94b0cd4c48, type: 3}
 --- !u!1 &981988358
 GameObject:
   m_ObjectHideFlags: 0

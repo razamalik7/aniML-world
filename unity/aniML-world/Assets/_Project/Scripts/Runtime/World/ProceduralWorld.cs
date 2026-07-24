@@ -52,6 +52,17 @@ namespace AniML.World
         private readonly List<CoastCliff> _coastCliffs = new();
         public IReadOnlyList<CoastCliff> CoastCliffs => _coastCliffs;
 
+        // Inland cliffs: chained wall meshes dressing steep terrain anywhere,
+        // so slopes read as built geology instead of stretched texture.
+        public struct InlandCliff { public Vector3 Pos; public float YawDeg; public float Scale; public CliffFamily Family; }
+        private readonly List<InlandCliff> _inlandCliffs = new();
+        public IReadOnlyList<InlandCliff> InlandCliffs => _inlandCliffs;
+
+        // Summits: the tallest peaks carry scaled MountainRange silhouettes.
+        public struct SummitSite { public Vector3 Pos; public float YawDeg; public float Scale; public int Variant; }
+        private readonly List<SummitSite> _summits = new();
+        public IReadOnlyList<SummitSite> Summits => _summits;
+
         private float[,] _freshDistGrid;
 
         // Natural wonders: singular one-per-world features at computed sites.
@@ -118,6 +129,8 @@ namespace AniML.World
             PlaceForests();
             PlaceOutcrops();
             TraceCoastCliffs();
+            TraceInlandCliffs();
+            ComputeSummits();
             ComputeWonders();
         }
 
@@ -187,8 +200,25 @@ namespace AniML.World
                         (x, z) => SampleCragginess01(x, z) > 0.4f && SampleBiome(x, z) != Biome.Ocean
                                   && SampleBiome(x, z) != Biome.Snow);
             }
-            TryPlaceWonder(rng, "WhaleBones", 240,
-                (x, z) => SampleBiome(x, z) == Biome.Beach && SampleOceanDistance(x, z) < 24f);
+            if (TryPlaceWonder(rng, "WhaleBones", 240,
+                    (x, z) => SampleBiome(x, z) == Biome.Beach && SampleOceanDistance(x, z) < 24f))
+            {
+                // A beached whale lies ALONG the waterline, nudged up the
+                // sand — not nose-in perpendicular with its tail in the surf.
+                var w = _wonders[_wonders.Count - 1];
+                const float e = 6f;
+                var inland = new Vector2(
+                    SampleOceanDistance(w.Pos.x + e, w.Pos.z) - SampleOceanDistance(w.Pos.x - e, w.Pos.z),
+                    SampleOceanDistance(w.Pos.x, w.Pos.z + e) - SampleOceanDistance(w.Pos.x, w.Pos.z - e));
+                if (inland.sqrMagnitude > 1e-4f)
+                {
+                    inland.Normalize();
+                    w.Pos += new Vector3(inland.x, 0f, inland.y) * 5f;
+                    w.Pos.y = SampleHeight(w.Pos.x, w.Pos.z);
+                    w.YawDeg = Mathf.Atan2(-inland.y, inland.x) * Mathf.Rad2Deg;
+                    _wonders[_wonders.Count - 1] = w;
+                }
+            }
         }
 
         private bool TryPlaceWonder(System.Random rng, string kind, int attempts,
@@ -483,6 +513,30 @@ namespace AniML.World
             int gx = Mathf.RoundToInt((x + half) / _heightCell);
             int gz = Mathf.RoundToInt((z + half) / _heightCell);
             return _lakeCellIndex.ContainsKey(((long)gx << 32) ^ (uint)gz);
+        }
+
+        /// <summary>
+        /// Depth of standing water (lakes + ponds) above the terrain here;
+        /// 0 = dry ground. Rivers are handled via RiverInfluence01 instead.
+        /// </summary>
+        public float StandingWaterDepth(float x, float z)
+        {
+            float depth = 0f;
+            if (_lakeCellIndex.Count > 0)
+            {
+                float half = settings.WorldSize * 0.5f;
+                int gx = Mathf.RoundToInt((x + half) / _heightCell);
+                int gz = Mathf.RoundToInt((z + half) / _heightCell);
+                if (_lakeCellIndex.TryGetValue(((long)gx << 32) ^ (uint)gz, out int li))
+                    depth = Mathf.Max(depth, _lakes[li].WaterLevel - SampleHeight(x, z));
+            }
+            foreach (var pond in _ponds)
+            {
+                float dx = x - pond.Pos.x, dz = z - pond.Pos.y;
+                if (dx * dx + dz * dz < pond.Radius * pond.Radius)
+                    depth = Mathf.Max(depth, pond.WaterY - SampleHeight(x, z));
+            }
+            return Mathf.Max(0f, depth);
         }
 
         private void PlacePonds()
@@ -978,6 +1032,235 @@ namespace AniML.World
             }
         }
 
+        /// <summary>
+        /// Dress steep inland terrain with chained cliff walls. Seeds where
+        /// the baked slope exceeds a threshold, then marches the contour
+        /// (perpendicular to the gradient) in both directions, emitting a
+        /// piece every few meters while the ground stays steep — so cliffs
+        /// come out as continuous aligned walls, not sprinkled rocks. Rock
+        /// family is picked once per wall from the climate fields.
+        /// </summary>
+        private void TraceInlandCliffs()
+        {
+            _inlandCliffs.Clear();
+            var rng = new System.Random(settings.Seed * 59 + 11);
+            float half = settings.WorldSize * 0.5f;
+            const float slopeOn = 40f;   // slope (deg) that seeds a wall
+            const float slopeOff = 32f;  // hysteresis: runs continue down to this
+            const float step = 6.5f;     // meters between chained pieces
+
+            var visited = new bool[_heightRes, _heightRes];
+
+            float SlopeDegAt(float x, float z)
+            {
+                const float e = 2f;
+                float dx = SampleHeight(x + e, z) - SampleHeight(x - e, z);
+                float dz = SampleHeight(x, z + e) - SampleHeight(x, z - e);
+                return Mathf.Atan(Mathf.Sqrt(dx * dx + dz * dz) / (2f * e)) * Mathf.Rad2Deg;
+            }
+
+            Vector2 Grad(float x, float z)
+            {
+                const float e = 2f;
+                return new Vector2(
+                    SampleHeight(x + e, z) - SampleHeight(x - e, z),
+                    SampleHeight(x, z + e) - SampleHeight(x, z - e));
+            }
+
+            void Mark(float x, float z)
+            {
+                int cgx = Mathf.RoundToInt((x + half) / _heightCell);
+                int cgz = Mathf.RoundToInt((z + half) / _heightCell);
+                const int rad = 4;
+                for (int dz = -rad; dz <= rad; dz++)
+                {
+                    for (int dx = -rad; dx <= rad; dx++)
+                    {
+                        int nx = cgx + dx, nz = cgz + dz;
+                        if (nx >= 0 && nz >= 0 && nx < _heightRes && nz < _heightRes)
+                            visited[nx, nz] = true;
+                    }
+                }
+            }
+
+            void Emit(float x, float z, CliffFamily fam)
+            {
+                var grad = Grad(x, z);
+                if (grad.sqrMagnitude < 1e-6f)
+                    return;
+                var down = -grad.normalized;
+
+                // Local relief across the wall sets the piece height.
+                float hUp = SampleHeight(x - down.x * 9f, z - down.y * 9f);
+                float hDown = SampleHeight(x + down.x * 9f, z + down.y * 9f);
+                float drop = hUp - hDown;
+                if (drop < 5f)
+                    return;
+
+                // Base the piece at the wall's foot, facing downhill.
+                float footX = x + down.x * 4f, footZ = z + down.y * 4f;
+                if (RiverInfluence01(footX, footZ) > 0.9f)
+                    return;
+                float footY = SampleHeight(footX, footZ);
+                if (footY < settings.SeaLevel + 0.5f)
+                    return;
+
+                _inlandCliffs.Add(new InlandCliff
+                {
+                    Pos = new Vector3(footX, footY - 0.6f, footZ),
+                    YawDeg = Mathf.Atan2(down.x, down.y) * Mathf.Rad2Deg
+                             + ((float)rng.NextDouble() - 0.5f) * 12f,
+                    Scale = Mathf.Clamp(drop / 9f, 0.9f, 2.6f),
+                    Family = fam,
+                });
+
+                // Stamp the whole fall-line column so parallel contour rows
+                // of the same face don't stack into a rubble pile — one wall
+                // band per face (very tall faces may terrace at ~40m).
+                Mark(x, z);
+                for (int s = 1; s <= 10; s++)
+                {
+                    float d = s * 4f;
+                    Mark(x - down.x * d, z - down.y * d);
+                    Mark(x + down.x * d, z + down.y * d);
+                }
+            }
+
+            for (int gz = 3; gz < _heightRes - 3; gz += 2)
+            {
+                for (int gx = 3; gx < _heightRes - 3; gx += 2)
+                {
+                    if (visited[gx, gz])
+                        continue;
+                    float x = gx * _heightCell - half;
+                    float z = gz * _heightCell - half;
+                    if (SlopeDegAt(x, z) < slopeOn)
+                        continue;
+                    float h = SampleHeight(x, z);
+                    if (h < settings.SeaLevel + 2f)
+                        continue;
+                    if (SampleOceanDistance(x, z) < 45f)  // the coast tracer's turf
+                        continue;
+                    if (StandingWaterDepth(x, z) > 0.05f)
+                        continue;
+
+                    // One family per wall keeps a run coherent.
+                    var biome = SampleBiome(x, z);
+                    CliffFamily fam;
+                    if (biome == Biome.Snow || biome == Biome.Rock || biome == Biome.AlpineMeadow
+                        || h - settings.SeaLevel > 46f)
+                        fam = CliffFamily.Granite;
+                    else if (biome == Biome.Scrub
+                             || (SampleMoisture(x, z) < 0.36f && SampleTemperature01(x, z) > 0.5f))
+                        fam = CliffFamily.RedRock;
+                    else
+                        fam = CliffFamily.Mossy;
+
+                    // Collect the run: seed + contour march both directions.
+                    var run = new List<Vector2> { new(x, z) };
+                    foreach (int dir in new[] { -1, 1 })
+                    {
+                        var p = new Vector2(x, z);
+                        for (int i = 0; i < 26; i++)
+                        {
+                            var grad = Grad(p.x, p.y);
+                            if (grad.sqrMagnitude < 1e-6f)
+                                break;
+                            var along = new Vector2(-grad.y, grad.x).normalized * dir;
+                            p += along * step;
+                            if (Mathf.Abs(p.x) > half - 8f || Mathf.Abs(p.y) > half - 8f)
+                                break;
+                            if (SlopeDegAt(p.x, p.y) < slopeOff)
+                                break;
+                            run.Add(p);
+                        }
+                    }
+
+                    // Lone steep cells are noise; two chained pieces make a wall.
+                    if (run.Count < 2)
+                        continue;
+                    foreach (var p in run)
+                        Emit(p.x, p.y, fam);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Find the island's most prominent peaks and hand each a scaled
+        /// MountainRange silhouette — the black spiky skyline the packs use
+        /// in their own promo scenes. Variant follows prominence order.
+        /// </summary>
+        private void ComputeSummits()
+        {
+            _summits.Clear();
+            var rng = new System.Random(settings.Seed * 83 + 7);
+            float floor = settings.SeaLevel + 55f;
+            float half = settings.WorldSize * 0.5f;
+
+            var peaks = new List<(float h, int gx, int gz)>();
+            for (int gz = 4; gz < _heightRes - 4; gz += 2)
+            {
+                for (int gx = 4; gx < _heightRes - 4; gx += 2)
+                {
+                    float h = _heightGrid[gx, gz];
+                    if (h < floor)
+                        continue;
+                    bool isMax = true;
+                    for (int dz = -4; dz <= 4 && isMax; dz += 2)
+                        for (int dx = -4; dx <= 4 && isMax; dx += 2)
+                            if (_heightGrid[gx + dx, gz + dz] > h)
+                                isMax = false;
+                    if (isMax)
+                        peaks.Add((h, gx, gz));
+                }
+            }
+            peaks.Sort((a, b) => b.h.CompareTo(a.h));
+
+            foreach (var (h, gx, gz) in peaks)
+            {
+                if (_summits.Count >= 3)
+                    break;
+                float x = gx * _heightCell - half;
+                float z = gz * _heightCell - half;
+
+                bool tooClose = false;
+                foreach (var s in _summits)
+                {
+                    float dx = x - s.Pos.x, dz = z - s.Pos.z;
+                    if (dx * dx + dz * dz < 170f * 170f)
+                    {
+                        tooClose = true;
+                        break;
+                    }
+                }
+                if (tooClose)
+                    continue;
+
+                // Ridge axis: the direction whose flanks stay highest.
+                float bestYaw = 0f, bestScore = float.MinValue;
+                for (int a = 0; a < 12; a++)
+                {
+                    float ang = a * Mathf.PI / 12f;
+                    float dx = Mathf.Sin(ang), dz = Mathf.Cos(ang);
+                    float score = SampleHeight(x + dx * 35f, z + dz * 35f)
+                                  + SampleHeight(x - dx * 35f, z - dz * 35f);
+                    if (score > bestScore)
+                    {
+                        bestScore = score;
+                        bestYaw = ang * Mathf.Rad2Deg;
+                    }
+                }
+
+                _summits.Add(new SummitSite
+                {
+                    Pos = new Vector3(x, h, z),
+                    YawDeg = bestYaw + ((float)rng.NextDouble() - 0.5f) * 10f,
+                    Scale = Mathf.Clamp((h - settings.SeaLevel) / 14f, 5.5f, 9f),
+                    Variant = _summits.Count,
+                });
+            }
+        }
+
         /// <summary>Max of badlands rockiness and local crag fields — drives
         /// rock scatter and large cliff-mesh placement.</summary>
         public float SampleCragginess01(float x, float z)
@@ -1222,10 +1505,20 @@ namespace AniML.World
             float half = settings.WorldSize * 0.5f;
             foreach (var lake in _lakes)
             {
-                var verts = new List<Vector3>(lake.Cells.Count * 4);
-                var tris = new List<int>(lake.Cells.Count * 6);
+                // Emit the flooded cells PLUS a one-cell ring: the mesh
+                // border then lands inside the rising bank, so the visible
+                // shoreline is the smooth terrain/water intersection line,
+                // not the hovering stair-step edge of the quad grid.
+                var cells = new HashSet<(int, int)>();
+                foreach (var (cx, cz) in lake.Cells)
+                    for (int dz = -1; dz <= 1; dz++)
+                        for (int dx = -1; dx <= 1; dx++)
+                            cells.Add((cx + dx, cz + dz));
+
+                var verts = new List<Vector3>(cells.Count * 4);
+                var tris = new List<int>(cells.Count * 6);
                 float y = lake.WaterLevel + 0.06f;
-                foreach (var (gx, gz) in lake.Cells)
+                foreach (var (gx, gz) in cells)
                 {
                     float x0 = gx * _heightCell - half - _heightCell * 0.5f;
                     float z0 = gz * _heightCell - half - _heightCell * 0.5f;

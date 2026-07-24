@@ -31,9 +31,12 @@ MonoBehaviour:
     WaterNeed: -1
     CanopyRadius: 3.2
     PreferRocky: 0
+    MaxWaterDepth: 0
     YOffset: 0
     MaxTiltDeg: 0
     CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
     MinTemp01: 0.42
     MaxTemp01: 1
     YStretch: 0.16
@@ -58,9 +61,12 @@ MonoBehaviour:
     WaterNeed: -1
     CanopyRadius: 3
     PreferRocky: 0
+    MaxWaterDepth: 0
     YOffset: 0
     MaxTiltDeg: 0
     CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
     MinTemp01: 0
     MaxTemp01: 0.5
     YStretch: 0.18
@@ -84,9 +90,12 @@ MonoBehaviour:
     WaterNeed: 0.78
     CanopyRadius: 3.6
     PreferRocky: 0
+    MaxWaterDepth: 0
     YOffset: 0
     MaxTiltDeg: 0
     CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
     MinTemp01: 0.5
     MaxTemp01: 1
     YStretch: 0.14
@@ -110,9 +119,12 @@ MonoBehaviour:
     WaterNeed: -1
     CanopyRadius: 2.6
     PreferRocky: 0
+    MaxWaterDepth: 0
     YOffset: 0
     MaxTiltDeg: 4
     CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
     MinTemp01: 0.62
     MaxTemp01: 1
     YStretch: 0.2
@@ -136,9 +148,12 @@ MonoBehaviour:
     WaterNeed: 0.55
     CanopyRadius: 2.6
     PreferRocky: 0
+    MaxWaterDepth: 0
     YOffset: 0
     MaxTiltDeg: 0
     CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
     MinTemp01: 0
     MaxTemp01: 1
     YStretch: 0.14
@@ -163,9 +178,12 @@ MonoBehaviour:
     WaterNeed: 0.5
     CanopyRadius: 1.3
     PreferRocky: 0
+    MaxWaterDepth: 0
     YOffset: 0
     MaxTiltDeg: 0
     CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
     MinTemp01: 0
     MaxTemp01: 1
     YStretch: 0
@@ -197,9 +215,12 @@ MonoBehaviour:
     WaterNeed: 0.45
     CanopyRadius: 0
     PreferRocky: 0
+    MaxWaterDepth: 0
     YOffset: 0
     MaxTiltDeg: 0
     CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
     MinTemp01: 0
     MaxTemp01: 1
     YStretch: 0
@@ -229,9 +250,12 @@ MonoBehaviour:
     WaterNeed: 0.55
     CanopyRadius: 0
     PreferRocky: 0
+    MaxWaterDepth: 0
     YOffset: 0
     MaxTiltDeg: 0
     CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
     MinTemp01: 0
     MaxTemp01: 1
     YStretch: 0
@@ -255,9 +279,12 @@ MonoBehaviour:
     WaterNeed: 0.55
     CanopyRadius: 0
     PreferRocky: 0
+    MaxWaterDepth: 0
     YOffset: 0
     MaxTiltDeg: 0
     CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
     MinTemp01: 0
     MaxTemp01: 1
     YStretch: 0
@@ -282,9 +309,12 @@ MonoBehaviour:
     WaterNeed: 0.12
     CanopyRadius: 2.2
     PreferRocky: 0
+    MaxWaterDepth: 0
     YOffset: 0
     MaxTiltDeg: 0
     CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
     MinTemp01: 0
     MaxTemp01: 1
     YStretch: 0
@@ -314,9 +344,12 @@ MonoBehaviour:
     WaterNeed: 0.06
     CanopyRadius: 0.8
     PreferRocky: 0
+    MaxWaterDepth: 0
     YOffset: 0
     MaxTiltDeg: 0
     CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
     MinTemp01: 0
     MaxTemp01: 1
     YStretch: 0
@@ -344,9 +377,12 @@ MonoBehaviour:
     WaterNeed: 0.92
     CanopyRadius: 0
     PreferRocky: 0
+    MaxWaterDepth: 0.5
     YOffset: 0
     MaxTiltDeg: 0
     CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
     MinTemp01: 0
     MaxTemp01: 1
     YStretch: 0
@@ -370,9 +406,12 @@ MonoBehaviour:
     WaterNeed: 0.85
     CanopyRadius: 0.9
     PreferRocky: 0
+    MaxWaterDepth: 0.15
     YOffset: 0
     MaxTiltDeg: 0
     CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
     MinTemp01: 0
     MaxTemp01: 1
     YStretch: 0
@@ -402,9 +441,12 @@ MonoBehaviour:
     WaterNeed: -1
     CanopyRadius: 0
     PreferRocky: 0
+    MaxWaterDepth: 0
     YOffset: 0
     MaxTiltDeg: 0
     CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
     MinTemp01: 0
     MaxTemp01: 1
     YStretch: 0
@@ -430,9 +472,12 @@ MonoBehaviour:
     WaterNeed: -1
     CanopyRadius: 2.6
     PreferRocky: 0
+    MaxWaterDepth: 0
     YOffset: 0
     MaxTiltDeg: 0
     CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
     MinTemp01: 0
     MaxTemp01: 1
     YStretch: 0.18
@@ -455,9 +500,12 @@ MonoBehaviour:
     WaterNeed: -1
     CanopyRadius: 2
     PreferRocky: 0
+    MaxWaterDepth: 0
     YOffset: 0
     MaxTiltDeg: 0
     CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
     MinTemp01: 0
     MaxTemp01: 1
     YStretch: 0
@@ -483,9 +531,12 @@ MonoBehaviour:
     WaterNeed: -1
     CanopyRadius: 1.1
     PreferRocky: 0
+    MaxWaterDepth: 0
     YOffset: 0
     MaxTiltDeg: 7
     CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
     MinTemp01: 0
     MaxTemp01: 1
     YStretch: 0
@@ -517,9 +568,12 @@ MonoBehaviour:
     WaterNeed: -1
     CanopyRadius: 1.3
     PreferRocky: 1
+    MaxWaterDepth: 0
     YOffset: 0
     MaxTiltDeg: 7
     CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
     MinTemp01: 0
     MaxTemp01: 1
     YStretch: 0
@@ -543,9 +597,12 @@ MonoBehaviour:
     WaterNeed: -1
     CanopyRadius: 2.4
     PreferRocky: 1
+    MaxWaterDepth: 0
     YOffset: 0
     MaxTiltDeg: 0
     CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
     MinTemp01: 0
     MaxTemp01: 1
     YStretch: 0
@@ -570,9 +627,12 @@ MonoBehaviour:
     WaterNeed: 0.15
     CanopyRadius: 0
     PreferRocky: 0
+    MaxWaterDepth: 0
     YOffset: 0
     MaxTiltDeg: 0
     CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
     MinTemp01: 0
     MaxTemp01: 1
     YStretch: 0
@@ -597,9 +657,12 @@ MonoBehaviour:
     WaterNeed: -1
     CanopyRadius: 6
     PreferRocky: 1
+    MaxWaterDepth: 0
     YOffset: -0.35
     MaxTiltDeg: 4
     CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
     MinTemp01: 0
     MaxTemp01: 1
     YStretch: 0
@@ -624,9 +687,12 @@ MonoBehaviour:
     WaterNeed: -1
     CanopyRadius: 7
     PreferRocky: 1
+    MaxWaterDepth: 0
     YOffset: -0.35
     MaxTiltDeg: 4
     CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
     MinTemp01: 0
     MaxTemp01: 1
     YStretch: 0
@@ -651,9 +717,12 @@ MonoBehaviour:
     WaterNeed: 0.6
     CanopyRadius: 0
     PreferRocky: 0
+    MaxWaterDepth: 0
     YOffset: 0
     MaxTiltDeg: 3
     CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
     MinTemp01: 0
     MaxTemp01: 1
     YStretch: 0
@@ -679,9 +748,12 @@ MonoBehaviour:
     WaterNeed: 0.9
     CanopyRadius: 3
     PreferRocky: 0
+    MaxWaterDepth: 0.35
     YOffset: 0
     MaxTiltDeg: 0
     CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
     MinTemp01: 0
     MaxTemp01: 1
     YStretch: 0.16
@@ -704,9 +776,12 @@ MonoBehaviour:
     WaterNeed: -1
     CanopyRadius: 1.5
     PreferRocky: 0
+    MaxWaterDepth: 0
     YOffset: 0
     MaxTiltDeg: 6
     CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
     MinTemp01: 0
     MaxTemp01: 1
     YStretch: 0
@@ -729,12 +804,118 @@ MonoBehaviour:
     WaterNeed: -1
     CanopyRadius: 0
     PreferRocky: 0
+    MaxWaterDepth: 0
     YOffset: -0.15
     MaxTiltDeg: 0
     CoastalWall: 1
+    InlandWall: 0
+    InlandFamily: 0
     MinTemp01: 0
     MaxTemp01: 1
     YStretch: 0
     ScaleRange: {x: 0.9, y: 1.2}
+    PositionJitter: 0.9
+    IsVegetation: 0
+  - Name: CliffWallGranite
+    Prefabs:
+    - {fileID: 2236629855792467630, guid: 71fb29e5dc238694ea35a6b83afe27db, type: 3}
+    - {fileID: 3134720509254622281, guid: 02c6de2ee24bc484a9a181ec28cfc229, type: 3}
+    - {fileID: 4724106104165785308, guid: c984ce3ffcfcde34d869d4ee01082a68, type: 3}
+    - {fileID: 1497840489996059409, guid: d6317274878cf7b4b8bb314093c1426e, type: 3}
+    - {fileID: 811305085591723145, guid: 22e91f0b02ff8424b84427abd63753e9, type: 3}
+    - {fileID: 103171648435572364, guid: c62a208694a5e0a4cb922ed3626ca248, type: 3}
+    MinHeight: 3
+    MaxHeight: 30
+    MaxSlopeDeg: 30
+    MoistureStart: 0
+    MoistureFull: 0
+    DensityPerSqm: 0.01
+    DriveByForestDensity: 0
+    ForestSuppression: 0
+    AllowedBiomes: 
+    WaterNeed: -1
+    CanopyRadius: 0
+    PreferRocky: 0
+    MaxWaterDepth: 0
+    YOffset: -0.1
+    MaxTiltDeg: 0
+    CoastalWall: 0
+    InlandWall: 1
+    InlandFamily: 0
+    MinTemp01: 0
+    MaxTemp01: 1
+    YStretch: 0
+    ScaleRange: {x: 1.5, y: 2.2}
+    PositionJitter: 0.9
+    IsVegetation: 0
+  - Name: CliffWallRedRock
+    Prefabs:
+    - {fileID: 6141318331400477136, guid: fad113f305fc63d4da9658a5a44ad0fc, type: 3}
+    - {fileID: 5722950911684412464, guid: 2931b8caea14ace47876b79e78abac48, type: 3}
+    - {fileID: 2658947755024057934, guid: ad0f006879ac73e44bf395b1a33ddea9, type: 3}
+    - {fileID: 251744323650047282, guid: bafd1387c024a3a459afa35dd24cec25, type: 3}
+    - {fileID: 5844754818744786599, guid: e6680d59b8f4ae845ae51557281e8e53, type: 3}
+    - {fileID: 5351960426168442744, guid: b77c42d7058299b4eb1b1e1defa0692a, type: 3}
+    - {fileID: 357223116612181799, guid: 0db31075a7eadc746b41c20e3ed74a38, type: 3}
+    - {fileID: 8659800983703788880, guid: 6bf6dfab11a30084c9736d3b991fdaf6, type: 3}
+    - {fileID: 3390717833675110302, guid: 0458124f4a3d80c41adf035fac165f9b, type: 3}
+    - {fileID: 5441726313233856215, guid: c22d18a3b8985a5448a83e11f1576ab5, type: 3}
+    - {fileID: 5150836198392698206, guid: cf712da6ec9b26f4dbdd73c29f3b28bc, type: 3}
+    - {fileID: 8747651411525366416, guid: b33befb41106070409d86b725f2476e2, type: 3}
+    - {fileID: 2718846753309709128, guid: be29130b15f5d6b4782a79790d86b12c, type: 3}
+    - {fileID: 369168398580112049, guid: ed595ad5c6df86e4294e6ec8d484627e, type: 3}
+    - {fileID: 3966849742362527076, guid: 1a4df1e3e89014c49992c81213faf4b0, type: 3}
+    - {fileID: 4450983205451706883, guid: 61389eacae377b34fbd99f0101d08b2d, type: 3}
+    MinHeight: 3
+    MaxHeight: 30
+    MaxSlopeDeg: 30
+    MoistureStart: 0
+    MoistureFull: 0
+    DensityPerSqm: 0.01
+    DriveByForestDensity: 0
+    ForestSuppression: 0
+    AllowedBiomes: 
+    WaterNeed: -1
+    CanopyRadius: 0
+    PreferRocky: 0
+    MaxWaterDepth: 0
+    YOffset: -0.1
+    MaxTiltDeg: 0
+    CoastalWall: 0
+    InlandWall: 1
+    InlandFamily: 1
+    MinTemp01: 0
+    MaxTemp01: 1
+    YStretch: 0
+    ScaleRange: {x: 0.85, y: 1.2}
+    PositionJitter: 0.9
+    IsVegetation: 0
+  - Name: CliffWallMossy
+    Prefabs:
+    - {fileID: 6411061972673112039, guid: 3928fe46c1997be45a7e169b0eb63625, type: 3}
+    - {fileID: 6097588891569378077, guid: 3ca01142054c997498fd413b391cbfcc, type: 3}
+    - {fileID: 9188181392545036199, guid: 1adbdd5ea9a76d247a3f262569b3e059, type: 3}
+    MinHeight: 3
+    MaxHeight: 30
+    MaxSlopeDeg: 30
+    MoistureStart: 0
+    MoistureFull: 0
+    DensityPerSqm: 0.01
+    DriveByForestDensity: 0
+    ForestSuppression: 0
+    AllowedBiomes: 
+    WaterNeed: -1
+    CanopyRadius: 0
+    PreferRocky: 0
+    MaxWaterDepth: 0
+    YOffset: -0.1
+    MaxTiltDeg: 0
+    CoastalWall: 0
+    InlandWall: 1
+    InlandFamily: 2
+    MinTemp01: 0
+    MaxTemp01: 1
+    YStretch: 0
+    ScaleRange: {x: 0.85, y: 1.2}
     PositionJitter: 0.9
     IsVegetation: 0

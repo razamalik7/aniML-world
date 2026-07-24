@@ -43,12 +43,17 @@ namespace AniML.World
         public float CanopyRadius = 0f;
         [Tooltip("Placement bias toward craggy ground (badlands + outcrops).")]
         public bool PreferRocky = false;
+        [Tooltip("Maximum standing-water depth (m) tolerated. 0 = dry ground only; reeds wade.")]
+        public float MaxWaterDepth = 0f;
         [Tooltip("Vertical sink (fraction of scale) so big rocks sit IN the ground, not on it.")]
         public float YOffset = 0f;
         [Tooltip("Random tilt in degrees — rocks settle, plants lean.")]
         public float MaxTiltDeg = 0f;
         [Tooltip("This layer is the coastal cliff wall: instances come from the coast tracer, not random sampling.")]
         public bool CoastalWall = false;
+        [Tooltip("This layer dresses inland cliff walls of one rock family: instances come from the slope tracer.")]
+        public bool InlandWall = false;
+        public CliffFamily InlandFamily = CliffFamily.Granite;
         [Tooltip("Temperature band this species tolerates (0 cold .. 1 warm). Overlapping bands blend at borders.")]
         public float MinTemp01 = 0f;
         public float MaxTemp01 = 1f;
