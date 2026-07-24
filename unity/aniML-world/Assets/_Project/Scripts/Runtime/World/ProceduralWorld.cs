@@ -14,6 +14,7 @@ namespace AniML.World
         [SerializeField] private WorldSettings settings;
         [SerializeField] private Material terrainMaterial;
         [SerializeField] private Material waterMaterial;
+        [SerializeField] private Material riverWaterMaterial;
 
         private FractalNoise _heightNoise;
         private FractalNoise _moistureNoise;
@@ -80,6 +81,7 @@ namespace AniML.World
             public float MinLakeDepth;
             public int ForestCount;
             public float CliffSlopeOn;   // slope (deg) that seeds a cliff wall
+            public bool Volcano;
         }
         private ProfileDials _dials;
 
@@ -136,6 +138,30 @@ namespace AniML.World
                     };
                     break;
 
+                case LandformProfile.VolcanoIsle:
+                    _dials = new ProfileDials
+                    {
+                        // Lush tropical lowlands; the drama is the cone.
+                        BaseMoisture = settings.BaseMoisture + 0.02f,
+                        RainShadow = 0.3f,
+                        MoistureDecay = 220f,
+                        FreshGain = 0.55f,
+                        MountainAmpMul = 0.7f,
+                        MaskThresholdDelta = 0.1f,     // noise ranges yield to the stamp
+                        TempOffset = 0.22f,            // tropical, no snow
+                        CanyonDepth = 14f,
+                        SummitCount = 0,               // the cone IS the summit
+                        GraniteAltitude = 20f,         // dark basalt crags up high
+                        MesaTerraces = false,
+                        RiverCount = 2,
+                        PondCount = 2,
+                        MinLakeDepth = 0.9f,
+                        ForestCount = 8,
+                        CliffSlopeOn = 42f,
+                        Volcano = true,
+                    };
+                    break;
+
                 default: // TemperateIsles — the tuned baseline, unchanged.
                     _dials = new ProfileDials
                     {
@@ -187,11 +213,37 @@ namespace AniML.World
 
         public WorldSettings Settings => settings;
 
-        public void Configure(WorldSettings s, Material terrainMat, Material waterMat)
+        public void Configure(WorldSettings s, Material terrainMat, Material waterMat,
+            Material riverMat = null)
         {
             settings = s;
             terrainMaterial = terrainMat;
             waterMaterial = waterMat;
+            riverWaterMaterial = riverMat;
+        }
+
+        /// <summary>
+        /// Visit every river bed drop of at least minDrop meters: position,
+        /// downstream yaw (deg), and the drop height. Feeds cascade FX.
+        /// </summary>
+        public void ForEachRiverDrop(float minDrop, System.Action<Vector3, float, float> visit)
+        {
+            foreach (var river in _rivers)
+            {
+                for (int i = 0; i + 1 < river.Count; i++)
+                {
+                    float drop = river[i].y - river[i + 1].y;
+                    if (drop < minDrop)
+                        continue;
+                    var dir = new Vector2(river[i + 1].x - river[i].x, river[i + 1].z - river[i].z);
+                    visit(new Vector3(
+                            (river[i].x + river[i + 1].x) * 0.5f,
+                            river[i + 1].y + settings.RiverDepth * 0.55f,
+                            (river[i].z + river[i + 1].z) * 0.5f),
+                        Mathf.Atan2(dir.x, dir.y) * Mathf.Rad2Deg,
+                        drop);
+                }
+            }
         }
 
         private void Awake()
@@ -226,6 +278,7 @@ namespace AniML.World
             BakeMoistureGrid();
             ComputeSummits();      // raises summit pedestals in the grid,
             PlaceForests();        // so everything after sees them
+            ComputeBurnScar();
             PlaceOutcrops();
             TraceCoastCliffs();
             TraceInlandCliffs();
@@ -1107,6 +1160,9 @@ namespace AniML.World
 
             density = Mathf.Clamp01(density);
 
+            // An old burn: the fire took the canopy; snags and char remain.
+            density *= 1f - BurnScar01(x, z) * 0.96f;
+
             // Ecotone tail: below the cutoff, a sparse "parkland" fringe of
             // lone trees rings each forest instead of a hard edge — the
             // in-between the hard cutoff was deleting. Far from any forest,
@@ -1114,6 +1170,58 @@ namespace AniML.World
             if (density < settings.ForestDensityCutoff)
                 return density * (density / settings.ForestDensityCutoff) * 0.18f;
             return density;
+        }
+
+        // ---- World memory: the burn scar ----
+
+        private Vector2 _burnScarPos;
+        private float _burnScarRadius;
+        public Vector3 BurnScarCenter =>
+            new(_burnScarPos.x, SampleHeight(_burnScarPos.x, _burnScarPos.y), _burnScarPos.y);
+        public float BurnScarRadius => _burnScarRadius;
+
+        /// <summary>0 outside, 1 at the heart of the old fire.</summary>
+        public float BurnScar01(float x, float z)
+        {
+            if (_burnScarRadius <= 0f)
+                return 0f;
+            float dx = x - _burnScarPos.x, dz = z - _burnScarPos.y;
+            float d = Mathf.Sqrt(dx * dx + dz * dz);
+            return d >= _burnScarRadius ? 0f
+                : Mathf.SmoothStep(1f, 0f, d / _burnScarRadius);
+        }
+
+        /// <summary>
+        /// Site one ancient wildfire at the edge of a forest — the drier the
+        /// candidate ground, the likelier it burned. History the live fire
+        /// sim will later write at runtime; genesis worlds start with one.
+        /// </summary>
+        private void ComputeBurnScar()
+        {
+            _burnScarRadius = 0f;
+            if (_forestSeeds.Count == 0)
+                return;
+            var rng = new System.Random(settings.Seed * 131 + 17);
+            float bestDry = 0.52f;   // only meaningfully dry edges burn
+            foreach (var seed in _forestSeeds)
+            {
+                for (int i = 0; i < 6; i++)
+                {
+                    float ang = (float)rng.NextDouble() * Mathf.PI * 2f;
+                    var p = seed.Pos + new Vector2(Mathf.Cos(ang), Mathf.Sin(ang)) * seed.Radius * 0.75f;
+                    if (SampleHeight(p.x, p.y) - settings.SeaLevel < 3f)
+                        continue;
+                    if (StandingWaterDepth(p.x, p.y) > 0f)
+                        continue;
+                    float dry = 1f - SampleMoisture(p.x, p.y);
+                    if (dry > bestDry)
+                    {
+                        bestDry = dry;
+                        _burnScarPos = p;
+                        _burnScarRadius = 26f + (float)rng.NextDouble() * 14f;
+                    }
+                }
+            }
         }
 
         // ---- Biome classification ----
@@ -1845,13 +1953,17 @@ namespace AniML.World
             foreach (var river in _rivers)
             {
                 var verts = new List<Vector3>();
+                var uvs = new List<Vector2>();
                 var tris = new List<int>();
+                float along = 0f;
 
                 for (int i = 0; i < river.Count; i++)
                 {
                     var p = river[i];
                     var next = river[Mathf.Min(i + 1, river.Count - 1)];
                     var dir = new Vector2(next.x - p.x, next.z - p.z);
+                    if (i > 0)
+                        along += new Vector2(p.x - river[i - 1].x, p.z - river[i - 1].z).magnitude;
                     if (dir.sqrMagnitude < 1e-6f) dir = Vector2.up;
                     dir.Normalize();
                     var side = new Vector2(-dir.y, dir.x);
@@ -1863,6 +1975,10 @@ namespace AniML.World
                     float hw = p.w * 0.8f;
                     verts.Add(new Vector3(p.x + side.x * hw, y, p.z + side.y * hw));
                     verts.Add(new Vector3(p.x - side.x * hw, y, p.z - side.y * hw));
+                    // V runs downstream so the shader can scroll flow along it.
+                    float v = along * 0.06f;
+                    uvs.Add(new Vector2(0f, v));
+                    uvs.Add(new Vector2(1f, v));
 
                     if (i > 0)
                     {
@@ -1873,6 +1989,7 @@ namespace AniML.World
 
                 var mesh = new Mesh { name = "RiverWater" };
                 mesh.SetVertices(verts);
+                mesh.SetUVs(0, uvs);
                 mesh.SetTriangles(tris, 0);
                 mesh.RecalculateNormals();
                 mesh.RecalculateBounds();
@@ -1880,7 +1997,8 @@ namespace AniML.World
                 var go = new GameObject("RiverWater") { hideFlags = HideFlags.DontSave };
                 go.transform.SetParent(transform, false);
                 go.AddComponent<MeshFilter>().sharedMesh = mesh;
-                go.AddComponent<MeshRenderer>().sharedMaterial = waterMaterial;
+                go.AddComponent<MeshRenderer>().sharedMaterial =
+                    riverWaterMaterial != null ? riverWaterMaterial : waterMaterial;
             }
         }
 
@@ -1889,6 +2007,20 @@ namespace AniML.World
             float h = height - settings.SeaLevel;
             float moisture = SampleMoisture(x, z);
             float river = RiverInfluence01(x, z);
+
+            // The old burn chars the ground toward soot.
+            float scar = BurnScar01(x, z);
+            if (scar > 0.03f)
+            {
+                var baseCol = SampleBiomeColorUnscarred(x, z, height, h, moisture, river);
+                return Color.Lerp(baseCol, new Color(0.16f, 0.14f, 0.12f), scar * 0.62f);
+            }
+            return SampleBiomeColorUnscarred(x, z, height, h, moisture, river);
+        }
+
+        private Color SampleBiomeColorUnscarred(float x, float z, float height,
+            float h, float moisture, float river)
+        {
 
             // Canyonlands: every steep mesa step face is banded red rock,
             // river or no river.
@@ -2091,6 +2223,11 @@ namespace AniML.World
             };
             dirt = Mathf.Max(dirt, river);
             dirt *= (1f - rock) * (1f - snow);
+
+            // The burn is bare charred dirt.
+            float scar = BurnScar01(x, z);
+            if (scar > 0f)
+                dirt = Mathf.Max(dirt, scar * 0.85f * (1f - rock) * (1f - snow));
 
             // Deep canyon walls are bare red rock — never snowbound, never
             // grassed over.

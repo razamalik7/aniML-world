@@ -51,7 +51,7 @@ namespace AniML.EditorTools
             if (world == null)
                 world = root.AddComponent<ProceduralWorld>();
 
-            world.Configure(settings, material, EnsureWaterMaterial());
+            world.Configure(settings, material, EnsureWaterMaterial(), EnsureRiverWaterMaterial());
             world.Generate();
 
             var scatter = root.GetComponent<ScatterSystem>();
@@ -65,6 +65,31 @@ namespace AniML.EditorTools
                 wonders = root.AddComponent<WonderPlacer>();
             WireWonderPrefabs(wonders);
             wonders.Place(world);
+
+            var ambient = root.GetComponent<AmbientFX>();
+            if (ambient == null)
+                ambient = root.AddComponent<AmbientFX>();
+            WireAmbientFX(ambient);
+            ambient.Place(world);
+
+            // Day/night + weather. The sun is the scene's directional light.
+            var sunGo = GameObject.Find("Directional Light");
+            var sky = root.GetComponent<SkySystem>();
+            if (sky == null)
+                sky = root.AddComponent<SkySystem>();
+            if (sunGo != null)
+                sky.Configure(sunGo.GetComponent<Light>());
+            RenderSettings.fog = true;
+            RenderSettings.fogMode = FogMode.Exponential;
+            RenderSettings.fogDensity = 0.0012f;
+            sky.Apply();
+
+            var weather = root.GetComponent<WeatherSystem>();
+            if (weather == null)
+                weather = root.AddComponent<WeatherSystem>();
+            weather.SetSlot("Rain", LoadCorePrefab("FX_Rain_01"));
+            weather.SetSlot("Snow", LoadCorePrefab("FX_Snow_01"));
+            EditorUtility.SetDirty(weather);
 
             EnableFoliageColourVariation();
             EnsureWaterPlane(settings);
@@ -137,6 +162,23 @@ namespace AniML.EditorTools
                     Capture(eye, Quaternion.LookRotation(s.Pos + Vector3.up * 20f - eye), 55f,
                         Path.Combine(outDir, "summit.png"));
                 }
+            }
+
+            // Time-of-day variants: golden hour and night under the moon.
+            var sky = Object.FindFirstObjectByType<SkySystem>();
+            if (sky != null)
+            {
+                float orig = sky.TimeOfDay;
+                sky.TimeOfDay = 17.4f;   // golden hour, sun still up
+                sky.Apply();
+                Capture(new Vector3(-380f, 95f, -420f), Quaternion.Euler(14f, 38f, 0f), 55f,
+                    Path.Combine(outDir, "world_sunset.png"));
+                sky.TimeOfDay = 23.6f;
+                sky.Apply();
+                Capture(new Vector3(-380f, 95f, -420f), Quaternion.Euler(14f, 38f, 0f), 55f,
+                    Path.Combine(outDir, "world_night.png"));
+                sky.TimeOfDay = orig;
+                sky.Apply();
             }
 
             ExportBiomeMap();
@@ -265,11 +307,51 @@ namespace AniML.EditorTools
             return new[] { granite, red, mossy };
         }
 
+        /// <summary>Aquatic flora: floating pads on lakes, seaweed and coral
+        /// in the sunlit sea shallows.</summary>
+        private static ScatterLayer[] BuildAquaticLayers() => new[]
+        {
+            new ScatterLayer
+            {
+                Name = "LilyPads",
+                Prefabs = FindPrefabs(SwampRoot, "SM_Env_LillyPads_01", "SM_Env_LillyPads_02",
+                    "SM_Env_LillyPads_03", "SM_Env_LillyPads_04"),
+                MinHeight = 0.5f, MaxHeight = 30f, MaxSlopeDeg = 25f,
+                OnWaterSurface = true, MinWaterDepth = 0.25f,
+                MinTemp01 = 0.35f,
+                DensityPerSqm = 0.02f,
+                ScaleRange = new Vector2(0.9f, 1.5f),
+            },
+            new ScatterLayer
+            {
+                Name = "Seaweed",
+                Prefabs = FindPrefabs(TropicalRoot, "SM_Env_Seaweed_01", "SM_Env_Seaweed_02",
+                    "SM_Env_Seaweed_03"),
+                MinHeight = -3.6f, MaxHeight = -0.6f, MaxSlopeDeg = 30f,
+                AllowedBiomes = { Biome.Ocean },
+                MinTemp01 = 0.4f,
+                DensityPerSqm = 0.012f,
+                ScaleRange = new Vector2(0.9f, 1.6f),
+            },
+            new ScatterLayer
+            {
+                Name = "Coral",
+                Prefabs = FindPrefabs(TropicalRoot, "SM_Prop_Coral_01", "SM_Prop_Coral_03",
+                    "SM_Prop_Coral_05", "SM_Prop_Coral_07", "SM_Prop_Coral_09", "SM_Prop_Coral_11"),
+                MinHeight = -3.2f, MaxHeight = -0.9f, MaxSlopeDeg = 26f,
+                AllowedBiomes = { Biome.Ocean },
+                MinTemp01 = 0.55f, YOffset = -0.05f,
+                DensityPerSqm = 0.008f, CanopyRadius = 0.8f,
+                ScaleRange = new Vector2(0.8f, 1.5f),
+                IsVegetation = false,
+            },
+        };
+
         /// <summary>
         /// Idempotent migration for pre-existing config assets: wetland
         /// waders stand in the shallows (serialized MaxWaterDepth defaults
-        /// to 0 = dry ground only), and the inland cliff-wall layers are
-        /// appended if the asset predates the slope tracer.
+        /// to 0 = dry ground only), and layer sets added after the asset was
+        /// created (cliff walls, aquatic flora) are appended or refreshed.
         /// </summary>
         private static void MigrateConfig(ScatterConfig cfg)
         {
@@ -288,15 +370,24 @@ namespace AniML.EditorTools
                     dirty = true;
                 }
             }
-            // The builder is the source of truth for wall layers: replace in
-            // place so prefab-set corrections propagate to existing assets.
-            foreach (var wall in BuildCliffWallLayers())
+            // The builders are the source of truth for these layer sets:
+            // replace in place so corrections propagate to existing assets.
+            foreach (var layer in BuildCliffWallLayers())
             {
-                int idx = cfg.Layers.FindIndex(l => l.Name == wall.Name);
+                int idx = cfg.Layers.FindIndex(l => l.Name == layer.Name);
                 if (idx >= 0)
-                    cfg.Layers[idx] = wall;
+                    cfg.Layers[idx] = layer;
                 else
-                    cfg.Layers.Add(wall);
+                    cfg.Layers.Add(layer);
+                dirty = true;
+            }
+            foreach (var layer in BuildAquaticLayers())
+            {
+                int idx = cfg.Layers.FindIndex(l => l.Name == layer.Name);
+                if (idx >= 0)
+                    cfg.Layers[idx] = layer;
+                else
+                    cfg.Layers.Add(layer);
                 dirty = true;
             }
             if (dirty)
@@ -607,6 +698,8 @@ namespace AniML.EditorTools
 
             foreach (var wall in BuildCliffWallLayers())
                 L.Add(wall);
+            foreach (var aq in BuildAquaticLayers())
+                L.Add(aq);
 
             AssetDatabase.CreateAsset(cfg, ScatterConfigPath);
             AssetDatabase.SaveAssets();
@@ -664,6 +757,16 @@ namespace AniML.EditorTools
 
         private const string MeadowRoot = "Assets/Synty/PolygonNatureBiomes/PNB_Meadow_Forest";
         private const string AridRoot = "Assets/Synty/PolygonNatureBiomes/PNB_Arid_Desert";
+        private const string GenericRoot = "Assets/Synty/PolygonGeneric";
+        private const string CoreRoot = "Assets/Synty/PNB_Core";
+
+        private static GameObject LoadCorePrefab(string name)
+        {
+            var list = FindPrefabs(CoreRoot, name);
+            if (list.Count == 0)
+                Debug.LogWarning($"[AniML] Core prefab not found: {name}");
+            return list.Count > 0 ? list[0] : null;
+        }
         private const string SwampRoot = "Assets/Synty/PolygonNatureBiomes/PNB_Swamp_Marshland";
         private const string TropicalRoot = "Assets/Synty/PolygonNatureBiomes/PNB_Tropical_Jungle";
         private const string AlpineRoot = "Assets/Synty/PolygonNatureBiomes/PNB_Alpine_Mountain";
@@ -868,24 +971,90 @@ namespace AniML.EditorTools
 
         private static Material EnsureWaterMaterial()
         {
+            var stylized = Shader.Find("AniML/StylizedWater");
             var mat = AssetDatabase.LoadAssetAtPath<Material>(WaterMaterialPath);
             if (mat == null)
             {
-                mat = new Material(Shader.Find("Universal Render Pipeline/Lit")) { name = "M_Water_Placeholder" };
-                mat.SetFloat("_Surface", 1f); // transparent
-                mat.SetFloat("_Blend", 0f);
-                mat.SetOverrideTag("RenderType", "Transparent");
-                mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-                mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-                mat.SetInt("_ZWrite", 0);
-                mat.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
-                mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
-                mat.SetColor("_BaseColor", new Color(0.25f, 0.5f, 0.62f, 0.72f));
-                mat.SetFloat("_Smoothness", 0.85f);
+                mat = new Material(stylized != null ? stylized : Shader.Find("Universal Render Pipeline/Lit"))
+                    { name = "M_Water_Placeholder" };
                 AssetDatabase.CreateAsset(mat, WaterMaterialPath);
                 AssetDatabase.SaveAssets();
             }
+            // Migrate pre-stylized assets onto the real water shader.
+            if (stylized != null && mat.shader != stylized)
+            {
+                mat.shader = stylized;
+                EditorUtility.SetDirty(mat);
+                AssetDatabase.SaveAssets();
+            }
             return mat;
+        }
+
+        private const string RiverMaterialPath = "Assets/_Project/Art/Materials/M_Water_River.mat";
+
+        private static Material EnsureRiverWaterMaterial()
+        {
+            var stylized = Shader.Find("AniML/StylizedWater");
+            if (stylized == null)
+                return EnsureWaterMaterial();
+            var mat = AssetDatabase.LoadAssetAtPath<Material>(RiverMaterialPath);
+            if (mat == null)
+            {
+                mat = new Material(stylized) { name = "M_Water_River" };
+                mat.SetFloat("_FlowUV", 1f);
+                mat.SetColor("_ShallowColor", new Color(0.42f, 0.72f, 0.74f, 0.6f));
+                mat.SetFloat("_DepthRange", 3f);
+                mat.SetFloat("_FoamDepth", 0.85f);
+                AssetDatabase.CreateAsset(mat, RiverMaterialPath);
+                AssetDatabase.SaveAssets();
+            }
+            return mat;
+        }
+
+        /// <summary>
+        /// Wire the ambient-effects slots: cascade FX and biome fauna. Every
+        /// key matches a Species/Spawn call in AmbientFX.PlaceFauna.
+        /// </summary>
+        private static void WireAmbientFX(AmbientFX fx)
+        {
+            void Wire(string key, string packRoot, string prefabName)
+            {
+                var list = FindPrefabs(packRoot, prefabName);
+                if (list.Count > 0)
+                    fx.SetSlot(key, list[0]);
+                else
+                    Debug.LogWarning($"[AniML] AmbientFX prefab not found: {prefabName} under {packRoot}");
+            }
+
+            Wire("CascadeFoam", GenericRoot, "FX_Waterfall_Foam_01");
+            Wire("CascadeImpact", TropicalRoot, "FX_Waterfall_Impact_01");
+            Wire("Hawk", AlpineRoot, "FX_Hawk_01");
+            Wire("Vulture", AridRoot, "FX_Vulture_01");
+            Wire("Birds", TropicalRoot, "FX_Birds_01");
+            Wire("Cranes", SwampRoot, "FX_Cranes_01");
+            Wire("Frogs", SwampRoot, "FX_Frogs_01");
+            Wire("Fireflies", SwampRoot, "FX_Fireflies_01");
+            Wire("Butterflies", MeadowRoot, "FX_Butterflies_Monarch_01");
+            Wire("Dragonflies", SwampRoot, "FX_Dragonflies_01");
+            Wire("Crabs", TropicalRoot, "FX_Crabs_01");
+            Wire("FishSmall", TropicalRoot, "FX_Fish_Small_01");
+            Wire("FishMedium", TropicalRoot, "FX_Fish_Medium_01");
+            Wire("Tumbleweed", AridRoot, "FX_TumbleWeed_01");
+            Wire("DustBlowing", AridRoot, "FX_Dust_Blowing_01");
+            Wire("Bats", SwampRoot, "FX_Bats_01");
+            // World memory props.
+            Wire("BoneSkull", SwampRoot, "SM_Prop_Bone_Skull_01");
+            Wire("BoneRibcage", SwampRoot, "SM_Prop_Bone_Ribcage_01");
+            Wire("BonePile", SwampRoot, "SM_Prop_Bone_Pile_01");
+            Wire("BoneSpine", SwampRoot, "SM_Prop_Bone_Spine_01");
+            Wire("MushroomA", MeadowRoot, "SM_Prop_Mushroom_01");
+            Wire("MushroomB", MeadowRoot, "SM_Prop_Mushroom_02");
+            Wire("MushroomC", MeadowRoot, "SM_Prop_Mushroom_03");
+            Wire("VineA", TropicalRoot, "SM_Env_Vines_01");
+            Wire("VineB", TropicalRoot, "SM_Env_Vines_02");
+            Wire("BurnSnagA", AridRoot, "SM_Env_Tree_Dead_01");
+            Wire("BurnSnagB", AridRoot, "SM_Env_Tree_Dead_02");
+            EditorUtility.SetDirty(fx);
         }
     }
 }

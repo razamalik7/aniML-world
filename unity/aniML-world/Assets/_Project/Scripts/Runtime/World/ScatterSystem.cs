@@ -157,8 +157,15 @@ namespace AniML.World
                         continue;
 
                     // ...or drowned under a lake/pond. Waders (reeds) tolerate
-                    // shallows up to their MaxWaterDepth.
-                    if (_world.StandingWaterDepth(x, z) > layer.MaxWaterDepth)
+                    // shallows up to their MaxWaterDepth; floaters (lily
+                    // pads) instead REQUIRE water and ride its surface.
+                    float wDepth = _world.StandingWaterDepth(x, z);
+                    if (layer.OnWaterSurface)
+                    {
+                        if (wDepth < layer.MinWaterDepth)
+                            continue;
+                    }
+                    else if (wDepth > layer.MaxWaterDepth)
                         continue;
 
                     // Species grow only in their biomes.
@@ -208,11 +215,12 @@ namespace AniML.World
                         continue;
 
                     float scale = Mathf.Lerp(layer.ScaleRange.x, layer.ScaleRange.y, (float)rng.NextDouble());
+                    float baseY = layer.OnWaterSurface ? h + wDepth + 0.05f : h;
                     candidates.Add(new Candidate
                     {
                         LayerIndex = li,
                         Variant = rng.Next(layer.Prefabs.Count),
-                        Pos = new Vector3(x, h + layer.YOffset * scale, z),
+                        Pos = new Vector3(x, baseY + layer.YOffset * scale, z),
                         Scale = scale,
                         Yaw = (float)rng.NextDouble() * 360f,
                         TiltX = ((float)rng.NextDouble() - 0.5f) * 2f * layer.MaxTiltDeg,

@@ -12,6 +12,7 @@ namespace AniML.World
         TemperateIsles,   // green island, mixed forests, one alpine massif
         AlpineGranite,    // colder, bigger ranges, low snowline, granite country
         Canyonlands,      // hot and dry: mesas, red rock, THE canyon writ large
+        VolcanoIsle,      // tropical lowlands around an ash cone with live lava
     }
 
     /// <summary>

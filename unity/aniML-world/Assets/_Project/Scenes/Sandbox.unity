@@ -14,10 +14,10 @@ OcclusionCullingSettings:
 RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 10
-  m_Fog: 0
-  m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-  m_FogMode: 3
-  m_FogDensity: 0.01
+  m_Fog: 1
+  m_FogColor: {r: 0.75, g: 0.82, b: 0.92, a: 1}
+  m_FogMode: 2
+  m_FogDensity: 0.0012
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
   m_AmbientSkyColor: {r: 0.62, g: 0.72, b: 0.85, a: 1}
@@ -131,6 +131,9 @@ GameObject:
   - component: {fileID: 779027380}
   - component: {fileID: 779027382}
   - component: {fileID: 779027383}
+  - component: {fileID: 779027384}
+  - component: {fileID: 779027386}
+  - component: {fileID: 779027385}
   m_Layer: 0
   m_Name: World
   m_TagString: Untagged
@@ -153,6 +156,7 @@ MonoBehaviour:
   settings: {fileID: 11400000, guid: 0df46b8bd9638f145a7790cb828401a8, type: 2}
   terrainMaterial: {fileID: 2100000, guid: 774472c0bfb92634ba936bf607fac88f, type: 2}
   waterMaterial: {fileID: 2100000, guid: 008a1da8e5e0daf46b4fc59523ae0c27, type: 2}
+  riverWaterMaterial: {fileID: 2100000, guid: be9de8d096d079749bde11a54e425fed, type: 2}
 --- !u!4 &779027381
 Transform:
   m_ObjectHideFlags: 0
@@ -231,6 +235,108 @@ MonoBehaviour:
   matSlots:
   - Key: RedArch
     Mat: {fileID: 2100000, guid: ebf4b1a93b49a084b94b2b829dff1f13, type: 2}
+--- !u!114 &779027384
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 779027379}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54f23723ea9e87b41bd2e71753220aea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: AniML.Runtime::AniML.World.AmbientFX
+  slots:
+  - Key: CascadeFoam
+    Prefab: {fileID: 4190246949986612809, guid: 141de425b875475f98c35e49d1b2e24e, type: 3}
+  - Key: CascadeImpact
+    Prefab: {fileID: 2787229657984615751, guid: 85fbe13ec16cd8246b5de6219299982d, type: 3}
+  - Key: Hawk
+    Prefab: {fileID: 6305617143920761144, guid: 48e98328d113c2f4e9444eacbc10089e, type: 3}
+  - Key: Vulture
+    Prefab: {fileID: 6305617143920761144, guid: 349bbe3d6d45fad46bfbdc6f21b9229e, type: 3}
+  - Key: Birds
+    Prefab: {fileID: 7117233987571976573, guid: 5dd0a64f6723b7a48b175803bc4877a2, type: 3}
+  - Key: Cranes
+    Prefab: {fileID: 2984413015138160777, guid: 46bc56a033ac04f418b8c002981cf4b0, type: 3}
+  - Key: Frogs
+    Prefab: {fileID: 4674023183256340469, guid: bf21cceda753d1845af1e0e42a75debc, type: 3}
+  - Key: Fireflies
+    Prefab: {fileID: 8329243932502936923, guid: 862d04a2a4d036543b0d5aa01d6ec31a, type: 3}
+  - Key: Butterflies
+    Prefab: {fileID: 6892948934796494448, guid: ddd2cc2f155183b4c98936943da8b9ab, type: 3}
+  - Key: Dragonflies
+    Prefab: {fileID: 6999574364248595065, guid: b069fcf720480ff42838cdf18ec6bcbd, type: 3}
+  - Key: Crabs
+    Prefab: {fileID: 9175394212889537587, guid: f7ebb8cfb1de7244fa13cdf55b73abb9, type: 3}
+  - Key: FishSmall
+    Prefab: {fileID: 4882420744396746434, guid: f9b7b5ac5f540044484fbe573a7a8de8, type: 3}
+  - Key: FishMedium
+    Prefab: {fileID: 2676612346577055359, guid: a699b2ddf4208e642a587252bd5f4039, type: 3}
+  - Key: Tumbleweed
+    Prefab: {fileID: 7297706372221181266, guid: 7cebb9d86a10e8e42b15c511dccead1f, type: 3}
+  - Key: DustBlowing
+    Prefab: {fileID: 7914251501016900117, guid: 080bfd2a834e01f498b2f42ce57e6bff, type: 3}
+  - Key: Bats
+    Prefab: {fileID: 7930665782911090628, guid: 4aee94cfa0a64f54c948fb320fe38889, type: 3}
+  - Key: BoneSkull
+    Prefab: {fileID: 6911616843658591795, guid: d2354facb3b1d554a87b9bc1a8fe02ac, type: 3}
+  - Key: BoneRibcage
+    Prefab: {fileID: 1563727270695175483, guid: e486c3c89013af14d8ac49e1fac8c8ac, type: 3}
+  - Key: BonePile
+    Prefab: {fileID: 6473291669917564447, guid: eae230d9852e5eb49b16fc45a48f7553, type: 3}
+  - Key: BoneSpine
+    Prefab: {fileID: 3979186606205808155, guid: 1645d2dca968f1b4c9ba02bac835c660, type: 3}
+  - Key: MushroomA
+    Prefab: {fileID: 657731378887634579, guid: 2a619fc8aae95784498b9017336465d6, type: 3}
+  - Key: MushroomB
+    Prefab: {fileID: 4476546647263128547, guid: e52b14c35175e374f8604407a38ba3bb, type: 3}
+  - Key: MushroomC
+    Prefab: {fileID: 1064464138682783183, guid: 553f1bc39902e7249a45d1733467e11e, type: 3}
+  - Key: VineA
+    Prefab: {fileID: 2851894723709176460, guid: 6baeaf32e654bf447a92fa4e4110a607, type: 3}
+  - Key: VineB
+    Prefab: {fileID: 970392154463993383, guid: ffa8f59f97997f644aa4d87ac5433d6c, type: 3}
+  - Key: BurnSnagA
+    Prefab: {fileID: 7527004103962423645, guid: 5ee5b0b0211fbca44807db7e785feb3e, type: 3}
+  - Key: BurnSnagB
+    Prefab: {fileID: 7989243879905098700, guid: e13d1e297156f4544ab94d99144112c0, type: 3}
+--- !u!114 &779027385
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 779027379}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0797f76e7fc4df04884272722ff1fb81, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: AniML.Runtime::AniML.World.WeatherSystem
+  slots:
+  - Key: Rain
+    Prefab: {fileID: 1614871313106958639, guid: 32b4889a0597f4643946f922c4161e40, type: 3}
+  - Key: Snow
+    Prefab: {fileID: 1432029940940893571, guid: 73bd0be678270ca4e85be3edf52d3185, type: 3}
+  minSpellSeconds: 50
+  maxSpellSeconds: 140
+--- !u!114 &779027386
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 779027379}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de9aefa008283f243a1b37c9b8cc8956, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: AniML.Runtime::AniML.World.SkySystem
+  TimeOfDay: 10.5
+  HoursPerSecond: 0.02
+  SunAzimuth: 65
+  sun: {fileID: 2122057816}
 --- !u!1 &981988358
 GameObject:
   m_ObjectHideFlags: 0
@@ -511,8 +617,8 @@ Light:
   m_Enabled: 1
   serializedVersion: 13
   m_Type: 1
-  m_Color: {r: 1, g: 0.956, b: 0.839, a: 1}
-  m_Intensity: 1
+  m_Color: {r: 1, g: 0.96, b: 0.88, a: 1}
+  m_Intensity: 1.15
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -574,7 +680,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2122057815}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.40821794, y: -0.23456973, z: 0.10938166, w: 0.8754261}
+  m_LocalRotation: {x: 0.49610573, y: 0.43451196, z: -0.31605422, w: 0.68204707}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0

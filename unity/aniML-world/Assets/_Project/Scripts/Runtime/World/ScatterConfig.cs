@@ -45,6 +45,10 @@ namespace AniML.World
         public bool PreferRocky = false;
         [Tooltip("Maximum standing-water depth (m) tolerated. 0 = dry ground only; reeds wade.")]
         public float MaxWaterDepth = 0f;
+        [Tooltip("Float ON the water surface (lily pads) instead of standing on the bed.")]
+        public bool OnWaterSurface = false;
+        [Tooltip("OnWaterSurface only: minimum water depth (m) required.")]
+        public float MinWaterDepth = 0.2f;
         [Tooltip("Vertical sink (fraction of scale) so big rocks sit IN the ground, not on it.")]
         public float YOffset = 0f;
         [Tooltip("Random tilt in degrees — rocks settle, plants lean.")]
