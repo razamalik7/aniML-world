@@ -334,7 +334,9 @@ namespace AniML.World
                         continue;
                     float scale = cliff.Scale * Mathf.Lerp(layer.ScaleRange.x, layer.ScaleRange.y, (float)rng.NextDouble());
                     var pos = cliff.Pos + Vector3.up * layer.YOffset * scale;
-                    var matrix = Matrix4x4.TRS(pos, Quaternion.Euler(0f, cliff.YawDeg, 0f), Vector3.one * scale);
+                    // Lean tops 12° into the hill so downhill edges stay seated.
+                    var rot = Quaternion.Euler(0f, cliff.YawDeg, 0f) * Quaternion.Euler(-12f, 0f, 0f);
+                    var matrix = Matrix4x4.TRS(pos, rot, Vector3.one * scale);
                     chunk.Instances.Add(new Instance { LayerIndex = li, Position = pos, Scale = scale });
 
                     foreach (var vr in GetVariantRenderers(li, rng.Next(layer.Prefabs.Count), layer))

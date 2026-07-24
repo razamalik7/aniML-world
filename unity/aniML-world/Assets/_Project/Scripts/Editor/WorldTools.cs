@@ -91,19 +91,31 @@ namespace AniML.EditorTools
             {
                 foreach (var site in worldComp.Wonders)
                 {
+                    float rad = site.YawDeg * Mathf.Deg2Rad;
+                    var facing = new Vector3(Mathf.Sin(rad), 0f, Mathf.Cos(rad));
                     Vector3 eye;
-                    if (site.Kind == "Waterfall")
+                    Vector3 target = site.Pos + Vector3.up * 5f;
+                    switch (site.Kind)
                     {
-                        // Stand downstream, look back up at the falls.
-                        float rad = site.YawDeg * Mathf.Deg2Rad;
-                        var downstream = new Vector3(Mathf.Sin(rad), 0f, Mathf.Cos(rad));
-                        eye = site.Pos + downstream * 42f + Vector3.up * 12f;
+                        case "Waterfall":
+                            // Stand downstream, look back up at the falls.
+                            eye = site.Pos + facing * 42f + Vector3.up * 12f;
+                            break;
+                        case "Cave":
+                            // Stand on the approach, look into the mouth.
+                            eye = site.Pos + facing * 40f + Vector3.up * 12f;
+                            target = site.Pos + Vector3.up * 3f;
+                            break;
+                        case "RedArch":
+                            // Hover beside the rim, arch in frame, slot behind.
+                            eye = site.Pos - facing * 26f + Vector3.up * 14f;
+                            target = site.Pos + facing * 20f + Vector3.down * 6f;
+                            break;
+                        default:
+                            eye = site.Pos + new Vector3(34f, 26f, -34f);
+                            break;
                     }
-                    else
-                    {
-                        eye = site.Pos + new Vector3(34f, 26f, -34f);
-                    }
-                    Capture(eye, Quaternion.LookRotation(site.Pos + Vector3.up * 5f - eye), 50f,
+                    Capture(eye, Quaternion.LookRotation(target - eye), 50f,
                         Path.Combine(outDir, $"wonder_{site.Kind}.png"));
                 }
                 if (worldComp.Summits.Count > 0)
@@ -220,7 +232,7 @@ namespace AniML.EditorTools
             CliffWallLayer("CliffWallGranite", CliffFamily.Granite, AlpineRoot,
                 new Vector2(1.5f, 2.2f),
                 "SM_Env_Rock_Rough_01", "SM_Env_Rock_Rough_02",
-                "SM_Env_Rock_01", "SM_Env_Rock_02", "SM_Env_Rock_05", "SM_Env_Rock_010"),
+                "SM_Env_Rock_01", "SM_Env_Rock_010"),
             CliffWallLayer("CliffWallRedRock", CliffFamily.RedRock, AridRoot,
                 new Vector2(0.85f, 1.2f),
                 "SM_Env_Rock_Cliff_01", "SM_Env_Rock_Cliff_02", "SM_Env_Rock_Cliff_03",
@@ -764,6 +776,9 @@ namespace AniML.EditorTools
             Wire("SummitRangeA", AlpineRoot, "SM_Env_MountainRange_01");
             Wire("SummitRangeB", AlpineRoot, "SM_Env_MountainRange_02");
             Wire("SummitRangeC", AlpineRoot, "SM_Env_MountainRange_03");
+            Wire("RedArch", AridRoot, "SM_Env_Rock_Arch_01");
+            Wire("IceArch", AlpineRoot, "SM_Env_Rock_Cliff_Arch_01");
+            Wire("Cave", TropicalRoot, "SM_Env_Rock_Cave_01");
             EditorUtility.SetDirty(placer);
         }
 

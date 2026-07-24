@@ -95,6 +95,8 @@ namespace AniML.World
         public Color Rock = new Color(0.52f, 0.48f, 0.44f);
         public Color Snow = new Color(0.94f, 0.95f, 0.97f);
         public Color RiverMud = new Color(0.55f, 0.48f, 0.34f);
+        public Color CanyonRockLight = new Color(0.72f, 0.45f, 0.28f);
+        public Color CanyonRockDark = new Color(0.52f, 0.29f, 0.20f);
         public Color Scrub = new Color(0.63f, 0.58f, 0.33f);
         public Color Wetland = new Color(0.30f, 0.46f, 0.31f);
         public Color AlpineMeadow = new Color(0.47f, 0.60f, 0.40f);

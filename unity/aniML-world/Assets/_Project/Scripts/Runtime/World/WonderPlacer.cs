@@ -95,6 +95,23 @@ namespace AniML.World
                     case "WhaleBones":
                         Spawn(root, "WhaleBones", site.Pos, site.YawDeg, Vector3.one * 1.15f);
                         break;
+
+                    case "RedArch":
+                        Spawn(root, "RedArch", site.Pos + Vector3.down * 0.5f, site.YawDeg,
+                            Vector3.one * site.Scale);
+                        break;
+
+                    case "IceArch":
+                        Spawn(root, "IceArch", site.Pos + Vector3.down * 0.4f, site.YawDeg,
+                            Vector3.one * 1.4f);
+                        break;
+
+                    case "Cave":
+                        // Pivot sits ~3.3 units above the shell's base; lift so
+                        // the cavity floor meets the carved terrain floor.
+                        Spawn(root, "Cave", site.Pos + Vector3.up * (3.0f * site.Scale), site.YawDeg,
+                            Vector3.one * site.Scale);
+                        break;
                 }
             }
 

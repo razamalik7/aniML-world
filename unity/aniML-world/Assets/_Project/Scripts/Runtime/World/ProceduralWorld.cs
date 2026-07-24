@@ -63,6 +63,9 @@ namespace AniML.World
         private readonly List<SummitSite> _summits = new();
         public IReadOnlyList<SummitSite> Summits => _summits;
 
+        // Which river carries THE canyon (-1 = none).
+        private int _gorgeRiver = -1;
+
         private float[,] _freshDistGrid;
 
         // Natural wonders: singular one-per-world features at computed sites.
@@ -126,11 +129,11 @@ namespace AniML.World
             BakeHeightGrid();
             DetectLakes();
             BakeMoistureGrid();
-            PlaceForests();
+            ComputeSummits();      // raises summit pedestals in the grid,
+            PlaceForests();        // so everything after sees them
             PlaceOutcrops();
             TraceCoastCliffs();
             TraceInlandCliffs();
-            ComputeSummits();
             ComputeWonders();
         }
 
@@ -219,6 +222,115 @@ namespace AniML.World
                     _wonders[_wonders.Count - 1] = w;
                 }
             }
+
+            // THE red arch: on the canyon rim, spanning parallel to the drop
+            // so you can stand under it and look down the slot.
+            if (_gorgeRiver >= 0)
+            {
+                var path = _rivers[_gorgeRiver];
+                int idx = Mathf.Clamp(Mathf.RoundToInt(path.Count * 0.5f), 0, path.Count - 2);
+                var p = path[idx];
+                var next = path[idx + 1];
+                var dir = new Vector2(next.x - p.x, next.z - p.z).normalized;
+                var side = new Vector2(-dir.y, dir.x);
+                float off = p.w + 9f;
+                var rim = new Vector2(p.x + side.x * off, p.z + side.y * off);
+                _wonders.Add(new WonderSite
+                {
+                    Kind = "RedArch",
+                    Pos = new Vector3(rim.x, SampleHeight(rim.x, rim.y), rim.y),
+                    YawDeg = Mathf.Atan2(dir.x, dir.y) * Mathf.Rad2Deg,
+                    Scale = 1.3f,
+                });
+                // The arch stands ON the rim wall line — clear the rim crag
+                // pieces around it so it reads as the feature, not one rock
+                // among many.
+                _inlandCliffs.RemoveAll(c =>
+                    (c.Pos.x - rim.x) * (c.Pos.x - rim.x)
+                    + (c.Pos.z - rim.y) * (c.Pos.z - rim.y) < 20f * 20f);
+            }
+
+            // THE ice arch: out on the high snowfield (the Alpine "arch" is
+            // honestly glacier ice — so it lives where ice belongs).
+            TryPlaceWonder(rng, "IceArch", 240,
+                (x, z) => SampleBiome(x, z) == Biome.Snow);
+
+            // THE cave: bored into the tallest mossy cliff face — the shell
+            // mesh provides the overhang a heightfield can't.
+            int bestSeg = -1;
+            float bestSegScale = 1.4f;
+            for (int i = 0; i < _inlandCliffs.Count; i++)
+            {
+                var c = _inlandCliffs[i];
+                if (c.Family != CliffFamily.Mossy || c.Scale < bestSegScale)
+                    continue;
+                // The approach in front of the mouth must be dry, walkable land
+                // (this rules out lake-bank cliffs whose feet stand in water).
+                float crad = c.YawDeg * Mathf.Deg2Rad;
+                var cdown = new Vector2(Mathf.Sin(crad), Mathf.Cos(crad));
+                float ax = c.Pos.x + cdown.x * 7f, az = c.Pos.z + cdown.y * 7f;
+                if (StandingWaterDepth(ax, az) > 0.05f
+                    || SampleHeight(ax, az) < settings.SeaLevel + 1.5f
+                    || RiverInfluence01(ax, az) > 0.2f)
+                    continue;
+                bool clear = true;
+                foreach (var w in _wonders)
+                {
+                    float dx = c.Pos.x - w.Pos.x, dz = c.Pos.z - w.Pos.z;
+                    if (dx * dx + dz * dz < 60f * 60f) { clear = false; break; }
+                }
+                if (clear) { bestSeg = i; bestSegScale = c.Scale; }
+            }
+            if (bestSeg >= 0)
+            {
+                var seg = _inlandCliffs[bestSeg];
+                float rad = seg.YawDeg * Mathf.Deg2Rad;
+                var down = new Vector2(Mathf.Sin(rad), Mathf.Cos(rad));
+                var mouth = new Vector2(seg.Pos.x, seg.Pos.z);
+                var center = mouth - down * 6f;     // pushed back into the hill
+                float floorY = SampleHeight(mouth.x + down.x * 5f, mouth.y + down.y * 5f);
+                CarveCaveFloor(center, 13f, floorY);
+                _wonders.Add(new WonderSite
+                {
+                    Kind = "Cave",
+                    Pos = new Vector3(center.x, floorY, center.y),
+                    YawDeg = seg.YawDeg,
+                    Scale = 2.2f,
+                });
+                // Clear crag pieces that would collide with the shell or
+                // crowd the mouth — the same wall run continues on both sides.
+                _inlandCliffs.RemoveAll(c =>
+                    (c.Pos.x - center.x) * (c.Pos.x - center.x)
+                    + (c.Pos.z - center.y) * (c.Pos.z - center.y) < 27f * 27f);
+            }
+        }
+
+        /// <summary>
+        /// Scoop the height grid down to the cave-floor level within the
+        /// shell's footprint, so terrain never pokes up through the cavity.
+        /// </summary>
+        private void CarveCaveFloor(Vector2 center, float radius, float floorY)
+        {
+            float half = settings.WorldSize * 0.5f;
+            int reach = Mathf.CeilToInt(radius / _heightCell) + 1;
+            int cgx = Mathf.RoundToInt((center.x + half) / _heightCell);
+            int cgz = Mathf.RoundToInt((center.y + half) / _heightCell);
+            for (int dz = -reach; dz <= reach; dz++)
+            {
+                for (int dx = -reach; dx <= reach; dx++)
+                {
+                    int gx = cgx + dx, gz = cgz + dz;
+                    if (gx < 0 || gz < 0 || gx >= _heightRes || gz >= _heightRes)
+                        continue;
+                    float d = Mathf.Sqrt(dx * dx + dz * dz) * _heightCell;
+                    if (d > radius)
+                        continue;
+                    float t = Mathf.SmoothStep(1f, 0f, d / radius);
+                    float target = Mathf.Lerp(_heightGrid[gx, gz], floorY, t);
+                    if (target < _heightGrid[gx, gz])
+                        _heightGrid[gx, gz] = target;
+                }
+            }
         }
 
         private bool TryPlaceWonder(System.Random rng, string kind, int attempts,
@@ -303,10 +415,24 @@ namespace AniML.World
         {
             float raw = RawHeight(x, z);
             GetRiverData(x, z, out float influence, out float bed);
-            // Deep carves (the gorge) get sharpened influence → near-vertical
-            // canyon walls instead of gentle banks.
+            // Deep carves (the canyon) get sharpened influence → near-vertical
+            // walls instead of gentle banks.
             if (influence > 0f && raw - bed > 7f)
+            {
                 influence = Mathf.Pow(influence, 0.45f);
+
+                // Truly deep walls terrace like layered sedimentary rock:
+                // flat treads stepping down through smooth risers.
+                if (raw - bed > 14f)
+                {
+                    const float steps = 4f;
+                    float t = influence * steps;
+                    float f = t - Mathf.Floor(t);
+                    float stepped = (Mathf.Floor(t)
+                        + Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((f - 0.35f) / 0.3f))) / steps;
+                    influence = Mathf.Lerp(influence, stepped, 0.8f);
+                }
+            }
             float h = influence <= 0f ? raw
                 // Blend down toward the (monotonically descending) river bed;
                 // min() so banks in local dips are never raised.
@@ -1105,9 +1231,12 @@ namespace AniML.World
                 if (footY < settings.SeaLevel + 0.5f)
                     return;
 
+                // Sink proportional to wall size — the pack meshes have
+                // mixed pivots, and on steep ground a shallow embed leaves
+                // downhill edges floating in air.
                 _inlandCliffs.Add(new InlandCliff
                 {
-                    Pos = new Vector3(footX, footY - 0.6f, footZ),
+                    Pos = new Vector3(footX, footY - (1.0f + drop * 0.12f), footZ),
                     YawDeg = Mathf.Atan2(down.x, down.y) * Mathf.Rad2Deg
                              + ((float)rng.NextDouble() - 0.5f) * 12f,
                     Scale = Mathf.Clamp(drop / 9f, 0.9f, 2.6f),
@@ -1155,6 +1284,11 @@ namespace AniML.World
                         fam = CliffFamily.RedRock;
                     else
                         fam = CliffFamily.Mossy;
+
+                    // Canyon walls are always red rock, whatever grows above.
+                    GetRiverData(x, z, out float rinf, out float rbed);
+                    if (rinf > 0.15f && h - rbed > 10f)
+                        fam = CliffFamily.RedRock;
 
                     // Collect the run: seed + contour march both directions.
                     var run = new List<Vector2> { new(x, z) };
@@ -1251,13 +1385,57 @@ namespace AniML.World
                     }
                 }
 
+                float scale = Mathf.Clamp((h - settings.SeaLevel) / 16f, 4.5f, 7f);
                 _summits.Add(new SummitSite
                 {
                     Pos = new Vector3(x, h, z),
                     YawDeg = bestYaw + ((float)rng.NextDouble() - 0.5f) * 10f,
-                    Scale = Mathf.Clamp((h - settings.SeaLevel) / 14f, 5.5f, 9f),
+                    Scale = scale,
                     Variant = _summits.Count,
                 });
+
+                // Seat the range in terrain: raise a shoulder pedestal under
+                // its footprint so the single-sided shell never shows its
+                // hollow underside where the ground falls away.
+                RaiseSummitPedestal(x, z, h, scale);
+            }
+        }
+
+        /// <summary>
+        /// Raise the height grid to a gentle dome at the summit mesh's base
+        /// height across its footprint, blending back to natural terrain
+        /// beyond. The blend ring comes out steep, which the cliff tracer
+        /// (running after) dresses in crags — a natural rocky shoulder.
+        /// </summary>
+        private void RaiseSummitPedestal(float x, float z, float summitH, float scale)
+        {
+            float half = settings.WorldSize * 0.5f;
+            float baseY = summitH - scale * 2.2f + 1.5f;   // matches WonderPlacer sink
+            float radius = 12.5f * scale;
+            const float blend = 42f;
+            int reach = Mathf.CeilToInt((radius + blend) / _heightCell);
+            int cgx = Mathf.RoundToInt((x + half) / _heightCell);
+            int cgz = Mathf.RoundToInt((z + half) / _heightCell);
+
+            for (int dz = -reach; dz <= reach; dz++)
+            {
+                for (int dx = -reach; dx <= reach; dx++)
+                {
+                    int gx = cgx + dx, gz = cgz + dz;
+                    if (gx < 0 || gz < 0 || gx >= _heightRes || gz >= _heightRes)
+                        continue;
+                    float d = Mathf.Sqrt(dx * dx + dz * dz) * _heightCell;
+                    if (d > radius + blend)
+                        continue;
+                    float target;
+                    if (d <= radius)
+                        target = baseY - (d / radius) * 2.5f;
+                    else
+                        target = Mathf.Lerp(baseY - 2.5f, _heightGrid[gx, gz],
+                            Mathf.SmoothStep(0f, 1f, (d - radius) / blend));
+                    if (target > _heightGrid[gx, gz])
+                        _heightGrid[gx, gz] = target;
+                }
             }
         }
 
@@ -1358,18 +1536,18 @@ namespace AniML.World
                 }
             }
 
-            // THE gorge: the river with the highest source cuts a deep,
+            // THE canyon: the river with the highest source cuts a deep,
             // steep-walled canyon through its mid-run.
-            int gorgeRiver = -1;
+            _gorgeRiver = -1;
             float bestSource = 24f;
             for (int i = 0; i < _rivers.Count; i++)
             {
                 float src = RawHeight(_rivers[i][0].x, _rivers[i][0].z);
-                if (src > bestSource) { bestSource = src; gorgeRiver = i; }
+                if (src > bestSource) { bestSource = src; _gorgeRiver = i; }
             }
-            if (gorgeRiver >= 0)
+            if (_gorgeRiver >= 0)
             {
-                var path = _rivers[gorgeRiver];
+                var path = _rivers[_gorgeRiver];
                 for (int i = 0; i < path.Count; i++)
                 {
                     float t = i / (float)(path.Count - 1);
@@ -1378,10 +1556,24 @@ namespace AniML.World
                     if (gorge > 0f)
                     {
                         var p = path[i];
-                        p.y -= gorge * 9f;          // deepen the bed
-                        p.w *= 1f - gorge * 0.25f;  // narrow the slot
+                        p.y -= gorge * 30f;         // deepen the bed
+                        p.w *= 1f - gorge * 0.15f;  // narrow the slot
                         path[i] = p;
                     }
+                }
+
+                // Re-enforce monotonic descent — the carve taper would let
+                // the bed climb back OUT of the canyon (water uphill). The
+                // canyon instead shallows naturally as terrain descends to
+                // meet the bed. Floor above sea level so it never becomes a
+                // flooded fjord.
+                float runMin = float.MaxValue;
+                for (int i = 0; i < path.Count; i++)
+                {
+                    var p = path[i];
+                    runMin = Mathf.Min(runMin, p.y);
+                    p.y = Mathf.Max(runMin, settings.SeaLevel + 0.8f);
+                    path[i] = p;
                 }
             }
 
@@ -1595,6 +1787,19 @@ namespace AniML.World
             // River channels read as wet mud banks (blended, not a hard cut).
             if (river > 0.25f && h > 0f)
             {
+                // Canyon walls read as banded red strata, not mud.
+                GetRiverData(x, z, out _, out float bed);
+                float wall = height - bed;
+                if (wall > 9f)
+                {
+                    int band = Mathf.FloorToInt(wall / 3.5f);
+                    float n = (Mathf.PerlinNoise(x * 0.11f, z * 0.11f) - 0.5f) * 0.10f;
+                    var c = (band & 1) == 0 ? settings.CanyonRockDark : settings.CanyonRockLight;
+                    return new Color(
+                        Mathf.Clamp01(c.r + n),
+                        Mathf.Clamp01(c.g + n * 0.8f),
+                        Mathf.Clamp01(c.b + n * 0.6f));
+                }
                 var bank = h < settings.SandBandTop ? settings.Sand : settings.GrassLush;
                 return Color.Lerp(bank, settings.RiverMud, Mathf.InverseLerp(0.25f, 0.8f, river));
             }

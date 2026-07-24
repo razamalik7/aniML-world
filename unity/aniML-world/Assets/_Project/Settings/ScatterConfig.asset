@@ -821,8 +821,6 @@ MonoBehaviour:
     - {fileID: 2236629855792467630, guid: 71fb29e5dc238694ea35a6b83afe27db, type: 3}
     - {fileID: 3134720509254622281, guid: 02c6de2ee24bc484a9a181ec28cfc229, type: 3}
     - {fileID: 4724106104165785308, guid: c984ce3ffcfcde34d869d4ee01082a68, type: 3}
-    - {fileID: 1497840489996059409, guid: d6317274878cf7b4b8bb314093c1426e, type: 3}
-    - {fileID: 811305085591723145, guid: 22e91f0b02ff8424b84427abd63753e9, type: 3}
     - {fileID: 103171648435572364, guid: c62a208694a5e0a4cb922ed3626ca248, type: 3}
     MinHeight: 3
     MaxHeight: 30
