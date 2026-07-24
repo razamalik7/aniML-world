@@ -1,0 +1,161 @@
+// Terrain: 4-way texture splat (grass/dirt/rock/snow) blended by mesh
+// weights, tinted by per-face biome color, smooth stylized lighting.
+// Weights live in TEXCOORD1 (xyzw), tiling UVs are world-space XZ.
+Shader "AniML/TerrainVertexColor"
+{
+    Properties
+    {
+        _GrassTex("Grass", 2D) = "white" {}
+        _DirtTex("Dirt", 2D) = "white" {}
+        _RockTex("Rock", 2D) = "white" {}
+        _SnowTex("Snow", 2D) = "white" {}
+        _TileScale("Texture Tiling (per meter)", Range(0.05, 2)) = 0.35
+        _TintStrength("Biome Tint Strength", Range(0, 1)) = 0.55
+        _BaseColor("Global Tint", Color) = (1, 1, 1, 1)
+        _ToonSteps("Toon Steps (0 = smooth)", Range(0, 6)) = 0
+        _ShadowStrength("Shadow Strength", Range(0, 1)) = 0.75
+    }
+    SubShader
+    {
+        Tags { "RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" "Queue" = "Geometry" }
+
+        Pass
+        {
+            Name "ForwardLit"
+            Tags { "LightMode" = "UniversalForward" }
+
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE
+            #pragma multi_compile _ _SHADOWS_SOFT
+
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+
+            struct Attributes
+            {
+                float4 positionOS : POSITION;
+                float3 normalOS   : NORMAL;
+                float4 color      : COLOR;
+                float4 weights    : TEXCOORD1;   // grass, dirt, rock, snow
+            };
+
+            struct Varyings
+            {
+                float4 positionHCS : SV_POSITION;
+                float3 normalWS    : TEXCOORD0;
+                float3 positionWS  : TEXCOORD2;
+                float4 color       : COLOR;
+                float4 weights     : TEXCOORD1;
+            };
+
+            TEXTURE2D(_GrassTex); SAMPLER(sampler_GrassTex);
+            TEXTURE2D(_DirtTex);  SAMPLER(sampler_DirtTex);
+            TEXTURE2D(_RockTex);  SAMPLER(sampler_RockTex);
+            TEXTURE2D(_SnowTex);  SAMPLER(sampler_SnowTex);
+
+            CBUFFER_START(UnityPerMaterial)
+                float4 _BaseColor;
+                float _TileScale;
+                float _TintStrength;
+                float _ToonSteps;
+                float _ShadowStrength;
+            CBUFFER_END
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                OUT.positionWS = TransformObjectToWorld(IN.positionOS.xyz);
+                OUT.positionHCS = TransformWorldToHClip(OUT.positionWS);
+                OUT.normalWS = TransformObjectToWorldNormal(IN.normalOS);
+                OUT.color = IN.color;
+                OUT.weights = IN.weights;
+                return OUT;
+            }
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                float2 uv = IN.positionWS.xz * _TileScale;
+                float4 w = IN.weights;
+                float total = max(w.x + w.y + w.z + w.w, 1e-4);
+                w /= total;
+
+                float3 tex =
+                    SAMPLE_TEXTURE2D(_GrassTex, sampler_GrassTex, uv).rgb * w.x +
+                    SAMPLE_TEXTURE2D(_DirtTex,  sampler_DirtTex,  uv).rgb * w.y +
+                    SAMPLE_TEXTURE2D(_RockTex,  sampler_RockTex,  uv).rgb * w.z +
+                    SAMPLE_TEXTURE2D(_SnowTex,  sampler_SnowTex,  uv).rgb * w.w;
+
+                // Biome tint recolors the texture toward the palette without
+                // flattening it (strength 0 = raw texture, 1 = full tint).
+                float texLuma = dot(tex, float3(0.299, 0.587, 0.114));
+                float3 tinted = lerp(tex, IN.color.rgb * (texLuma * 1.6 + 0.2), _TintStrength);
+                float3 albedo = tinted * _BaseColor.rgb;
+
+                float3 n = normalize(IN.normalWS);
+                float4 shadowCoord = TransformWorldToShadowCoord(IN.positionWS);
+                Light mainLight = GetMainLight(shadowCoord);
+
+                float ndl = saturate(dot(n, mainLight.direction));
+                float lit = ndl;
+                if (_ToonSteps > 0.5)
+                {
+                    lit = floor(ndl * _ToonSteps) / max(_ToonSteps - 1.0, 1.0);
+                    lit = saturate(lit);
+                }
+
+                float shadow = lerp(1.0, mainLight.shadowAttenuation, _ShadowStrength);
+                float3 ambient = SampleSH(n);
+                float3 lighting = lerp(ambient, mainLight.color, lit * shadow);
+                return half4(albedo * lighting, 1.0);
+            }
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Name "ShadowCaster"
+            Tags { "LightMode" = "ShadowCaster" }
+            ZWrite On
+            ZTest LEqual
+            ColorMask 0
+
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
+
+            float3 _LightDirection;
+
+            struct Attributes
+            {
+                float4 positionOS : POSITION;
+                float3 normalOS   : NORMAL;
+            };
+
+            struct Varyings
+            {
+                float4 positionHCS : SV_POSITION;
+            };
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                float3 positionWS = TransformObjectToWorld(IN.positionOS.xyz);
+                float3 normalWS = TransformObjectToWorldNormal(IN.normalOS);
+                positionWS = ApplyShadowBias(positionWS, normalWS, _LightDirection);
+                OUT.positionHCS = TransformWorldToHClip(positionWS);
+                return OUT;
+            }
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                return 0;
+            }
+            ENDHLSL
+        }
+    }
+}

@@ -52,6 +52,29 @@ Thumbs.db
 *.blend1
 
 # ---------------------------------------------------------------------------
+# Unity project (unity/aniML-world) — generated/local-only dirs
+# ---------------------------------------------------------------------------
+unity/aniML-world/[Ll]ibrary/
+unity/aniML-world/[Tt]emp/
+unity/aniML-world/[Oo]bj/
+unity/aniML-world/[Bb]uild/
+unity/aniML-world/[Bb]uilds/
+unity/aniML-world/[Ll]ogs/
+unity/aniML-world/[Uu]serSettings/
+unity/aniML-world/*.csproj
+unity/aniML-world/*.sln
+unity/aniML-world/.vsconfig
+# Paid asset packs stay out of git — Synty license forbids public redistribution
+# of source files, and the repo is public. Raw downloads live in C:\GameAssets\.
+unity/aniML-world/Assets/Malbers Animations/
+unity/aniML-world/Assets/Malbers Animations.meta
+unity/aniML-world/Assets/Synty/
+unity/aniML-world/Assets/Synty.meta
+unity/aniML-world/Assets/PolygonNatureBiomes*/
+unity/aniML-world/Assets/PolygonNatureBiomes*.meta
+unity/aniML-world/Assets/Samples/
+
+# ---------------------------------------------------------------------------
 # Local env
 # ---------------------------------------------------------------------------
 .env

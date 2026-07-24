@@ -1,0 +1,51 @@
+using UnityEngine;
+
+namespace AniML.Creatures
+{
+    /// <summary>
+    /// The one component every creature carries. Owns identity (definition),
+    /// a brain (decisions) and a motor (motion), and ticks them. Gameplay
+    /// systems (spawning, selection, population UI, events) talk to this —
+    /// never to a concrete brain or motor.
+    /// </summary>
+    public sealed class CreatureController : MonoBehaviour
+    {
+        [SerializeField] private CreatureDefinition definition;
+
+        private ICreatureBrain _brain;
+        private ICreatureMotor _motor;
+
+        public CreatureDefinition Definition => definition;
+        public CreatureIntent CurrentIntent { get; private set; } = CreatureIntent.Idle;
+        public ICreatureMotor Motor => _motor;
+
+        public void Initialize(CreatureDefinition def, ICreatureBrain brain, ICreatureMotor motor)
+        {
+            definition = def;
+            SetMotor(motor);
+            SetBrain(brain);
+        }
+
+        /// <summary>Swap the decision layer at runtime (e.g. wander → policy).</summary>
+        public void SetBrain(ICreatureBrain brain)
+        {
+            _brain = brain;
+            _brain?.Attach(this);
+        }
+
+        public void SetMotor(ICreatureMotor motor)
+        {
+            _motor = motor;
+            _motor?.Attach(this);
+        }
+
+        private void Update()
+        {
+            if (_brain == null || _motor == null)
+                return;
+
+            CurrentIntent = _brain.Think(Time.deltaTime);
+            _motor.Apply(CurrentIntent, Time.deltaTime);
+        }
+    }
+}
