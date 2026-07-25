@@ -212,6 +212,25 @@ namespace AniML.EditorTools
                     Capture(eye, Quaternion.LookRotation(s.Pos + Vector3.up * 20f - eye), 55f,
                         Path.Combine(outDir, "summit.png"));
                 }
+                if (worldComp.CanyonCrossing is Vector2 cc)
+                {
+                    // High 3/4 view — crags can't block a near-overhead shot,
+                    // and both rim notches plus the ford read clearly.
+                    float cy = worldComp.SampleHeight(cc.x, cc.y);
+                    var target = new Vector3(cc.x, cy + 4f, cc.y);
+                    var eye = target + new Vector3(85f, 95f, -85f);
+                    Capture(eye, Quaternion.LookRotation(target - eye), 50f,
+                        Path.Combine(outDir, "canyon_crossing.png"));
+                }
+                if (worldComp.Fords.Count > 0)
+                {
+                    var f = worldComp.Fords[0];
+                    float fy = worldComp.SampleHeight(f.Pos.x, f.Pos.y);
+                    var target = new Vector3(f.Pos.x, fy + 1.5f, f.Pos.y);
+                    var eye = target + new Vector3(30f, 22f, -30f);
+                    Capture(eye, Quaternion.LookRotation(target - eye), 50f,
+                        Path.Combine(outDir, "ford.png"));
+                }
             }
 
             // Time-of-day variants: golden hour and night under the moon.
@@ -913,6 +932,10 @@ namespace AniML.EditorTools
                 Debug.Log($"[AniML] {w.Kind} at ({w.Pos.x:F0}, {w.Pos.z:F0})");
             foreach (var s in world.Summits)
                 Debug.Log($"[AniML] Summit at ({s.Pos.x:F0}, {s.Pos.z:F0})");
+            if (world.CanyonCrossing is Vector2 cc)
+                Debug.Log($"[AniML] Canyon crossing at ({cc.x:F0}, {cc.y:F0})");
+            foreach (var f in world.Fords)
+                Debug.Log($"[AniML] Ford at ({f.Pos.x:F0}, {f.Pos.y:F0})");
         }
 
         private static void SetProfileAndGenerate(LandformProfile p)

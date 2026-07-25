@@ -294,6 +294,33 @@ namespace AniML.World
         private readonly Dictionary<long, List<Vector4>> _riverGrid = new();
         private const float RiverCellSize = 16f;
 
+        // Connectivity: ford stamps keep rivers wadeable, and the canyon
+        // gets one talus-ramp crossing cut through both rims.
+        public struct FordSite { public Vector2 Pos; public float Radius; }
+        private readonly List<FordSite> _fords = new();
+        public IReadOnlyList<FordSite> Fords => _fords;
+
+        private struct GorgeCrossing
+        {
+            public bool Active;
+            public Vector2 Pos, Dir, RiverDir;   // Dir points toward the rims
+            public float BedY, RimA, RimB, HalfLen, HalfWidth;
+        }
+        private GorgeCrossing _gorgeCross;
+        public Vector2? CanyonCrossing => _gorgeCross.Active ? _gorgeCross.Pos : (Vector2?)null;
+
+        /// <summary>Is this point inside the canyon-crossing ramp corridor (plus padding)?</summary>
+        public bool InCanyonCrossing(float x, float z, float pad = 0f)
+        {
+            if (!_gorgeCross.Active)
+                return false;
+            float dx = x - _gorgeCross.Pos.x, dz = z - _gorgeCross.Pos.y;
+            float u = dx * _gorgeCross.Dir.x + dz * _gorgeCross.Dir.y;
+            float v = dx * _gorgeCross.RiverDir.x + dz * _gorgeCross.RiverDir.y;
+            return Mathf.Abs(u) < _gorgeCross.HalfLen + pad
+                   && Mathf.Abs(v) < _gorgeCross.HalfWidth * 2.2f + pad;
+        }
+
         public WorldSettings Settings => settings;
 
         public void Configure(WorldSettings s, Material terrainMat, Material waterMat,
@@ -382,6 +409,101 @@ namespace AniML.World
             TraceCoastCliffs();
             TraceInlandCliffs();
             ComputeWonders();
+            ReportWalkability();
+        }
+
+        /// <summary>
+        /// Generation-time connectivity audit: flood-fill the land on a 4 m
+        /// grid (passable = slope ≤ 38°, water ≤ 0.5 m deep) and log how
+        /// much of it hangs together. Pure diagnostics — no terrain writes.
+        /// </summary>
+        private void ReportWalkability()
+        {
+            const int stride = 2;                       // 2 × 2 m quads = 4 m cells
+            float cellD = _heightCell * stride;
+            float maxGrad = Mathf.Tan(38f * Mathf.Deg2Rad) * cellD;
+            float half = settings.WorldSize * 0.5f;
+            int n = (_heightRes - 1) / stride + 1;
+
+            bool[,] passable = new bool[n, n];
+            int landCells = 0, passCells = 0;
+            for (int cz = 0; cz < n; cz++)
+            {
+                for (int cx = 0; cx < n; cx++)
+                {
+                    int gx = Mathf.Min(cx * stride, _heightRes - 1);
+                    int gz = Mathf.Min(cz * stride, _heightRes - 1);
+                    float h = _heightGrid[gx, gz];
+                    if (h <= settings.SeaLevel + 0.05f)
+                        continue;
+                    landCells++;
+
+                    float x = gx * _heightCell - half, z = gz * _heightCell - half;
+                    if (StandingWaterDepth(x, z) > 0.5f)
+                        continue;
+                    GetRiverData(x, z, out float rinf, out float rbed);
+                    if (rinf > 0.1f && rbed + settings.RiverDepth * 0.55f - h > 0.5f)
+                        continue;
+
+                    float rise = 0f;
+                    if (gx + stride < _heightRes)
+                        rise = Mathf.Max(rise, Mathf.Abs(_heightGrid[gx + stride, gz] - h));
+                    if (gz + stride < _heightRes)
+                        rise = Mathf.Max(rise, Mathf.Abs(_heightGrid[gx, gz + stride] - h));
+                    if (rise > maxGrad)
+                        continue;
+
+                    passable[cx, cz] = true;
+                    passCells++;
+                }
+            }
+
+            // BFS components over 4-connectivity.
+            int[,] label = new int[n, n];
+            var queue = new Queue<Vector2Int>();
+            int regions = 0, bigRegions = 0, largest = 0;
+            int haCells = Mathf.RoundToInt(10000f / (cellD * cellD));   // cells per hectare
+            for (int sz = 0; sz < n; sz++)
+            {
+                for (int sx = 0; sx < n; sx++)
+                {
+                    if (!passable[sx, sz] || label[sx, sz] != 0)
+                        continue;
+                    regions++;
+                    int size = 0;
+                    label[sx, sz] = regions;
+                    queue.Enqueue(new Vector2Int(sx, sz));
+                    while (queue.Count > 0)
+                    {
+                        var c = queue.Dequeue();
+                        size++;
+                        for (int d = 0; d < 4; d++)
+                        {
+                            int nx = c.x + (d == 0 ? 1 : d == 1 ? -1 : 0);
+                            int nz = c.y + (d == 2 ? 1 : d == 3 ? -1 : 0);
+                            if (nx < 0 || nz < 0 || nx >= n || nz >= n)
+                                continue;
+                            if (!passable[nx, nz] || label[nx, nz] != 0)
+                                continue;
+                            label[nx, nz] = regions;
+                            queue.Enqueue(new Vector2Int(nx, nz));
+                        }
+                    }
+                    if (size >= haCells)
+                        bigRegions++;
+                    largest = Mathf.Max(largest, size);
+                }
+            }
+
+            float passPct = landCells > 0 ? passCells * 100f / landCells : 0f;
+            float mainPct = passCells > 0 ? largest * 100f / passCells : 0f;
+            string crossing = _gorgeCross.Active
+                ? $"yes at ({_gorgeCross.Pos.x:F0}, {_gorgeCross.Pos.y:F0})"
+                : "none";
+            Debug.Log($"[AniML] Walkability: {passPct:F1}% of land passable, "
+                + $"{mainPct:F1}% of that in the main region "
+                + $"({bigRegions} regions >= 1 ha); {_fords.Count} fords; "
+                + $"canyon crossing {crossing}.");
         }
 
         /// <summary>
@@ -709,6 +831,25 @@ namespace AniML.World
         {
             float raw = RawHeight(x, z);
             GetRiverData(x, z, out float influence, out float bed);
+
+            // Fords: near a ford stamp the carve target rises to a gravel
+            // bar ~0.35 m under the water surface (surface = bed + 55% of
+            // RiverDepth, and it never moves — so no uphill-water artifacts,
+            // just a wadeable riffle).
+            if (influence > 0f)
+            {
+                foreach (var ford in _fords)
+                {
+                    float fdx = x - ford.Pos.x, fdz = z - ford.Pos.y;
+                    float fd = Mathf.Sqrt(fdx * fdx + fdz * fdz);
+                    if (fd >= ford.Radius)
+                        continue;
+                    float lift = Mathf.SmoothStep(0f, 1f, 1f - fd / ford.Radius)
+                                 * Mathf.Max(settings.RiverDepth * 0.55f - 0.35f, 0f);
+                    bed += lift;
+                }
+            }
+
             // Deep carves (the canyon) get sharpened influence → near-vertical
             // walls instead of gentle banks.
             if (influence > 0f && raw - bed > 7f)
@@ -741,6 +882,28 @@ namespace AniML.World
                 {
                     float t = Mathf.SmoothStep(0f, 1f, 1f - d / pond.Radius);
                     h = Mathf.Lerp(h, Mathf.Min(pond.BottomY, h), t);
+                }
+            }
+
+            // The canyon crossing: a talus ramp corridor cut down through
+            // both rims to the center ford. Only ever lowers terrain, and
+            // its base sits just above the channel so the ford's gravel
+            // bar (not this ramp) sets the crossing depth.
+            if (_gorgeCross.Active)
+            {
+                float cdx = x - _gorgeCross.Pos.x, cdz = z - _gorgeCross.Pos.y;
+                float u = cdx * _gorgeCross.Dir.x + cdz * _gorgeCross.Dir.y;
+                float v = cdx * _gorgeCross.RiverDir.x + cdz * _gorgeCross.RiverDir.y;
+                float au = Mathf.Abs(u), av = Mathf.Abs(v);
+                if (au < _gorgeCross.HalfLen && av < _gorgeCross.HalfWidth * 2.2f)
+                {
+                    float rim = u > 0f ? _gorgeCross.RimB : _gorgeCross.RimA;
+                    float ramp = Mathf.Lerp(_gorgeCross.BedY + 1.35f, rim + 1.5f,
+                        Mathf.SmoothStep(0f, 1f, au / _gorgeCross.HalfLen));
+                    float edge = Mathf.SmoothStep(1f, 0f,
+                        Mathf.InverseLerp(_gorgeCross.HalfWidth, _gorgeCross.HalfWidth * 2.2f, av));
+                    if (ramp < h)
+                        h = Mathf.Lerp(h, ramp, edge);
                 }
             }
             return h;
@@ -2098,6 +2261,9 @@ namespace AniML.World
                 float footX = x + down.x * 4f, footZ = z + down.y * 4f;
                 if (RiverInfluence01(footX, footZ) > 0.9f)
                     return;
+                // Never wall off the canyon crossing corridor.
+                if (InCanyonCrossing(footX, footZ, 5f))
+                    return;
                 float footY = SampleHeight(footX, footZ);
                 if (footY < settings.SeaLevel + 0.5f)
                     return;
@@ -2434,6 +2600,51 @@ namespace AniML.World
             return Mathf.Clamp01(best);
         }
 
+        // ---- Sim-facing resource truth layers -------------------------
+        // Pure derived reads for the ecosystem sim: where food, shelter,
+        // and drinking water actually are. No caching — every input is
+        // already a cheap baked-grid or stamp lookup.
+
+        /// <summary>
+        /// Herbivore food availability. Richest at forest edges and moist
+        /// open meadows; suppressed by cold, bare rock, fresh burn scars,
+        /// and volcanic ash.
+        /// </summary>
+        public float SampleBrowse01(float x, float z)
+        {
+            float h = SampleHeight(x, z) - settings.SeaLevel;
+            if (h < 0.4f)
+                return 0f;
+            float density = ForestDensity01(x, z);
+            float edge = density * (1f - density) * 4f;        // peaks mid-density
+            float meadow = (1f - density) * Mathf.Clamp01(SampleMoisture(x, z) * 1.5f);
+            float warm = Mathf.SmoothStep(0f, 1f,
+                Mathf.InverseLerp(0.10f, 0.32f, SampleTemperature01(x, z)));
+            float fertile = (1f - SampleRockiness01(x, z) * 0.75f)
+                            * (1f - SampleCragginess01(x, z) * 0.85f);
+            float healthy = (1f - BurnScar01(x, z) * 0.85f)
+                            * (1f - VolcanoAsh01(x, z));
+            return Mathf.Clamp01(Mathf.Max(edge, meadow) * warm * fertile * healthy);
+        }
+
+        /// <summary>
+        /// Concealment from predators (and weather): forest cores, crag
+        /// fields, marsh reeds. Burnt forest hides no one.
+        /// </summary>
+        public float SampleCover01(float x, float z)
+        {
+            float forest = ForestDensity01(x, z) * (1f - BurnScar01(x, z) * 0.9f);
+            float rocks = SampleCragginess01(x, z) * 0.65f + SampleRockiness01(x, z) * 0.25f;
+            float marsh = SampleBiome(x, z) == Biome.Wetland ? 0.45f : 0f;
+            return Mathf.Clamp01(Mathf.Max(forest, Mathf.Max(rocks, marsh)));
+        }
+
+        /// <summary>Drinking-water reachability: 1 at a fresh shore, ~0 beyond a few hundred meters.</summary>
+        public float SampleWaterAccess01(float x, float z)
+        {
+            return Mathf.Exp(-SampleFreshwaterDistance(x, z) / 140f);
+        }
+
         // ---- Rivers ----
 
         private void BuildRivers()
@@ -2558,6 +2769,8 @@ namespace AniML.World
                 }
             }
 
+            PlaceFordsAndCrossing();
+
             // Hash points plus segment midpoints for gap-free influence.
             foreach (var path in _rivers)
             {
@@ -2576,6 +2789,94 @@ namespace AniML.World
             if (!_riverGrid.TryGetValue(key, out var list))
                 _riverGrid[key] = list = new List<Vector4>();
             list.Add(p);
+        }
+
+        /// <summary>
+        /// Keep the land traversable: every river gets shallow fords (the
+        /// terrain floor rises to a gravel bar just under the unchanged
+        /// water surface), and the canyon gets one crossing where the rims
+        /// are lowest — a talus ramp down either wall plus a center ford.
+        /// </summary>
+        private void PlaceFordsAndCrossing()
+        {
+            _fords.Clear();
+            _gorgeCross = default;
+            if (!settings.EnsureConnectivity)
+                return;
+
+            var rng = new System.Random(settings.Seed * 503 + 11);
+            for (int r = 0; r < _rivers.Count; r++)
+            {
+                var path = _rivers[r];
+                // The gorge river only fords above its canyon window — the
+                // canyon itself is crossed at the ramp below.
+                var stops = r == _gorgeRiver
+                    ? new[] { 0.12f }
+                    : new[] { 0.30f, 0.66f };
+                foreach (float tBase in stops)
+                {
+                    float t = Mathf.Clamp01(tBase + ((float)rng.NextDouble() - 0.5f) * 0.10f);
+                    int i = Mathf.Clamp(Mathf.RoundToInt(t * (path.Count - 1)), 0, path.Count - 1);
+                    var p = path[i];
+                    if (p.y < settings.SeaLevel + 1f)          // estuary reach — skip
+                        continue;
+                    _fords.Add(new FordSite
+                    {
+                        Pos = new Vector2(p.x, p.z),
+                        Radius = Mathf.Max(p.w * 1.6f, 10f),
+                    });
+                }
+            }
+
+            // Canyon crossing: scan the gorge's mid-run for the spot where
+            // the walls are lowest, like a real trailhead saddle.
+            if (_gorgeRiver < 0)
+                return;
+            var gp = _rivers[_gorgeRiver];
+            int bestI = -1;
+            float bestWall = float.MaxValue, bestRimA = 0f, bestRimB = 0f;
+            var bestPerp = Vector2.zero;
+            for (int i = (int)(gp.Count * 0.30f); i < (int)(gp.Count * 0.72f); i++)
+            {
+                var p = gp[i];
+                var q = gp[Mathf.Min(i + 1, gp.Count - 1)];
+                var fdir = new Vector2(q.x - p.x, q.z - p.z).normalized;
+                var perp = new Vector2(-fdir.y, fdir.x);
+                float sampleD = p.w * 2f + 26f;
+                float rimA = RawHeight(p.x - perp.x * sampleD, p.z - perp.y * sampleD);
+                float rimB = RawHeight(p.x + perp.x * sampleD, p.z + perp.y * sampleD);
+                float wall = Mathf.Max(rimA, rimB) - p.y;
+                if (wall < 6f)
+                    continue;                                  // shallow reach — crossable anyway
+                if (wall < bestWall)
+                {
+                    bestWall = wall; bestI = i; bestPerp = perp;
+                    bestRimA = rimA; bestRimB = rimB;
+                }
+            }
+            if (bestI < 0)
+                return;
+            {
+                var p = gp[bestI];
+                var q = gp[Mathf.Min(bestI + 1, gp.Count - 1)];
+                _gorgeCross = new GorgeCrossing
+                {
+                    Active = true,
+                    Pos = new Vector2(p.x, p.z),
+                    Dir = bestPerp,
+                    RiverDir = new Vector2(q.x - p.x, q.z - p.z).normalized,
+                    BedY = p.y,
+                    RimA = bestRimA,
+                    RimB = bestRimB,
+                    HalfLen = Mathf.Clamp(bestWall * 1.7f + p.w, 30f, 130f),
+                    HalfWidth = Mathf.Max(p.w * 1.1f, 11f),
+                };
+                _fords.Add(new FordSite
+                {
+                    Pos = _gorgeCross.Pos,
+                    Radius = Mathf.Max(p.w * 1.7f, 12f),
+                });
+            }
         }
 
         private List<Vector4> MarchRiver(float x, float z, System.Random rng)
