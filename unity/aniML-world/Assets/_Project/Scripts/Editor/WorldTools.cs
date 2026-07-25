@@ -25,13 +25,22 @@ namespace AniML.EditorTools
 
             var settings = LoadOrCreateSettings();
 
-            // Batch runs can pick the landform profile via env var.
+            // Batch runs can pick the landform profile and seed via env vars.
             var profEnv = System.Environment.GetEnvironmentVariable("ANIML_PROFILE");
             if (!string.IsNullOrEmpty(profEnv)
                 && System.Enum.TryParse(profEnv, true, out LandformProfile prof)
                 && settings.Profile != prof)
             {
                 settings.Profile = prof;
+                EditorUtility.SetDirty(settings);
+                AssetDatabase.SaveAssets();
+            }
+            var seedEnv = System.Environment.GetEnvironmentVariable("ANIML_SEED");
+            if (!string.IsNullOrEmpty(seedEnv)
+                && int.TryParse(seedEnv, out int seed)
+                && settings.Seed != seed)
+            {
+                settings.Seed = seed;
                 EditorUtility.SetDirty(settings);
                 AssetDatabase.SaveAssets();
             }

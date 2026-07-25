@@ -28,6 +28,16 @@ namespace AniML.World
         [Tooltip("Which drama palette this world uses. Same seed + profile = same world.")]
         public LandformProfile Profile = LandformProfile.TemperateIsles;
 
+        [Header("Feature toggles (revert switches)")]
+        [Tooltip("Each seed rolls its own recipe (counts, depths, optional wonders). Off = every seed has the profile's exact inventory.")]
+        public bool RecipeVariance = true;
+        [Tooltip("Seeds roll landmass topology (blob, crescent bay, peninsula, twin isles). Off = the classic single blob.")]
+        public bool LandmassVariety = true;
+        [Tooltip("Carve fords on rivers and a crossing saddle in the canyon so land stays traversable.")]
+        public bool EnsureConnectivity = true;
+        [Tooltip("Rivers start where flow accumulation says water concentrates. Off = legacy random high-point sources.")]
+        public bool FlowDerivedRivers = true;
+
         [Header("Dimensions")]
         [Tooltip("World is square, worldSize x worldSize meters, centered on origin.")]
         public float WorldSize = 1024f;

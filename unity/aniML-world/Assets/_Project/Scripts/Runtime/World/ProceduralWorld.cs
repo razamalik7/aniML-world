@@ -241,6 +241,31 @@ namespace AniML.World
                     };
                     break;
             }
+
+            // Recipe variance: every seed rolls its own inventory inside the
+            // profile's character — one seed gets a faultless island with
+            // four rivers, another a mild gorge and a double karst country.
+            // (Same seed still always rolls the same recipe.)
+            if (settings.RecipeVariance)
+            {
+                var vr = new System.Random(settings.Seed * 977 + 13);
+                int Jit(int v, int spread, int min) =>
+                    v <= 0 ? v : Mathf.Max(min, v + vr.Next(-spread, spread + 1));
+                float JitF(float v, float lo, float hi) =>
+                    v * Mathf.Lerp(lo, hi, (float)vr.NextDouble());
+
+                _dials.RiverCount = Jit(_dials.RiverCount, 1, 1);
+                _dials.PondCount = Jit(_dials.PondCount, 2, 0);
+                _dials.ForestCount = Jit(_dials.ForestCount, 3, 1);
+                _dials.KarstCount = Jit(_dials.KarstCount, 2, 0);
+                _dials.SummitCount = Jit(_dials.SummitCount, 1, 1);
+                _dials.CanyonDepth = JitF(_dials.CanyonDepth, 0.6f, 1.4f);
+                _dials.MountainAmpMul = JitF(_dials.MountainAmpMul, 0.88f, 1.14f);
+                // Roughly one seed in four has no fault at all.
+                _dials.FaultScarpH = vr.NextDouble() < 0.25
+                    ? 0f
+                    : JitF(_dials.FaultScarpH, 0.6f, 1.6f);
+            }
         }
 
         private float[,] _freshDistGrid;
@@ -368,6 +393,11 @@ namespace AniML.World
             _wonders.Clear();
             var rng = new System.Random(settings.Seed * 71 + 19);
 
+            // Optional wonders are chance-gated per seed when recipe
+            // variance is on — not every island got every miracle.
+            var recipeRng = new System.Random(settings.Seed * 397 + 71);
+            bool Roll(float p) => !settings.RecipeVariance || recipeRng.NextDouble() < p;
+
             // Waterfall: the largest single bed drop on any river.
             float bestDrop = 3.2f;
             Vector3 fallPos = default; float fallYaw = 0f; float fallScale = 1f;
@@ -416,6 +446,7 @@ namespace AniML.World
             }
 
             // Hot springs: craggy scrub, relaxing to any dry/rocky ground.
+            if (Roll(0.8f))
             if (!TryPlaceWonder(rng, "HotSprings", 240,
                     (x, z) => SampleBiome(x, z) == Biome.Scrub && SampleCragginess01(x, z) > 0.2f))
             {
@@ -424,7 +455,7 @@ namespace AniML.World
                         (x, z) => SampleCragginess01(x, z) > 0.4f && SampleBiome(x, z) != Biome.Ocean
                                   && SampleBiome(x, z) != Biome.Snow);
             }
-            if (TryPlaceWonder(rng, "WhaleBones", 240,
+            if (Roll(0.85f) && TryPlaceWonder(rng, "WhaleBones", 240,
                     (x, z) => SampleBiome(x, z) == Biome.Beach && SampleOceanDistance(x, z) < 24f))
             {
                 // A beached whale lies ALONG the waterline, nudged up the
@@ -473,8 +504,9 @@ namespace AniML.World
 
             // THE ice arch: out on the high snowfield (the Alpine "arch" is
             // honestly glacier ice — so it lives where ice belongs).
-            TryPlaceWonder(rng, "IceArch", 240,
-                (x, z) => SampleBiome(x, z) == Biome.Snow);
+            if (Roll(0.8f))
+                TryPlaceWonder(rng, "IceArch", 240,
+                    (x, z) => SampleBiome(x, z) == Biome.Snow);
 
             // THE glacier: in granite country, a tongue of ice flows from
             // the snowfield edge down its valley.
@@ -518,6 +550,8 @@ namespace AniML.World
             // mesh provides the overhang a heightfield can't.
             int bestSeg = -1;
             float bestSegScale = 1.4f;
+            if (!Roll(0.85f))
+                bestSegScale = float.MaxValue;   // this island keeps no cave
             for (int i = 0; i < _inlandCliffs.Count; i++)
             {
                 var c = _inlandCliffs[i];
@@ -1354,7 +1388,7 @@ namespace AniML.World
             // Island falloff on warped distance — an irregular coastline.
             float half = settings.WorldSize * 0.5f;
             float d = Mathf.Sqrt(w.x * w.x + w.y * w.y) / half;
-            float islandMask = Mathf.Clamp01(1f - Mathf.Pow(d, settings.IslandFalloffPower));
+            float islandMask = Mathf.Clamp01(1f - Mathf.Pow(Mathf.Max(d, 0f), settings.IslandFalloffPower));
 
             return (baseHeight + mountains) * islandMask - (1f - islandMask) * settings.EdgeSinkDepth;
         }
