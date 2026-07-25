@@ -924,7 +924,7 @@ MonoBehaviour:
     MinTemp01: 0
     MaxTemp01: 1
     YStretch: 0
-    ScaleRange: {x: 1.5, y: 2.2}
+    ScaleRange: {x: 1.4, y: 2}
     PositionJitter: 0.9
     IsVegetation: 0
   - Name: CliffWallRedRock

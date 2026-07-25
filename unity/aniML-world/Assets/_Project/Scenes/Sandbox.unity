@@ -160,6 +160,7 @@ MonoBehaviour:
   terrainMaterial: {fileID: 2100000, guid: 774472c0bfb92634ba936bf607fac88f, type: 2}
   waterMaterial: {fileID: 2100000, guid: 008a1da8e5e0daf46b4fc59523ae0c27, type: 2}
   riverWaterMaterial: {fileID: 2100000, guid: be9de8d096d079749bde11a54e425fed, type: 2}
+  lakeWaterMaterial: {fileID: 2100000, guid: a7ba4d295c04b6b42aecd30c9add92b1, type: 2}
 --- !u!4 &779027381
 Transform:
   m_ObjectHideFlags: 0

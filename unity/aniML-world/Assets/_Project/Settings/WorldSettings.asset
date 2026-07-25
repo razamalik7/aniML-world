@@ -13,6 +13,10 @@ MonoBehaviour:
   m_Name: WorldSettings
   m_EditorClassIdentifier: AniML.Runtime::AniML.World.WorldSettings
   Profile: 0
+  RecipeVariance: 1
+  LandmassVariety: 1
+  EnsureConnectivity: 1
+  FlowDerivedRivers: 1
   WorldSize: 1024
   ChunkSize: 64
   QuadSize: 2
