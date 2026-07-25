@@ -170,68 +170,7 @@ namespace AniML.EditorTools
             // Close-ups of every wonder + the primary summit, framed for review.
             var worldComp = Object.FindFirstObjectByType<ProceduralWorld>();
             if (worldComp != null)
-            {
-                foreach (var site in worldComp.Wonders)
-                {
-                    float rad = site.YawDeg * Mathf.Deg2Rad;
-                    var facing = new Vector3(Mathf.Sin(rad), 0f, Mathf.Cos(rad));
-                    Vector3 eye;
-                    Vector3 target = site.Pos + Vector3.up * 5f;
-                    switch (site.Kind)
-                    {
-                        case "Waterfall":
-                            // Stand downstream, look back up at the falls.
-                            eye = site.Pos + facing * 42f + Vector3.up * 12f;
-                            break;
-                        case "Cave":
-                            // Stand on the approach, look into the mouth.
-                            eye = site.Pos + facing * 40f + Vector3.up * 12f;
-                            target = site.Pos + Vector3.up * 3f;
-                            break;
-                        case "RedArch":
-                            // Hover beside the rim, arch in frame, slot behind.
-                            eye = site.Pos - facing * 26f + Vector3.up * 14f;
-                            target = site.Pos + facing * 20f + Vector3.down * 6f;
-                            break;
-                        case "LavaCrater":
-                            // From above the rim, looking down into the lake.
-                            eye = site.Pos + new Vector3(-40f, 42f, -40f);
-                            target = site.Pos;
-                            break;
-                        default:
-                            eye = site.Pos + new Vector3(34f, 26f, -34f);
-                            break;
-                    }
-                    Capture(eye, Quaternion.LookRotation(target - eye), 50f,
-                        Path.Combine(outDir, $"wonder_{site.Kind}.png"));
-                }
-                if (worldComp.Summits.Count > 0)
-                {
-                    var s = worldComp.Summits[0];
-                    var eye = s.Pos + new Vector3(-160f, 40f, -160f);
-                    Capture(eye, Quaternion.LookRotation(s.Pos + Vector3.up * 20f - eye), 55f,
-                        Path.Combine(outDir, "summit.png"));
-                }
-                if (worldComp.CanyonCrossing is Vector2 cc)
-                {
-                    // High 3/4 view — crags can't block a near-overhead shot,
-                    // and both rim notches plus the ford read clearly.
-                    float cy = worldComp.SampleHeight(cc.x, cc.y);
-                    var target = new Vector3(cc.x, cy + 4f, cc.y);
-                    var eye = target + new Vector3(85f, 95f, -85f);
-                    Capture(eye, Quaternion.LookRotation(target - eye), 50f,
-                        Path.Combine(outDir, "canyon_crossing.png"));
-                }
-                if (worldComp.Fords.Count > 0)
-                {
-                    var f = worldComp.Fords[0];
-                    float fy = worldComp.SampleHeight(f.Pos.x, f.Pos.y);
-                    var target = new Vector3(f.Pos.x, fy + 1.5f, f.Pos.y);
-                    var eye = target + new Vector3(30f, 22f, -30f);
-                    Capture(eye, Quaternion.LookRotation(target - eye), 50f,
-                        Path.Combine(outDir, "ford.png"));
-                }
-            }
+                CaptureFeatureShots(worldComp, outDir, "");
 
             // Time-of-day variants: golden hour and night under the moon.
             var sky = Object.FindFirstObjectByType<SkySystem>();
@@ -253,6 +192,130 @@ namespace AniML.EditorTools
             ExportBiomeMap();
             DumpLandformMeshBounds();
             Debug.Log($"[AniML] Wrote verification renders to {outDir}");
+        }
+
+        /// <summary>
+        /// The landmark close-up reel: every wonder with its bespoke
+        /// framing, the primary summit, the canyon crossing, and a ford.
+        /// Shared by verification bakes (no prefix) and art-direction
+        /// look comparisons (prefixed per look).
+        /// </summary>
+        private static void CaptureFeatureShots(ProceduralWorld worldComp, string outDir, string prefix)
+        {
+            // No camera ever sits under the terrain: rerouted rivers and
+            // fresh crags keep swallowing fixed offsets, and a buried eye
+            // renders see-through backface garbage.
+            Vector3 AboveGround(Vector3 eye)
+            {
+                eye.y = Mathf.Max(eye.y, worldComp.SampleHeight(eye.x, eye.z) + 6f);
+                return eye;
+            }
+
+            // Terrain must not rise across the sight line (crags can still
+            // photobomb, but ridge-blocked shots are the common failure).
+            bool Clear(Vector3 eye, Vector3 target)
+            {
+                for (int s = 2; s <= 11; s++)
+                {
+                    float t = s / 12f;
+                    var p = Vector3.Lerp(eye, target, t);
+                    if (worldComp.SampleHeight(p.x, p.z) > p.y - 0.5f)
+                        return false;
+                }
+                return true;
+            }
+
+            // Keep the intended framing when it works; orbit the target for
+            // an unblocked azimuth when it doesn't.
+            Vector3 FindClearEye(Vector3 preferredEye, Vector3 target)
+            {
+                var flat = new Vector2(preferredEye.x - target.x, preferredEye.z - target.z);
+                float dist = Mathf.Max(flat.magnitude, 12f);
+                float lift = preferredEye.y - target.y;
+                float baseAz = Mathf.Atan2(flat.x, flat.y);
+                for (int k = 0; k < 8; k++)
+                {
+                    float az = baseAz + k * Mathf.PI / 4f;
+                    var eye = AboveGround(target + new Vector3(
+                        Mathf.Sin(az) * dist, lift, Mathf.Cos(az) * dist));
+                    if (Clear(eye, target))
+                        return eye;
+                }
+                // Every azimuth blocked — climb until the sight line opens.
+                var high = AboveGround(preferredEye);
+                for (int k = 0; k < 5 && !Clear(high, target); k++)
+                    high.y += 18f;
+                return high;
+            }
+
+            foreach (var site in worldComp.Wonders)
+            {
+                float rad = site.YawDeg * Mathf.Deg2Rad;
+                var facing = new Vector3(Mathf.Sin(rad), 0f, Mathf.Cos(rad));
+                Vector3 eye;
+                Vector3 target = site.Pos + Vector3.up * 5f;
+                switch (site.Kind)
+                {
+                    case "Waterfall":
+                        // Stand downstream, look back up at the falls.
+                        eye = site.Pos + facing * 42f + Vector3.up * 12f;
+                        break;
+                    case "Cave":
+                        // Stand on the approach, look into the mouth.
+                        eye = site.Pos + facing * 40f + Vector3.up * 12f;
+                        target = site.Pos + Vector3.up * 3f;
+                        break;
+                    case "RedArch":
+                        // Hover beside the rim, arch in frame, slot behind.
+                        eye = site.Pos - facing * 26f + Vector3.up * 14f;
+                        target = site.Pos + facing * 20f + Vector3.down * 6f;
+                        break;
+                    case "LavaCrater":
+                        // From above the rim, looking down into the lake.
+                        eye = site.Pos + new Vector3(-40f, 42f, -40f);
+                        target = site.Pos;
+                        break;
+                    default:
+                        eye = site.Pos + new Vector3(34f, 26f, -34f);
+                        break;
+                }
+                eye = FindClearEye(eye, target);
+                Capture(eye, Quaternion.LookRotation(target - eye), 50f,
+                    Path.Combine(outDir, $"{prefix}wonder_{site.Kind}.png"));
+            }
+            if (worldComp.Summits.Count > 0)
+            {
+                var s = worldComp.Summits[0];
+                var eye = AboveGround(s.Pos + new Vector3(-160f, 40f, -160f));
+                Capture(eye, Quaternion.LookRotation(s.Pos + Vector3.up * 20f - eye), 55f,
+                    Path.Combine(outDir, $"{prefix}summit.png"));
+            }
+            if (worldComp.CanyonCrossing is Vector2 cc)
+            {
+                // Shoot along the corridor axis from above one rim, so the
+                // ramp notch, the channel, and the far rim stack in frame.
+                float cy = worldComp.SampleHeight(cc.x, cc.y);
+                var target = new Vector3(cc.x, cy + 4f, cc.y);
+                var d2 = worldComp.CanyonCrossingDir ?? Vector2.right;
+                var axis = new Vector3(d2.x, 0f, d2.y);
+                var eye = AboveGround(target + axis * 75f + Vector3.up * 48f);
+                Capture(eye, Quaternion.LookRotation(target - eye), 50f,
+                    Path.Combine(outDir, $"{prefix}canyon_crossing.png"));
+            }
+            if (worldComp.Fords.Count > 0)
+            {
+                // Widest ford = the lowland trunk-river crossing, the one
+                // that actually photographs as a gravel bar.
+                var f = worldComp.Fords[0];
+                foreach (var candidate in worldComp.Fords)
+                    if (candidate.Radius > f.Radius)
+                        f = candidate;
+                float fy = worldComp.SampleHeight(f.Pos.x, f.Pos.y);
+                var target = new Vector3(f.Pos.x, fy + 1.5f, f.Pos.y);
+                var eye = AboveGround(target + new Vector3(34f, 26f, -34f));
+                Capture(eye, Quaternion.LookRotation(target - eye), 50f,
+                    Path.Combine(outDir, $"{prefix}ford.png"));
+            }
         }
 
         /// <summary>
@@ -287,6 +350,121 @@ namespace AniML.EditorTools
                 "SM_Env_Rock_Cliff_10", "SM_Env_Rock_Cliff_16", "SM_Env_Rock_Arch_01");
             Dump("Tropical", TropicalRoot, "SM_Env_Rock_Cave_01", "SM_Env_Rock_Cliff_01");
             Dump("Meadow", MeadowRoot, "SM_Env_Rock_Cliff_01", "SM_Env_Rock_Cliff_02", "SM_Env_Rock_Cliff_03");
+        }
+
+        /// <summary>
+        /// Batchmode entry: render the SAME three scenes through each
+        /// candidate art-direction grade so the look can be chosen from
+        /// photos, not adjectives. Nothing is saved — the temporary volume
+        /// profiles live in memory and the scene is left untouched on disk.
+        /// </summary>
+        public static void CaptureLooks()
+        {
+            GenerateInScene();
+
+            string outDir = System.Environment.GetEnvironmentVariable("ANIML_SHOT_DIR");
+            if (string.IsNullOrEmpty(outDir))
+                outDir = Path.Combine(Path.GetTempPath(), "animl_look_shots");
+            Directory.CreateDirectory(outDir);
+
+            // Consistent light: mid-afternoon for every look, so the grades
+            // (not the sun position) are what differ between photos.
+            var sky = Object.FindFirstObjectByType<SkySystem>();
+            if (sky != null) { sky.TimeOfDay = 15.0f; sky.Apply(); }
+
+            var volGo = GameObject.Find("PostVolume");
+            var vol = volGo != null ? volGo.GetComponent<UnityEngine.Rendering.Volume>() : null;
+            var worldComp = Object.FindFirstObjectByType<ProceduralWorld>();
+
+            void Shoot(string look)
+            {
+                Capture(new Vector3(-380f, 95f, -420f), Quaternion.Euler(14f, 38f, 0f), 55f,
+                    Path.Combine(outDir, $"{look}_vista.png"));
+                var eye = new Vector3(280f, 175f, -180f);
+                var target = new Vector3(150f, 10f, -50f);
+                Capture(eye, Quaternion.LookRotation(target - eye), 48f,
+                    Path.Combine(outDir, $"{look}_godview.png"));
+                // Full landmark reel per look — grades are judged on real
+                // subjects (water, red rock, forest, snow), not one vista.
+                if (worldComp != null)
+                    CaptureFeatureShots(worldComp, outDir, $"{look}_");
+            }
+
+            UnityEngine.Rendering.VolumeProfile Fresh()
+            {
+                var p = ScriptableObject.CreateInstance<UnityEngine.Rendering.VolumeProfile>();
+                var bloom = p.Add<UnityEngine.Rendering.Universal.Bloom>(false);
+                bloom.intensity.Override(0.55f);
+                bloom.threshold.Override(1.0f);
+                bloom.scatter.Override(0.6f);
+                var tone = p.Add<UnityEngine.Rendering.Universal.Tonemapping>(false);
+                tone.mode.Override(UnityEngine.Rendering.Universal.TonemappingMode.Neutral);
+                return p;
+            }
+
+            // ---- Look 1: warm painterly (golden key, cool shadows, soft haze)
+            {
+                var p = Fresh();
+                var grade = p.Add<UnityEngine.Rendering.Universal.ColorAdjustments>(false);
+                grade.saturation.Override(12f);
+                grade.contrast.Override(8f);
+                // Warmth comes from the color filter alone — WhiteBalance's
+                // LMS math NaNs on extreme HDR snow in batch captures.
+                grade.colorFilter.Override(new Color(1.0f, 0.93f, 0.84f));
+                // Near-neutral shadow tone: saturated blue shadows + boosted
+                // saturation turned shadowed snowfields electric blue.
+                var split = p.Add<UnityEngine.Rendering.Universal.SplitToning>(false);
+                split.shadows.Override(new Color(0.46f, 0.52f, 0.60f));
+                split.highlights.Override(new Color(1.0f, 0.88f, 0.70f));
+                split.balance.Override(-12f);
+                if (vol != null) vol.profile = p;
+                RenderSettings.fogColor = new Color(0.78f, 0.72f, 0.62f);
+                RenderSettings.fogDensity = 0.0007f;
+                Shoot("look_painterly");
+            }
+
+            // ---- Look 2: storybook diorama (tilt-shift miniature, clear air)
+            {
+                var p = Fresh();
+                var grade = p.Add<UnityEngine.Rendering.Universal.ColorAdjustments>(false);
+                grade.saturation.Override(26f);
+                grade.contrast.Override(13f);
+                // NOTE: the tilt-shift blur itself is a runtime DoF (URP's
+                // DepthOfField does not evaluate in manual batch captures —
+                // Gaussian and Bokeh both render sharp). Photo previews get
+                // a composited graduated blur instead; the in-game look
+                // applies DoF live where it works normally.
+                var vig = p.Add<UnityEngine.Rendering.Universal.Vignette>(false);
+                vig.intensity.Override(0.22f);
+                vig.smoothness.Override(0.5f);
+                if (vol != null) vol.profile = p;
+                RenderSettings.fogColor = new Color(0.72f, 0.76f, 0.80f);
+                RenderSettings.fogDensity = 0.0003f;   // miniatures have clear air
+                // Overlay decision, not a base grade — two shots suffice
+                // (the miniature blur is composited onto these in post).
+                Capture(new Vector3(-380f, 95f, -420f), Quaternion.Euler(14f, 38f, 0f), 55f,
+                    Path.Combine(outDir, "look_diorama_vista.png"));
+                var dEye = new Vector3(280f, 175f, -180f);
+                var dTarget = new Vector3(150f, 10f, -50f);
+                Capture(dEye, Quaternion.LookRotation(dTarget - dEye), 48f,
+                    Path.Combine(outDir, "look_diorama_godview.png"));
+            }
+
+            // ---- Look 3: crisp naturalism (honest hues, cool blue distance)
+            {
+                var p = Fresh();
+                var grade = p.Add<UnityEngine.Rendering.Universal.ColorAdjustments>(false);
+                grade.saturation.Override(0f);
+                grade.contrast.Override(5f);
+                var wb = p.Add<UnityEngine.Rendering.Universal.WhiteBalance>(false);
+                wb.temperature.Override(-8f);
+                if (vol != null) vol.profile = p;
+                RenderSettings.fogColor = new Color(0.62f, 0.70f, 0.80f);
+                RenderSettings.fogDensity = 0.0006f;
+                Shoot("look_naturalism");
+            }
+
+            Debug.Log($"[AniML] Look comparison renders written to {outDir}");
         }
 
         private static void Capture(Vector3 pos, Quaternion rot, float fov, string path,

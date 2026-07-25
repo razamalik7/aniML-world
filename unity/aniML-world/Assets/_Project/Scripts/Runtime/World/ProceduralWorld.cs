@@ -308,6 +308,8 @@ namespace AniML.World
         }
         private GorgeCrossing _gorgeCross;
         public Vector2? CanyonCrossing => _gorgeCross.Active ? _gorgeCross.Pos : (Vector2?)null;
+        /// <summary>Unit direction across the crossing, from rim A toward rim B.</summary>
+        public Vector2? CanyonCrossingDir => _gorgeCross.Active ? _gorgeCross.Dir : (Vector2?)null;
 
         /// <summary>Is this point inside the canyon-crossing ramp corridor (plus padding)?</summary>
         public bool InCanyonCrossing(float x, float z, float pad = 0f)
@@ -521,29 +523,41 @@ namespace AniML.World
             var recipeRng = new System.Random(settings.Seed * 397 + 71);
             bool Roll(float p) => !settings.RecipeVariance || recipeRng.NextDouble() < p;
 
-            // Waterfall: the largest single bed drop on any river.
-            float bestDrop = 3.2f;
+            // Waterfall: the largest single bed drop on any river — on dry
+            // land (flow-derived rivers can put the biggest drop at the
+            // coastal shelf, and falls pouring into open sea read as a
+            // glitch), and preferably in the visitable green band rather
+            // than the crag-walled snowfields where nobody can stand.
             Vector3 fallPos = default; float fallYaw = 0f; float fallScale = 1f;
             bool found = false;
-            foreach (var river in _rivers)
+            bool PickFalls(float ceilingY)
             {
-                for (int i = 0; i + 1 < river.Count; i++)
+                float bestDrop = 3.2f;
+                bool ok = false;
+                foreach (var river in _rivers)
                 {
-                    float drop = river[i].y - river[i + 1].y;
-                    if (drop > bestDrop)
+                    for (int i = 0; i + 1 < river.Count; i++)
                     {
-                        bestDrop = drop;
-                        var dir = new Vector2(river[i + 1].x - river[i].x, river[i + 1].z - river[i].z);
-                        fallYaw = Mathf.Atan2(dir.x, dir.y) * Mathf.Rad2Deg;
-                        fallPos = new Vector3(
-                            (river[i].x + river[i + 1].x) * 0.5f,
-                            river[i + 1].y + settings.RiverDepth * 0.55f,
-                            (river[i].z + river[i + 1].z) * 0.5f);
-                        fallScale = Mathf.Clamp(drop / 4f, 1f, 2.4f);
-                        found = true;
+                        float drop = river[i].y - river[i + 1].y;
+                        if (river[i + 1].y < settings.SeaLevel + 4f || river[i + 1].y > ceilingY)
+                            continue;
+                        if (drop > bestDrop)
+                        {
+                            bestDrop = drop;
+                            var dir = new Vector2(river[i + 1].x - river[i].x, river[i + 1].z - river[i].z);
+                            fallYaw = Mathf.Atan2(dir.x, dir.y) * Mathf.Rad2Deg;
+                            fallPos = new Vector3(
+                                (river[i].x + river[i + 1].x) * 0.5f,
+                                river[i + 1].y + settings.RiverDepth * 0.55f,
+                                (river[i].z + river[i + 1].z) * 0.5f);
+                            fallScale = Mathf.Clamp(drop / 4f, 1f, 2.4f);
+                            ok = true;
+                        }
                     }
                 }
+                return ok;
             }
+            found = PickFalls(settings.SeaLevel + 45f) || PickFalls(float.MaxValue);
             if (found)
                 _wonders.Add(new WonderSite { Kind = "Waterfall", Pos = fallPos, YawDeg = fallYaw, Scale = fallScale });
 
