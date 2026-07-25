@@ -349,6 +349,7 @@ namespace AniML.World
                 return;
             _gridReady = false;
             ResolveProfileDials();
+            ResolveLandmass();
 
             // One fault line per world: a wandering tectonic step whose
             // trace and throw the profile controls.
@@ -1386,11 +1387,89 @@ namespace AniML.World
             }
 
             // Island falloff on warped distance — an irregular coastline.
+            // With landmass variety on, "distance from center" becomes
+            // distance from the nearest of several weighted landmass lobes:
+            // blob, crescent bay, peninsula, or twin isles with a strait.
             float half = settings.WorldSize * 0.5f;
-            float d = Mathf.Sqrt(w.x * w.x + w.y * w.y) / half;
+            float d;
+            if (_lobes == null || _lobes.Length == 0)
+            {
+                d = Mathf.Sqrt(w.x * w.x + w.y * w.y) / half;
+            }
+            else
+            {
+                d = float.MaxValue;
+                for (int i = 0; i < _lobes.Length; i++)
+                {
+                    float dx = w.x - _lobes[i].x, dz = w.y - _lobes[i].y;
+                    float ld = Mathf.Sqrt(dx * dx + dz * dz) / (half * _lobes[i].z);
+                    if (ld < d) d = ld;
+                }
+                // Crescent: a negative lobe pushes the sea INTO the land.
+                if (_bayLobe.z > 0.01f)
+                {
+                    float bx = w.x - _bayLobe.x, bz = w.y - _bayLobe.y;
+                    float bd = Mathf.Sqrt(bx * bx + bz * bz) / (half * _bayLobe.z);
+                    d = Mathf.Max(d, 1.15f - bd * 0.85f);
+                }
+            }
             float islandMask = Mathf.Clamp01(1f - Mathf.Pow(Mathf.Max(d, 0f), settings.IslandFalloffPower));
 
             return (baseHeight + mountains) * islandMask - (1f - islandMask) * settings.EdgeSinkDepth;
+        }
+
+        // Landmass lobes: xy = center, z = radius scale. Empty = classic blob.
+        private Vector3[] _lobes;
+        private Vector3 _bayLobe;
+
+        /// <summary>Roll this seed's landmass topology.</summary>
+        private void ResolveLandmass()
+        {
+            _lobes = null;
+            _bayLobe = Vector3.zero;
+            if (!settings.LandmassVariety)
+                return;
+
+            var rng = new System.Random(settings.Seed * 613 + 29);
+            float half = settings.WorldSize * 0.5f;
+            double roll = rng.NextDouble();
+            float Ang() => (float)rng.NextDouble() * Mathf.PI * 2f;
+
+            if (roll < 0.4)
+            {
+                // Classic blob — still the most common island.
+            }
+            else if (roll < 0.6)
+            {
+                // Crescent: a deep bay bites into one side.
+                float a = Ang();
+                _lobes = new[] { new Vector3(0f, 0f, 1f) };
+                _bayLobe = new Vector3(Mathf.Cos(a) * half * 0.55f,
+                    Mathf.Sin(a) * half * 0.55f, 0.5f + (float)rng.NextDouble() * 0.2f);
+            }
+            else if (roll < 0.8)
+            {
+                // Peninsula: the main mass plus a long reaching arm.
+                float a = Ang();
+                _lobes = new[]
+                {
+                    new Vector3(-Mathf.Cos(a) * half * 0.18f, -Mathf.Sin(a) * half * 0.18f, 0.88f),
+                    new Vector3(Mathf.Cos(a) * half * 0.52f, Mathf.Sin(a) * half * 0.52f, 0.42f),
+                };
+            }
+            else
+            {
+                // Twin isles: two lands and the strait between them.
+                float a = Ang();
+                float sep = 0.42f + (float)rng.NextDouble() * 0.12f;
+                _lobes = new[]
+                {
+                    new Vector3(Mathf.Cos(a) * half * sep, Mathf.Sin(a) * half * sep,
+                        0.62f + (float)rng.NextDouble() * 0.12f),
+                    new Vector3(-Mathf.Cos(a) * half * sep, -Mathf.Sin(a) * half * sep,
+                        0.5f + (float)rng.NextDouble() * 0.12f),
+                };
+            }
         }
 
         private float RockinessFromMask(float wx, float wz)
