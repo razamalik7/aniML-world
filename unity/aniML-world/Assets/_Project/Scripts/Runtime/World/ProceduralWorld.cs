@@ -67,6 +67,11 @@ namespace AniML.World
         // Which river carries THE canyon (-1 = none).
         private int _gorgeRiver = -1;
 
+        // The world's fault line (tectonic scarp), seeded per world.
+        private Vector2 _faultPoint, _faultDir, _faultNormal;
+        private FractalNoise _faultNoise;
+        private FractalNoise _duneNoise;
+
         // Every dial a LandformProfile moves, resolved once per generation.
         private struct ProfileDials
         {
@@ -84,6 +89,11 @@ namespace AniML.World
             public float WetlandReach;   // how far marsh spreads from fresh water
             public bool Volcano;
             public float HeightMul;      // overall relief multiplier
+            public bool GlacialCarve;    // U-valleys + moraines above the paleo-snowline
+            public float PaleoSnowline;  // meters above sea where the old ice began
+            public bool Dunes;           // wind-oriented dune fields on dry flats
+            public float FaultScarpH;    // tectonic step height (0 = no fault)
+            public int KarstCount;       // sinkhole bowls (deep-broad ones flood)
         }
         private ProfileDials _dials;
 
@@ -106,6 +116,10 @@ namespace AniML.World
                         GraniteAltitude = 34f,
                         HeightMul = 1f,
                         WetlandReach = 55f,
+                        GlacialCarve = true,
+                        PaleoSnowline = 26f,
+                        FaultScarpH = 7f,
+                        KarstCount = 1,
                         MesaTerraces = false,
                         RiverCount = settings.RiverCount,
                         PondCount = 4,
@@ -141,6 +155,8 @@ namespace AniML.World
                                                        // only true deeps become oases
                         ForestCount = 3,               // cottonwood stands, not woodland
                         CliffSlopeOn = 40f,
+                        Dunes = true,
+                        FaultScarpH = 11f,
                     };
                     break;
 
@@ -168,6 +184,7 @@ namespace AniML.World
                         Volcano = false,
                         HeightMul = 0.6f,
                         WetlandReach = 170f,   // the marsh owns the lowlands
+                        KarstCount = 2,
                     };
                     break;
 
@@ -218,6 +235,8 @@ namespace AniML.World
                         MinLakeDepth = 0.9f,
                         ForestCount = settings.ForestCount,
                         CliffSlopeOn = 40f,
+                        FaultScarpH = 5f,
+                        KarstCount = 3,
                     };
                     break;
             }
@@ -234,6 +253,7 @@ namespace AniML.World
         // rasterized once per generation, erosion runs on the grid, and all
         // queries become bilinear samples — faster AND erodible.
         private float[,] _heightGrid;
+        private float[,] _sedimentOutflow;
         private int _heightRes;
         private float _heightCell;
         private bool _gridReady;
@@ -302,6 +322,19 @@ namespace AniML.World
                 return;
             _gridReady = false;
             ResolveProfileDials();
+
+            // One fault line per world: a wandering tectonic step whose
+            // trace and throw the profile controls.
+            var faultRng = new System.Random(settings.Seed * 211 + 5);
+            float faultAng = (float)faultRng.NextDouble() * Mathf.PI;
+            _faultDir = new Vector2(Mathf.Cos(faultAng), Mathf.Sin(faultAng));
+            _faultNormal = new Vector2(-_faultDir.y, _faultDir.x);
+            _faultPoint = new Vector2(
+                ((float)faultRng.NextDouble() - 0.5f) * settings.WorldSize * 0.4f,
+                ((float)faultRng.NextDouble() - 0.5f) * settings.WorldSize * 0.4f);
+            _faultNoise = new FractalNoise(settings.Seed + 424243, 2, 2f, 0.5f);
+            _duneNoise = new FractalNoise(settings.Seed + 96557, 2, 2f, 0.5f);
+
             _heightNoise = new FractalNoise(settings.Seed, settings.Octaves, settings.Lacunarity, settings.Persistence);
             _moistureNoise = new FractalNoise(settings.Seed + 7919, 3, 2.1f, 0.5f);
             _mountainNoise = new FractalNoise(settings.Seed + 104729, 4, 2.2f, 0.5f);
@@ -722,6 +755,7 @@ namespace AniML.World
                 }
 
                 var rng = new System.Random(settings.Seed * 197 + 3);
+                _sedimentOutflow = new float[_heightRes, _heightRes];
                 int droplets = (_heightRes * _heightRes) / 7;
                 const float inertia = 0.06f;
                 const float capacityK = 3.6f;
@@ -770,9 +804,14 @@ namespace AniML.World
                                    + _heightGrid[nx + 1, nz + 1] * nfx * nfz;
                         float dh = nh - height;
 
-                        // Droplets end at carved channels and the sea.
+                        // Droplets end at carved channels and the sea — and
+                        // hand over whatever sediment they still carry, so
+                        // the coast can build deltas from it (conservation).
                         if (riverMask[ix, iz] || nh <= settings.SeaLevel + 0.5f)
+                        {
+                            _sedimentOutflow[ix, iz] += sediment;
                             break;
+                        }
 
                         float capacity = Mathf.Max(-dh * speed * water * capacityK, minCapacity);
                         if (sediment > capacity || dh > 0f)
@@ -805,6 +844,35 @@ namespace AniML.World
                 }
             }
 
+            // Sediment closure: everything the rain carried to the coast is
+            // deposited as shallow fans — deltas and bars at the mouths,
+            // visible through the depth-faded water. Smoothed twice so fans
+            // spread naturally.
+            for (int pass = 0; pass < 2; pass++)
+            {
+                var blurred = new float[_heightRes, _heightRes];
+                for (int gz = 1; gz < _heightRes - 1; gz++)
+                {
+                    for (int gx = 1; gx < _heightRes - 1; gx++)
+                    {
+                        blurred[gx, gz] = (_sedimentOutflow[gx, gz]
+                            + _sedimentOutflow[gx - 1, gz] + _sedimentOutflow[gx + 1, gz]
+                            + _sedimentOutflow[gx, gz - 1] + _sedimentOutflow[gx, gz + 1]) / 5f;
+                    }
+                }
+                _sedimentOutflow = blurred;
+            }
+            for (int gz = 0; gz < _heightRes; gz++)
+            {
+                for (int gx = 0; gx < _heightRes; gx++)
+                {
+                    if (_sedimentOutflow[gx, gz] <= 0.01f)
+                        continue;
+                    if (_heightGrid[gx, gz] < settings.SeaLevel + 0.2f)
+                        _heightGrid[gx, gz] += Mathf.Min(_sedimentOutflow[gx, gz] * 0.8f, 1.7f);
+                }
+            }
+
             // Fill the single-cell pits droplets leave when they die mid-slope
             // (otherwise priority-flood turns each into a perched puddle).
             for (int pass = 0; pass < 2; pass++)
@@ -819,6 +887,84 @@ namespace AniML.World
                             Mathf.Min(_heightGrid[gx, gz - 1], _heightGrid[gx, gz + 1]));
                         if (h < minN - 0.04f)
                             _heightGrid[gx, gz] = minN - 0.02f;
+                    }
+                }
+            }
+
+            // Dune fields: on dry soft flats, sand piles into ridges running
+            // across the wind, gentle on the windward side.
+            if (_dials.Dunes)
+            {
+                var wind = settings.WindDirection.normalized;
+                for (int gz = 0; gz < _heightRes; gz++)
+                {
+                    for (int gx = 0; gx < _heightRes; gx++)
+                    {
+                        float h = _heightGrid[gx, gz] - settings.SeaLevel;
+                        if (h < 2f || h > 20f)
+                            continue;
+                        float x = gx * _heightCell - half;
+                        float z = gz * _heightCell - half;
+                        if (SampleRockiness01(x, z) > 0.22f)
+                            continue;
+                        float mask = Mathf.InverseLerp(0.46f, 0.62f,
+                            _duneNoise.Sample(x, z, 1f / 230f));
+                        if (mask <= 0f)
+                            continue;
+                        // Skewed wave: long windward back, steep lee face.
+                        float phase = (x * wind.x + z * wind.y) * 0.14f
+                                      + _duneNoise.Sample(z, x, 1f / 90f) * 4f;
+                        float wave = Mathf.Pow(0.5f + 0.5f * Mathf.Sin(phase + 0.65f * Mathf.Sin(phase)), 1.5f);
+                        _heightGrid[gx, gz] += wave * 2.2f * mask;
+                    }
+                }
+            }
+
+            // Glacial carve: above the paleo-snowline the old ice widened
+            // and flattened the valleys (U-profiles) and left a moraine
+            // ridge where it stopped. Ridges survive; floors broaden.
+            if (_dials.GlacialCarve)
+            {
+                float paleo = settings.SeaLevel + _dials.PaleoSnowline;
+                for (int pass = 0; pass < 6; pass++)
+                {
+                    for (int gz = 2; gz < _heightRes - 2; gz++)
+                    {
+                        for (int gx = 2; gx < _heightRes - 2; gx++)
+                        {
+                            float h = _heightGrid[gx, gz];
+                            if (h < paleo)
+                                continue;
+                            float mean = 0f, min = float.MaxValue;
+                            for (int dz = -2; dz <= 2; dz += 2)
+                            {
+                                for (int dx = -2; dx <= 2; dx += 2)
+                                {
+                                    float nh2 = _heightGrid[gx + dx, gz + dz];
+                                    mean += nh2;
+                                    if (nh2 < min) min = nh2;
+                                }
+                            }
+                            mean /= 9f;
+                            if (h <= mean)   // valley floor or lower wall
+                                _heightGrid[gx, gz] =
+                                    Mathf.Lerp(h, min + (h - min) * 0.35f, 0.4f);
+                        }
+                    }
+                }
+                // The terminal moraine: a low rubble ridge along the old
+                // ice margin, on gentle ground only.
+                for (int gz = 2; gz < _heightRes - 2; gz++)
+                {
+                    for (int gx = 2; gx < _heightRes - 2; gx++)
+                    {
+                        float h = _heightGrid[gx, gz];
+                        if (Mathf.Abs(h - paleo) > 1.3f)
+                            continue;
+                        float slope = Mathf.Abs(_heightGrid[gx + 1, gz] - _heightGrid[gx - 1, gz])
+                                      + Mathf.Abs(_heightGrid[gx, gz + 1] - _heightGrid[gx, gz - 1]);
+                        if (slope < 1.4f)
+                            _heightGrid[gx, gz] += 1.5f;
                     }
                 }
             }
@@ -866,6 +1012,54 @@ namespace AniML.World
                             _heightGrid[lx, lz] += move;
                         }
                     }
+                }
+            }
+
+            // Karst: the soluble ground opens sinkholes — parabolic bowls on
+            // gentle mid-elevation ground away from rivers. The broad, deep
+            // ones flood via the ordinary lake detector into karst ponds.
+            if (_dials.KarstCount > 0)
+            {
+                var karstRng = new System.Random(settings.Seed * 233 + 41);
+                int placed = 0;
+                for (int attempt = 0; attempt < 260 && placed < _dials.KarstCount; attempt++)
+                {
+                    float x = ((float)karstRng.NextDouble() * 2f - 1f) * half * 0.7f;
+                    float z = ((float)karstRng.NextDouble() * 2f - 1f) * half * 0.7f;
+                    int cgx = Mathf.RoundToInt((x + half) / _heightCell);
+                    int cgz = Mathf.RoundToInt((z + half) / _heightCell);
+                    if (cgx < 12 || cgz < 12 || cgx >= _heightRes - 12 || cgz >= _heightRes - 12)
+                        continue;
+                    float ch = _heightGrid[cgx, cgz] - settings.SeaLevel;
+                    if (ch < 6f || ch > 30f)
+                        continue;
+                    if (RiverInfluence01(x, z) > 0f || SampleRockiness01(x, z) > 0.4f)
+                        continue;
+                    float spread = Mathf.Abs(_heightGrid[cgx + 5, cgz] - _heightGrid[cgx - 5, cgz])
+                                   + Mathf.Abs(_heightGrid[cgx, cgz + 5] - _heightGrid[cgx, cgz - 5]);
+                    if (spread > 3.5f)
+                        continue;
+
+                    float radius = 14f + (float)karstRng.NextDouble() * 5f;
+                    float depth = 3.2f + (float)karstRng.NextDouble() * 1.2f;
+                    float centerY = _heightGrid[cgx, cgz];
+                    int reach = Mathf.CeilToInt(radius / _heightCell);
+                    for (int dz = -reach; dz <= reach; dz++)
+                    {
+                        for (int dx = -reach; dx <= reach; dx++)
+                        {
+                            float d = Mathf.Sqrt(dx * dx + dz * dz) * _heightCell;
+                            if (d > radius)
+                                continue;
+                            float t = d / radius;
+                            float target = centerY - depth * Mathf.Pow(1f - t * t, 1.2f);
+                            int gx2 = cgx + dx, gz2 = cgz + dz;
+                            if (target < _heightGrid[gx2, gz2])
+                                _heightGrid[gx2, gz2] = Mathf.Lerp(_heightGrid[gx2, gz2], target,
+                                    Mathf.SmoothStep(1f, 0.75f, t));
+                        }
+                    }
+                    placed++;
                 }
             }
 
@@ -1141,6 +1335,18 @@ namespace AniML.World
                     float stepped = Mathf.Round(baseHeight / 8f) * 8f;
                     baseHeight = Mathf.Lerp(baseHeight, stepped, Mathf.Min(rockiness, 0.85f));
                 }
+            }
+
+            // The fault: one side of the island sits higher — a clean
+            // tectonic step whose trace wanders like a real fault line. The
+            // cliff tracer dresses the scarp face on its own.
+            if (_dials.FaultScarpH > 0.01f && _faultNoise != null)
+            {
+                float dLine = (x - _faultPoint.x) * _faultNormal.x + (z - _faultPoint.y) * _faultNormal.y;
+                float along = (x - _faultPoint.x) * _faultDir.x + (z - _faultPoint.y) * _faultDir.y;
+                dLine += (_faultNoise.Sample(along, 17f, 1f / 150f) - 0.5f) * 70f;
+                baseHeight += _dials.FaultScarpH
+                              * Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(-9f, 9f, dLine));
             }
 
             // Island falloff on warped distance — an irregular coastline.
