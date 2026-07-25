@@ -15,6 +15,7 @@ namespace AniML.World
         [SerializeField] private Material terrainMaterial;
         [SerializeField] private Material waterMaterial;
         [SerializeField] private Material riverWaterMaterial;
+        [SerializeField] private Material lakeWaterMaterial;
 
         private FractalNoise _heightNoise;
         private FractalNoise _moistureNoise;
@@ -271,12 +272,13 @@ namespace AniML.World
         public WorldSettings Settings => settings;
 
         public void Configure(WorldSettings s, Material terrainMat, Material waterMat,
-            Material riverMat = null)
+            Material riverMat = null, Material lakeMat = null)
         {
             settings = s;
             terrainMaterial = terrainMat;
             waterMaterial = waterMat;
             riverWaterMaterial = riverMat;
+            lakeWaterMaterial = lakeMat;
         }
 
         /// <summary>
@@ -1992,7 +1994,7 @@ namespace AniML.World
                 // downhill edges floating in air.
                 _inlandCliffs.Add(new InlandCliff
                 {
-                    Pos = new Vector3(footX, footY - (1.0f + drop * 0.12f), footZ),
+                    Pos = new Vector3(footX, footY - (1.5f + drop * 0.17f), footZ),
                     YawDeg = Mathf.Atan2(down.x, down.y) * Mathf.Rad2Deg
                              + ((float)rng.NextDouble() - 0.5f) * 12f,
                     Scale = Mathf.Clamp(drop / 9f, 0.9f, 2.6f),
@@ -2169,9 +2171,9 @@ namespace AniML.World
         {
             float half = settings.WorldSize * 0.5f;
             float baseY = summitH - scale * 2.2f + 1.5f;   // matches WonderPlacer sink
-            float radius = 12.5f * scale;
-            const float blend = 42f;
-            int reach = Mathf.CeilToInt((radius + blend) / _heightCell);
+            float radius = 14f * scale;                    // covers the full mesh skirt
+            const float blend = 85f;                       // long, gentle shoulder
+            int reach = Mathf.CeilToInt((radius * 1.2f + blend) / _heightCell);
             int cgx = Mathf.RoundToInt((x + half) / _heightCell);
             int cgz = Mathf.RoundToInt((z + half) / _heightCell);
 
@@ -2183,14 +2185,20 @@ namespace AniML.World
                     if (gx < 0 || gz < 0 || gx >= _heightRes || gz >= _heightRes)
                         continue;
                     float d = Mathf.Sqrt(dx * dx + dz * dz) * _heightCell;
-                    if (d > radius + blend)
+                    // A noisy rim: the pedestal edge wanders so the mountain
+                    // base never reads as a clean circle / straight seam.
+                    float rimNoise = 0.86f + 0.28f * Mathf.PerlinNoise(
+                        (x + dx * _heightCell) * 0.013f + 91f,
+                        (z + dz * _heightCell) * 0.013f - 47f);
+                    float effRadius = radius * rimNoise;
+                    if (d > effRadius + blend)
                         continue;
                     float target;
-                    if (d <= radius)
-                        target = baseY - (d / radius) * 2.5f;
+                    if (d <= effRadius)
+                        target = baseY - (d / effRadius) * 2.5f;
                     else
                         target = Mathf.Lerp(baseY - 2.5f, _heightGrid[gx, gz],
-                            Mathf.SmoothStep(0f, 1f, (d - radius) / blend));
+                            Mathf.SmoothStep(0f, 1f, (d - effRadius) / blend));
                     if (target > _heightGrid[gx, gz])
                         _heightGrid[gx, gz] = target;
                 }
@@ -2416,7 +2424,8 @@ namespace AniML.World
                     {
                         var p = path[i];
                         p.y -= gorge * _dials.CanyonDepth;
-                        p.w *= 1f - gorge * 0.15f;  // narrow the slot
+                        p.w *= 1f - gorge * 0.4f;   // narrow the slot so the
+                                                    // ribbon stays off the walls
                         path[i] = p;
                     }
                 }
@@ -2619,11 +2628,24 @@ namespace AniML.World
                 var go = new GameObject("LakeWater") { hideFlags = HideFlags.DontSave };
                 go.transform.SetParent(transform, false);
                 go.AddComponent<MeshFilter>().sharedMesh = mesh;
-                go.AddComponent<MeshRenderer>().sharedMaterial = waterMaterial;
+                go.AddComponent<MeshRenderer>().sharedMaterial =
+                    lakeWaterMaterial != null ? lakeWaterMaterial : waterMaterial;
             }
 
-            foreach (var river in _rivers)
+            foreach (var rawRiver in _rivers)
             {
+                // One pass of Chaikin corner-cutting so the ribbon flows in
+                // curves instead of the march's straight segments. (Only the
+                // mesh is smoothed — influence/bed queries keep the raw path.)
+                var river = new List<Vector4>(rawRiver.Count * 2);
+                river.Add(rawRiver[0]);
+                for (int i = 0; i + 1 < rawRiver.Count; i++)
+                {
+                    river.Add(Vector4.Lerp(rawRiver[i], rawRiver[i + 1], 0.25f));
+                    river.Add(Vector4.Lerp(rawRiver[i], rawRiver[i + 1], 0.75f));
+                }
+                river.Add(rawRiver[rawRiver.Count - 1]);
+
                 var verts = new List<Vector3>();
                 var uvs = new List<Vector2>();
                 var tris = new List<int>();

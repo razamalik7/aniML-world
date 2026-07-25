@@ -56,7 +56,8 @@ namespace AniML.EditorTools
             if (world == null)
                 world = root.AddComponent<ProceduralWorld>();
 
-            world.Configure(settings, material, EnsureWaterMaterial(), EnsureRiverWaterMaterial());
+            world.Configure(settings, material, EnsureWaterMaterial(),
+                EnsureRiverWaterMaterial(), EnsureLakeWaterMaterial());
             world.Generate();
 
             var scatter = root.GetComponent<ScatterSystem>();
@@ -330,7 +331,7 @@ namespace AniML.EditorTools
             // shader) — real granite is the plain Rock / Rock_Rough meshes,
             // scaled up to wall size.
             var granite = CliffWallLayer("CliffWallGranite", CliffFamily.Granite, AlpineRoot,
-                new Vector2(1.5f, 2.2f),
+                new Vector2(1.4f, 2.0f),
                 "SM_Env_Rock_Rough_01", "SM_Env_Rock_Rough_02",
                 "SM_Env_Rock_01", "SM_Env_Rock_010");
             var red = CliffWallLayer("CliffWallRedRock", CliffFamily.RedRock, AridRoot,
@@ -887,6 +888,24 @@ namespace AniML.EditorTools
         [MenuItem("AniML/World/Profile/Swamp Delta")]
         public static void ProfileSwampDelta() => SetProfileAndGenerate(LandformProfile.SwampDelta);
 
+        /// <summary>Log every wonder and summit with its position, so you
+        /// can fly straight to THE canyon instead of hunting for it.</summary>
+        [MenuItem("AniML/World/Print Wonder Locations")]
+        public static void PrintWonderLocations()
+        {
+            var world = Object.FindFirstObjectByType<ProceduralWorld>();
+            if (world == null)
+            {
+                Debug.LogWarning("[AniML] No world in the scene.");
+                return;
+            }
+            world.EnsureSamplers();
+            foreach (var w in world.Wonders)
+                Debug.Log($"[AniML] {w.Kind} at ({w.Pos.x:F0}, {w.Pos.z:F0})");
+            foreach (var s in world.Summits)
+                Debug.Log($"[AniML] Summit at ({s.Pos.x:F0}, {s.Pos.z:F0})");
+        }
+
         private static void SetProfileAndGenerate(LandformProfile p)
         {
             var s = LoadOrCreateSettings();
@@ -1176,11 +1195,37 @@ namespace AniML.EditorTools
                 AssetDatabase.CreateAsset(mat, WaterMaterialPath);
                 AssetDatabase.SaveAssets();
             }
-            // Migrate pre-stylized assets onto the real water shader.
+            // Migrate pre-stylized assets onto the real water shader; the
+            // open sea carries the visible swell.
             if (stylized != null && mat.shader != stylized)
             {
                 mat.shader = stylized;
                 EditorUtility.SetDirty(mat);
+            }
+            if (mat.HasProperty("_BobAmp") && !Mathf.Approximately(mat.GetFloat("_BobAmp"), 0.05f))
+            {
+                mat.SetFloat("_BobAmp", 0.05f);
+                EditorUtility.SetDirty(mat);
+                AssetDatabase.SaveAssets();
+            }
+            return mat;
+        }
+
+        private const string LakeMaterialPath = "Assets/_Project/Art/Materials/M_Water_Lake.mat";
+
+        private static Material EnsureLakeWaterMaterial()
+        {
+            var stylized = Shader.Find("AniML/StylizedWater");
+            if (stylized == null)
+                return EnsureWaterMaterial();
+            var mat = AssetDatabase.LoadAssetAtPath<Material>(LakeMaterialPath);
+            if (mat == null)
+            {
+                mat = new Material(stylized) { name = "M_Water_Lake" };
+                mat.SetFloat("_BobAmp", 0.012f);   // near-still: no ebbing shores
+                mat.SetFloat("_DepthRange", 4f);
+                mat.SetColor("_ShallowColor", new Color(0.34f, 0.62f, 0.6f, 0.6f));
+                AssetDatabase.CreateAsset(mat, LakeMaterialPath);
                 AssetDatabase.SaveAssets();
             }
             return mat;

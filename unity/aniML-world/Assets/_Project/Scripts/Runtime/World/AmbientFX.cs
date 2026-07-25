@@ -111,7 +111,7 @@ namespace AniML.World
         private int PlaceCascades(ProceduralWorld world, GameObject root)
         {
             int n = 0;
-            world.ForEachRiverDrop(1.1f, (pos, yaw, drop) =>
+            world.ForEachRiverDrop(1.7f, (pos, yaw, drop) =>
             {
                 foreach (var w in world.Wonders)
                 {
@@ -119,10 +119,10 @@ namespace AniML.World
                         return;
                 }
                 Spawn(root, "CascadeFoam", pos + Vector3.down * 0.15f, yaw,
-                    Mathf.Clamp(drop * 0.5f, 0.7f, 1.6f));
-                if (drop > 2.6f)
+                    Mathf.Clamp(drop * 0.35f, 0.5f, 1.0f));
+                if (drop > 3.2f)
                     Spawn(root, "CascadeImpact", pos + Vector3.down * 0.3f, yaw,
-                        Mathf.Clamp(drop / 4f, 0.8f, 1.6f));
+                        Mathf.Clamp(drop / 5f, 0.7f, 1.2f));
                 n++;
             });
             return n;

@@ -17,6 +17,7 @@ Shader "AniML/StylizedWater"
         _WaveStrength("Shimmer Strength", Range(0, 0.3)) = 0.07
         _FlowUV("Use Mesh UV Flow (rivers)", Float) = 0
         _FlowSpeed("Flow Speed", Float) = 0.55
+        _BobAmp("Swell Amplitude (m)", Float) = 0
     }
     SubShader
     {
@@ -63,6 +64,7 @@ Shader "AniML/StylizedWater"
                 float _WaveStrength;
                 float _FlowUV;
                 float _FlowSpeed;
+                float _BobAmp;
             CBUFFER_END
 
             float Hash21(float2 p)
@@ -88,11 +90,13 @@ Shader "AniML/StylizedWater"
             {
                 Varyings OUT;
                 float3 wp = TransformObjectToWorld(IN.positionOS.xyz);
-                // Gentle swell on still water; rivers keep their flat run.
-                if (_FlowUV < 0.5)
+                // Swell is per-material: the open sea rolls, lakes barely
+                // breathe (a moving waterline on a flat shore reads as the
+                // pond growing and shrinking), rivers stay flat.
+                if (_BobAmp > 0.0001)
                 {
                     wp.y += (sin(wp.x * 0.11 + _Time.y * 1.15)
-                             + cos(wp.z * 0.083 + _Time.y * 1.45)) * 0.07;
+                             + cos(wp.z * 0.083 + _Time.y * 1.45)) * _BobAmp;
                 }
                 OUT.positionWS = wp;
                 OUT.positionHCS = TransformWorldToHClip(wp);
@@ -133,6 +137,13 @@ Shader "AniML/StylizedWater"
                 float foam = smoothstep(0.45, 0.8, foamBand);
                 col.rgb = lerp(col.rgb, _FoamColor.rgb, foam * _FoamColor.a);
                 col.a = max(col.a, foam * _FoamColor.a);
+
+                // River ribbons fade out at their edges so banks never show
+                // a hard straight waterline.
+                if (_FlowUV > 0.5)
+                {
+                    col.a *= smoothstep(0.0, 0.2, IN.uv.x) * smoothstep(1.0, 0.8, IN.uv.x);
+                }
 
                 return col;
             }
