@@ -2647,6 +2647,111 @@ namespace AniML.World
 
         // ---- Rivers ----
 
+        /// <summary>
+        /// D8 flow accumulation on a coarse pre-river heightfield: every
+        /// cell drains to its steepest-descent neighbor, and drainage area
+        /// accumulates downstream. River sources are the well-separated
+        /// cells where real catchments first concentrate — ravine heads,
+        /// not random spots on the map.
+        /// </summary>
+        private List<Vector2> ComputeFlowSources()
+        {
+            const int res = 128;
+            float half = settings.WorldSize * 0.5f;
+            float cell = settings.WorldSize / (res - 1);
+
+            var height = new float[res * res];
+            for (int gz = 0; gz < res; gz++)
+                for (int gx = 0; gx < res; gx++)
+                    height[gz * res + gx] = RawHeight(gx * cell - half, gz * cell - half);
+
+            // Downstream neighbor per cell (D8 steepest descent).
+            var downstream = new int[res * res];
+            for (int gz = 0; gz < res; gz++)
+            {
+                for (int gx = 0; gx < res; gx++)
+                {
+                    int i = gz * res + gx;
+                    downstream[i] = -1;
+                    float best = height[i];
+                    for (int dz = -1; dz <= 1; dz++)
+                    {
+                        for (int dx = -1; dx <= 1; dx++)
+                        {
+                            if (dx == 0 && dz == 0) continue;
+                            int nx = gx + dx, nz = gz + dz;
+                            if (nx < 0 || nz < 0 || nx >= res || nz >= res) continue;
+                            // Diagonal steps are longer — compare true slope.
+                            float nh = height[nz * res + nx];
+                            float drop = (height[i] - nh) / ((dx != 0 && dz != 0) ? 1.414f : 1f);
+                            if (height[i] - drop < best)
+                            {
+                                best = height[i] - drop;
+                                downstream[i] = nz * res + nx;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Accumulate drainage area from the top down.
+            var order = new int[res * res];
+            for (int i = 0; i < order.Length; i++) order[i] = i;
+            System.Array.Sort(order, (a, b) => height[b].CompareTo(height[a]));
+            var accum = new float[res * res];
+            for (int i = 0; i < accum.Length; i++) accum[i] = 1f;
+            foreach (int i in order)
+                if (downstream[i] >= 0)
+                    accum[downstream[i]] += accum[i];
+
+            // Candidate sources: cells where a catchment has concentrated,
+            // high enough to march from, ranked by drainage area and kept
+            // well apart so each river owns its valley.
+            float minH = 30f * _dials.HeightMul;
+            var candidates = new List<int>();
+            for (int i = 0; i < accum.Length; i++)
+                if (accum[i] >= 25f && height[i] >= minH)
+                    candidates.Add(i);
+            candidates.Sort((a, b) => accum[b].CompareTo(accum[a]));
+
+            // A candidate must actually drain to the sea. Sources inside
+            // closed basins (summit bowls, karst pits) would carve escape
+            // trenches through the rim and flood the bowl into a lake,
+            // drowning whatever lived there.
+            bool DrainsToSea(int start)
+            {
+                int i = start;
+                for (int steps = 0; steps < res * res; steps++)
+                {
+                    if (height[i] < settings.SeaLevel + 0.5f)
+                        return true;
+                    int next = downstream[i];
+                    if (next < 0)
+                        return false;                       // interior pit
+                    i = next;
+                }
+                return false;
+            }
+
+            var picked = new List<Vector2>();
+            float minSepSq = 130f * 130f;
+            foreach (int i in candidates)
+            {
+                if (!DrainsToSea(i))
+                    continue;
+                var p = new Vector2((i % res) * cell - half, (i / res) * cell - half);
+                bool clear = true;
+                foreach (var q in picked)
+                    if ((p - q).sqrMagnitude < minSepSq) { clear = false; break; }
+                if (!clear)
+                    continue;
+                picked.Add(p);
+                if (picked.Count >= _dials.RiverCount * 3)
+                    break;
+            }
+            return picked;
+        }
+
         private void BuildRivers()
         {
             _rivers.Clear();
@@ -2658,10 +2763,25 @@ namespace AniML.World
             float half = settings.WorldSize * 0.5f;
             int attempts = 0;
 
+            // Flow-derived sourcing: rivers rise where the terrain says
+            // water concentrates, not at random high points.
+            var flowSources = settings.FlowDerivedRivers ? ComputeFlowSources() : null;
+            int nextSource = 0;
+
             while (_rivers.Count < _dials.RiverCount && attempts++ < 60)
             {
-                float sx = ((float)rng.NextDouble() * 2f - 1f) * half * 0.7f;
-                float sz = ((float)rng.NextDouble() * 2f - 1f) * half * 0.7f;
+                float sx, sz;
+                if (flowSources != null && nextSource < flowSources.Count)
+                {
+                    var s = flowSources[nextSource++];
+                    sx = s.x;
+                    sz = s.y;
+                }
+                else
+                {
+                    sx = ((float)rng.NextDouble() * 2f - 1f) * half * 0.7f;
+                    sz = ((float)rng.NextDouble() * 2f - 1f) * half * 0.7f;
+                }
                 if (RawHeight(sx, sz) < 30f * _dials.HeightMul)
                     continue;
 
