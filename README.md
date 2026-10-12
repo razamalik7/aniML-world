@@ -5,8 +5,11 @@ animation, trained with adversarial imitation learning in NVIDIA Isaac Lab. The 
 target is an ecosystem simulation in Unity 6 where every animal's body is driven by a
 learned controller rather than canned animation.
 
-The first species is a deer: a 38-joint articulated body with full self-collision,
-trained with Adversarial Motion Priors (AMP) and then Adversarial Skill Embeddings (ASE).
+The project has two halves. The animals: the first species is a deer, a 38-joint
+articulated body with full self-collision, trained with Adversarial Motion Priors (AMP) and
+then Adversarial Skill Embeddings (ASE). The world: a procedurally generated island in
+Unity 6, built from simulated geological and hydrological processes rather than painted
+terrain.
 
 <p align="center">
   <img src="docs/media/trot_d2.gif" width="560" alt="Learned deer trot in Isaac Lab">
@@ -140,11 +143,42 @@ straight line (no measurable heading drift) with regular stride timing at around
 - Every policy trots well and walks slowly badly; slow, near-static gaits are still open.
 - Command tracking is loose: several policies settle at their own preferred speed.
 
+## The world
+
+The island the animals will live on is generated, not authored. Each seed runs a pipeline
+of physical processes, roughly in the order they would act on real terrain:
+
+- **Landmass**: domain-warped fractal noise with ridged mountain masks and an island
+  falloff. Each seed rolls a landmass shape: a single island, a crescent with a deep bay,
+  a peninsula, or twin isles separated by a strait.
+- **Erosion**: about 37,000 simulated droplets of hydraulic erosion carve dendritic
+  tributaries and sediment fans, followed by thermal erosion that settles slopes to a talus
+  angle. Rock hardness damps both, so mesas and crags stay sharp.
+- **Water**: rivers are traced from flow accumulation, with monotonic carved beds,
+  meanders and oxbows on lowlands, and waterfalls where they drop. Lakes are found with a
+  priority-flood pass, so standing water exists exactly where the terrain would hold it.
+- **Geology**: glacial carving into U-shaped valleys with moraines above a paleo-snowline,
+  wind-transverse dune fields, fault scarps, karst, sea stacks, and caves.
+- **Climate and life**: moisture from distance to fresh water, temperature from latitude
+  and altitude, rain shadows behind ranges, and biome-driven vegetation scatter from those
+  fields.
+- **Profiles**: one set of dials produces coherent variants from the same seed, including
+  temperate isles, alpine granite, canyonlands and a volcanic island with a lava flow
+  routed down the real terrain gradient.
+
+The world also reacts at runtime: weather wets and darkens the ground, snowlines move,
+there are seasons and a day-night cycle, and wildfire can spread. Ambient life (raptors,
+songbirds, bats, fireflies, butterflies) follows biome and time-of-day rules. The terrain
+and water shaders are custom; the environment art uses Synty's POLYGON packs, which are licensed and not included here.
+
+<!-- World screenshots go here: docs/media/world_*.png -->
+
 ## Next
 
 The Malbers pack ships about 60 animation takes and the deer currently uses three. Next
 is a behaviour model (grazing, drinking, idle variants, turns, reactions) built as ASE
-stage 2 on top of the locomotion controller, then export to Unity.
+stage 2 on top of the locomotion controller, then exporting the policy to Unity so the deer
+runs on the generated island.
 
 ## Stack
 
@@ -159,11 +193,16 @@ training/polyart/        environment config, rewards, observations, ASE
 training/scripts/        training entry point (AMP / ASE patches on amp-rsl-rl)
 tools/rig_pipeline/      URDF build, reference extraction, preflight, gait analysis
 tools/                   evaluation and rendering
+unity/aniML-world/       Unity 6 project: world generation, shaders, runtime systems
+experiments/launch/      the exact configuration of every training run
 docs/                    write-ups of individual findings
+archive/                 earlier plans and session logs
 ```
 
 ## Assets
 
-The deer model and animations come from the Malbers Animations Forest Pack, which is a
-paid asset and is not redistributed here. The pipeline expects a local copy; the path is
-set in `configs/species/deer_polyart.json`.
+The deer model and animations come from the Malbers Animations Forest Pack, and the
+environment art from Synty's POLYGON packs. Both are paid assets and are not redistributed
+here, and neither is anything generated from them (rig meshes, USD files, extracted motion
+clips). The pipeline expects a local copy of the deer pack; the path is set in
+`configs/species/deer_polyart.json`.
