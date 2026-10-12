@@ -1,0 +1,67 @@
+source: docs/G_rollout.npz
+frames=400 envs=4 fps=50
+targets: duty (0.55, 0.8), liftoffs/s (0.6, 1.6), leg activity (12.0, 24.0) deg
+
+==============================================================================
+G_rollout  env 0
+==============================================================================
+  travel 11.87 m in 8.00s = 1.483 m/s   straightness 0.97   pelvis z mean 0.94 min 0.81
+  contact source: PhysX contact forces (>20 N = bearing load)
+
+  leg         duty       lift/s       activity     
+  L-hind      0.04 LOW     1.25 ok        6.4d LOW 
+  R-hind      0.51 LOW     3.12 HIGH     12.2d ok  
+  L-front     0.12 LOW     3.25 HIGH     12.2d ok  
+  R-front     0.00 LOW     0.00 LOW       6.9d LOW 
+
+  duty in walk range: NO    step rate balanced across legs: NO  (spread 3.25/s)
+  LEG PARTICIPATION: front/hind load 0.23 (1.0 = balanced, <0.5 = front legs barely bearing)
+     *** 2 leg(s) under 8% duty -- effectively unused: L-hind, R-front ***
+  VERDICT: NOT a walk gait
+
+  JOINT-RANGE CONFORMANCE (% of samples outside the reference's range):
+    L_Forearm_to_L_Hand          ref[  -25.2,  88.2] policy[  -63.8,  -0.2]    64% <== OUT OF STYLE
+    R_HorseLink_to_R_Foot        ref[  -17.0,  78.0] policy[  -68.9,   7.6]    63% <== OUT OF STYLE
+    R_Calf_to_R_HorseLink        ref[  -11.5,  63.0] policy[  -50.5,  20.8]    51% <== OUT OF STYLE
+    L_Thigh_dof0_to_L_Thigh      ref[   -0.5,   9.5] policy[   -7.8,   5.2]    46% <== OUT OF STYLE
+    L_UpperArm_to_L_Forearm      ref[   -6.1,  67.2] policy[  -20.6,  22.1]    40% <== OUT OF STYLE
+    L_Hand_to_L_Finger0          ref[  -11.2,  47.6] policy[  -37.6,  58.8]    36% <== OUT OF STYLE
+    6/22 leg joints spend >25% of the time outside the reference range  <-- will look wrong
+
+  footfall (#=bearing load, .=swing), one column per frame:
+    L-hind   |..#.................#.................................#............#........................#.......|
+    R-hind   |.###...##..##..###..###..##..##..##..##..##...##..##..##..###..##..##..###..#..###..##..##..##...##.|
+    L-front  |..#........#........#........#...#...#...#............#...#............#....................#.......|
+    R-front  |....................................................................................................|
+
+==============================================================================
+G_rollout  env 1
+==============================================================================
+  travel 17.70 m in 8.00s = 2.213 m/s   straightness 0.98   pelvis z mean 0.95 min 0.79
+  contact source: PhysX contact forces (>20 N = bearing load)
+
+  leg         duty       lift/s       activity     
+  L-hind      0.47 LOW     3.50 HIGH     16.1d ok  
+  R-hind      0.02 LOW     0.62 ok       16.3d ok  
+  L-front     0.01 LOW     0.50 LOW      17.3d ok  
+  R-front     0.21 LOW     2.50 HIGH     24.0d HIGH
+
+  duty in walk range: NO    step rate balanced across legs: NO  (spread 3.00/s)
+  LEG PARTICIPATION: front/hind load 0.44 (1.0 = balanced, <0.5 = front legs barely bearing)
+     *** 2 leg(s) under 8% duty -- effectively unused: R-hind, L-front ***
+  VERDICT: NOT a walk gait
+
+  JOINT-RANGE CONFORMANCE (% of samples outside the reference's range):
+    L_HorseLink_to_L_Foot        ref[  -65.7,  16.3] policy[  -51.0,  52.5]    56% <== OUT OF STYLE
+    R_UpperArm_dof0_to_R_UpperArm ref[  -36.8,  -2.1] policy[  -53.7,  38.5]    53% <== OUT OF STYLE
+    L_Hand_to_L_Finger0          ref[  -11.2,  47.6] policy[    7.4,  82.0]    48% <== OUT OF STYLE
+    R_Calf_to_R_HorseLink        ref[  -11.5,  63.0] policy[   -4.5,  98.1]    44% <== OUT OF STYLE
+    R_Clavicle_to_R_UpperArm_dof0 ref[  -38.2,   2.9] policy[  -49.4,  18.4]    38% <== OUT OF STYLE
+    R_UpperArm_to_R_Forearm      ref[    4.8,  82.8] policy[  -39.7,  55.1]    26% <== OUT OF STYLE
+    8/22 leg joints spend >25% of the time outside the reference range  <-- will look wrong
+
+  footfall (#=bearing load, .=swing), one column per frame:
+    L-hind   |..###.##....###.##....###..##....####.##....###..##.....####.#....####.##....####.#.....####.#.....#|
+    R-hind   |............#...........................................................................#...........|
+    L-front  |..................................#.................................................................|
+    R-front  |.###.........#.##.......#.#..........#........#.#........#..#......#..#.......#.##.........##.......|

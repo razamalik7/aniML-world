@@ -10,38 +10,94 @@ from isaaclab.assets import ArticulationCfg
 
 
 def deer_dc_actuator_cfg() -> DCMotorCfg:
-    """Per-joint DC motor PD. Legs get firm gains so they can push off the
-    ground; spine/neck/skull get very soft gains so they passively sway with
-    gravity/momentum instead of being actively held rigid by the servo.
+    """Per-joint DC motor PD with anatomical front/hind split (URDF v3).
 
-    Env vars:
-      ANIML_DEER_STIFFNESS / _DAMPING            -> legs (load-bearing)
-      ANIML_DEER_SOFT_STIFFNESS / _SOFT_DAMPING  -> spine + neck + skull
+    Per cervid biomechanics (escape-gait literature): forelimbs act as elastic
+    *struts* (passive energy absorbers / decelerators), hindlimbs as active
+    *drivers* (extensors that produce propulsive force). The gain split below
+    encodes that:
+
+      Front legs (FR_*, FL_*):  lower stiffness, higher damping  -> compliant
+      Hind  legs (HR_*, HL_*):  higher stiffness, normal damping -> active
+      Spine + neck + skull:     very soft (passive sway)
+
+    Env vars (override defaults):
+      Legs (per-side gains)
+        ANIML_DEER_FRONT_STIFFNESS / _FRONT_DAMPING
+        ANIML_DEER_HIND_STIFFNESS  / _HIND_DAMPING
+      Effort/velocity limits (separate front/hind, hind gets more headroom
+      because hindlimbs do the propulsion)
+        ANIML_DEER_FRONT_EFFORT / _FRONT_VELOCITY
+        ANIML_DEER_HIND_EFFORT  / _HIND_VELOCITY
+      Soft (spine/neck/skull)
+        ANIML_DEER_SOFT_STIFFNESS / _SOFT_DAMPING
+      Legacy (backward compat — used by tests when front/hind not specified)
+        ANIML_DEER_STIFFNESS / _DAMPING (treated as a baseline if specific
+        front/hind aren't set)
     """
     sat = float(os.environ.get("ANIML_DEER_SATURATION_EFFORT", "350"))
-    eff = float(os.environ.get("ANIML_DEER_EFFORT_LIMIT", "300"))
-    vel = float(os.environ.get("ANIML_DEER_VELOCITY_LIMIT", "100"))
-    leg_stiff  = float(os.environ.get("ANIML_DEER_STIFFNESS",       "60"))
-    leg_damp   = float(os.environ.get("ANIML_DEER_DAMPING",         "4"))
-    soft_stiff = float(os.environ.get("ANIML_DEER_SOFT_STIFFNESS",  "5"))
-    soft_damp  = float(os.environ.get("ANIML_DEER_SOFT_DAMPING",    "0.5"))
+    # Per-leg-class effort + velocity (hind gets more torque/speed for propulsion).
+    front_eff = float(os.environ.get("ANIML_DEER_FRONT_EFFORT",   "240"))
+    hind_eff  = float(os.environ.get("ANIML_DEER_HIND_EFFORT",    "360"))
+    front_vel = float(os.environ.get("ANIML_DEER_FRONT_VELOCITY", "80"))
+    hind_vel  = float(os.environ.get("ANIML_DEER_HIND_VELOCITY",  "120"))
+    # The DCMotorCfg has scalar effort_limit/velocity_limit, not per-joint. Take
+    # the larger to size the motor model; per-joint torque is still bounded by
+    # PhysX joint drive limits and saturation_effort below.
+    eff = max(front_eff, hind_eff)
+    vel = max(front_vel, hind_vel)
+    # Per-leg-class stiffness/damping (THE biomech split).
+    legacy_stiff = float(os.environ.get("ANIML_DEER_STIFFNESS", "60"))
+    legacy_damp  = float(os.environ.get("ANIML_DEER_DAMPING",   "4"))
+    front_stiff = float(os.environ.get("ANIML_DEER_FRONT_STIFFNESS", "40"))
+    front_damp  = float(os.environ.get("ANIML_DEER_FRONT_DAMPING",   "4"))   # v4.1: 6 -> 4 to let front knees bend more visibly (less stilt-like)
+    hind_stiff  = float(os.environ.get("ANIML_DEER_HIND_STIFFNESS",  str(legacy_stiff + 10)))
+    hind_damp   = float(os.environ.get("ANIML_DEER_HIND_DAMPING",    str(legacy_damp)))
+    soft_stiff  = float(os.environ.get("ANIML_DEER_SOFT_STIFFNESS",  "5"))
+    soft_damp   = float(os.environ.get("ANIML_DEER_SOFT_DAMPING",    "0.5"))
+
     return DCMotorCfg(
         joint_names_expr=[".*"],
         saturation_effort=sat,
         effort_limit=eff,
         velocity_limit=vel,
+        # Mutually-exclusive joint patterns — DCMotorCfg raises ValueError on
+        # multi-match. Order: HAA frames first (explicit), then leg flex/ankle
+        # (regex grouped by L/R prefix), then spine/neck/skull.
         stiffness={
-            # Legs: anything with thigh/shin/foot in the name (12 joints)
-            ".*(thigh|shin|foot).*": leg_stiff,
-            # Spine/neck/skull: near-passive
-            "pelvis_to_chest":       soft_stiff,
-            "chest_to_neck":         soft_stiff,
+            # Hind hip abduction (load-bearing, active)
+            "pelvis_to_HR_hipabd":   hind_stiff,
+            "pelvis_to_HL_hipabd":   hind_stiff,
+            # Front hip abduction (load-bearing, more compliant)
+            "chest_to_FR_hipabd":    front_stiff,
+            "chest_to_FL_hipabd":    front_stiff,
+            # Hind leg flex/ankle (active drivers)
+            r"H(R|L)_(thigh|shin|foot|toe)_to_H(R|L)_(thigh|shin|foot|toe)":  hind_stiff,
+            r"H(R|L)_hipabd_to_H(R|L)_thigh":                          hind_stiff,
+            # Front leg flex/ankle (compliant struts)
+            r"F(R|L)_(thigh|shin|foot|toe)_to_F(R|L)_(thigh|shin|foot|toe)":  front_stiff,
+            r"F(R|L)_hipabd_to_F(R|L)_thigh":                          front_stiff,
+            # Spine yaw + pitch (near-passive)
+            "pelvis_to_chest_yaw":   soft_stiff,
+            "chest_yaw_to_chest":    soft_stiff,
+            # Neck yaw + pitch + skull (near-passive)
+            "chest_to_neck_yaw":     soft_stiff,
+            "neck_yaw_to_neck":      soft_stiff,
             "neck_to_skull":         soft_stiff,
         },
         damping={
-            ".*(thigh|shin|foot).*": leg_damp,
-            "pelvis_to_chest":       soft_damp,
-            "chest_to_neck":         soft_damp,
+            "pelvis_to_HR_hipabd":   hind_damp,
+            "pelvis_to_HL_hipabd":   hind_damp,
+            "chest_to_FR_hipabd":    front_damp,
+            "chest_to_FL_hipabd":    front_damp,
+            r"H(R|L)_(thigh|shin|foot|toe)_to_H(R|L)_(thigh|shin|foot|toe)":  hind_damp,
+            r"H(R|L)_hipabd_to_H(R|L)_thigh":                          hind_damp,
+            r"F(R|L)_(thigh|shin|foot|toe)_to_F(R|L)_(thigh|shin|foot|toe)":  front_damp,
+            r"F(R|L)_hipabd_to_F(R|L)_thigh":                          front_damp,
+            "pelvis_to_chest_yaw":   soft_damp,
+            "chest_yaw_to_chest":    soft_damp,
+            "chest_to_neck_yaw":     soft_damp,
+            "neck_yaw_to_neck":      soft_damp,
             "neck_to_skull":         soft_damp,
         },
     )
@@ -62,27 +118,55 @@ def _env_flag(name: str, *, default: bool) -> bool:
 # See .cursor/rules/deer-orientation.mdc for why this must not change.
 _DEFAULT_ROT = "0.7071068,-0.7071068,0,0"
 
-# CoM fix: hind feet are +0.245m behind pelvis, front feet -0.593m forward.
-# Foot centroid is 0.245m behind CoM -> deer tips backward.
-# Bend hind legs forward (+) and tuck front legs back (-) to center the support polygon.
+# URDF v2 default joint pose (21 DOF) — "ready to walk", not "balanced standing".
+#
+# Walk-These-Ways uses default joint angles that put the robot close to a stride
+# pose, not centered-stand. This makes small action offsets produce stride-like
+# motion. Our previous defaults (front legs tucked back, hind legs swung forward,
+# knees straight) biased the policy toward stillness — small offsets stayed near
+# stationary stance, never spontaneously cycling through a stride.
+#
+# New defaults:
+#   - All 4 hips (X-axis flex) at 0.0 (legs straight down, vertically)
+#   - Front knees at +0.5 rad (forward-bent — natural for FR/FL whose limit is [0, 2.2])
+#   - Hind knees at -0.7 rad (backward-bent — natural for HR/HL whose limit is [-2.2, 0])
+#   - All 4 ankles at 0 (foot tip pointing down naturally from shin)
+#   - All HAA / spine yaw / neck yaw at 0
+#
+# This puts the deer in a "loaded spring" stance where every leg is bent —
+# extending any joint by a small action drives the foot down or forward.
 _DEFAULT_JOINT_POS = {
-    "pelvis_to_chest":      0.0,
-    # Hind legs: swing forward so hind feet move from Y=+0.10 toward Y=-0.15
-    "pelvis_to_HR_thigh":   0.4,
-    "HR_thigh_to_HR_shin":  0.0,
-    "HR_shin_to_HR_foot":   0.0,
-    "pelvis_to_HL_thigh":   0.4,
-    "HL_thigh_to_HL_shin":  0.0,
-    "HL_shin_to_HL_foot":   0.0,
-    # Front legs: tuck back so front feet sit under the chest
-    "chest_to_FR_thigh":   -0.4,
-    "FR_thigh_to_FR_shin":  0.0,
-    "FR_shin_to_FR_foot":   0.0,
-    "chest_to_FL_thigh":   -0.4,
-    "FL_thigh_to_FL_shin":  0.0,
-    "FL_shin_to_FL_foot":   0.0,
-    "chest_to_neck":        0.0,
-    "neck_to_skull":        0.0,
+    # Spine
+    "pelvis_to_chest_yaw":     0.0,
+    "chest_yaw_to_chest":      0.0,
+    # Hind right
+    "pelvis_to_HR_hipabd":     0.0,
+    "HR_hipabd_to_HR_thigh":  +0.30,   # v8 stance fix: hind hip back -> feet under hips (was 0.0)
+    "HR_thigh_to_HR_shin":    -0.50,   # v8 stance fix: less bend, un-scrunch (was -0.7)
+    "HR_shin_to_HR_foot":      0.0,
+    "HR_foot_to_HR_toe":       0.0,    # pastern (fetlock) — neutral stance
+    # Hind left
+    "pelvis_to_HL_hipabd":     0.0,
+    "HL_hipabd_to_HL_thigh":  +0.30,   # v8 stance fix (was 0.0)
+    "HL_thigh_to_HL_shin":    -0.50,   # v8 stance fix (was -0.7)
+    "HL_shin_to_HL_foot":      0.0,
+    "HL_foot_to_HL_toe":       0.0,
+    # Neck
+    "chest_to_neck_yaw":       0.0,
+    "neck_yaw_to_neck":        0.0,
+    "neck_to_skull":           0.0,
+    # Front right
+    "chest_to_FR_hipabd":      0.0,
+    "FR_hipabd_to_FR_thigh":  -0.45,   # v8 stance fix: front feet UNDER shoulders, FK+eye verified (was 0.0=feet 20cm behind)
+    "FR_thigh_to_FR_shin":    +0.5,    # knee bent forward (was 0)
+    "FR_shin_to_FR_foot":      0.0,
+    "FR_foot_to_FR_toe":       0.0,    # pastern (fetlock) — neutral stance
+    # Front left
+    "chest_to_FL_hipabd":      0.0,
+    "FL_hipabd_to_FL_thigh":  -0.45,   # v8 stance fix (was 0.0)
+    "FL_thigh_to_FL_shin":    +0.5,
+    "FL_shin_to_FL_foot":      0.0,
+    "FL_foot_to_FL_toe":       0.0,
 }
 
 
@@ -130,8 +214,12 @@ def deer_articulation_cfg(usd_path: str) -> ArticulationCfg:
                 # 20 rad/s for r18 after r17 crashed at iter 735 with widened
                 # joint limits — wider hip/fetlock range gave the policy more
                 # opportunities to drive joint vel into NaN territory.
-                max_linear_velocity=50.0,
-                max_angular_velocity=20.0,
+                # v4.6: tightened from 50/20 -> 30/15 to further suppress
+                # PhysX NaN-drift seen in v4.5 silent death (iter time crept
+                # from 4.3s to 5.7s before kit.exe died). Tighter caps trade
+                # a little physical realism for stability margin.
+                max_linear_velocity=30.0,
+                max_angular_velocity=15.0,
                 max_depenetration_velocity=1.0,
             ),
             articulation_props=sim_utils.ArticulationRootPropertiesCfg(

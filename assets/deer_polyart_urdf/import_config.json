@@ -1,0 +1,176 @@
+{
+ "enable_self_collision": true,
+ "collision_approximation": "convexDecomposition",
+ "hull_budget": {
+  "Pelvis": 4,
+  "L_Calf": 2,
+  "L_Thigh": 2,
+  "L_HorseLink": 2,
+  "L_Foot": 4,
+  "L_Toe0": 6,
+  "L_Finger0": 6,
+  "L_Forearm": 2,
+  "L_Hand": 4,
+  "L_UpperArm": 2,
+  "L_Clavicle": 2,
+  "Spine2": 3,
+  "Tail": 2,
+  "Spine": 3,
+  "Spine1": 3,
+  "Neck": 2,
+  "Neck1": 2,
+  "Head": 8,
+  "Jaw": 2,
+  "L_Ear": 1,
+  "R_Calf": 2,
+  "R_Thigh": 2,
+  "R_HorseLink": 2,
+  "R_Foot": 4,
+  "R_Toe0": 6,
+  "R_Finger0": 6,
+  "R_Hand": 4,
+  "R_Forearm": 2,
+  "R_Clavicle": 2,
+  "R_UpperArm": 2,
+  "R_Ear": 1
+ },
+ "filter_pairs": [
+  [
+   "Head",
+   "Jaw"
+  ],
+  [
+   "Head",
+   "L_Ear"
+  ],
+  [
+   "Head",
+   "R_Ear"
+  ],
+  [
+   "L_Calf",
+   "L_HorseLink"
+  ],
+  [
+   "L_Calf",
+   "L_Thigh"
+  ],
+  [
+   "L_Clavicle",
+   "L_UpperArm"
+  ],
+  [
+   "L_Clavicle",
+   "Neck"
+  ],
+  [
+   "L_Clavicle",
+   "Spine2"
+  ],
+  [
+   "L_Finger0",
+   "L_Hand"
+  ],
+  [
+   "L_Foot",
+   "L_Toe0"
+  ],
+  [
+   "L_Forearm",
+   "L_Hand"
+  ],
+  [
+   "L_Forearm",
+   "L_UpperArm"
+  ],
+  [
+   "L_HorseLink",
+   "L_Foot"
+  ],
+  [
+   "L_UpperArm",
+   "L_Clavicle"
+  ],
+  [
+   "L_UpperArm",
+   "Spine2"
+  ],
+  [
+   "Neck",
+   "Neck1"
+  ],
+  [
+   "Neck",
+   "R_Clavicle"
+  ],
+  [
+   "Neck1",
+   "Head"
+  ],
+  [
+   "Pelvis",
+   "L_Calf"
+  ],
+  [
+   "Pelvis",
+   "L_Thigh"
+  ],
+  [
+   "Pelvis",
+   "R_Thigh"
+  ],
+  [
+   "Pelvis",
+   "Spine"
+  ],
+  [
+   "Pelvis",
+   "Tail"
+  ],
+  [
+   "R_Calf",
+   "R_HorseLink"
+  ],
+  [
+   "R_Calf",
+   "R_Thigh"
+  ],
+  [
+   "R_Clavicle",
+   "R_UpperArm"
+  ],
+  [
+   "R_Finger0",
+   "R_Hand"
+  ],
+  [
+   "R_Foot",
+   "R_Toe0"
+  ],
+  [
+   "R_Forearm",
+   "R_UpperArm"
+  ],
+  [
+   "R_Hand",
+   "R_Forearm"
+  ],
+  [
+   "R_HorseLink",
+   "R_Foot"
+  ],
+  [
+   "Spine2",
+   "Neck"
+  ],
+  [
+   "Spine2",
+   "R_Clavicle"
+  ],
+  [
+   "Spine2",
+   "R_UpperArm"
+  ]
+ ],
+ "note": "Full self-collision. filter_pairs = link geometries overlapping at rest (connected body regions + 2-DOF halves). Left/right legs and distal limb-vs-body pairs do NOT overlap at rest and are NOT filtered, so different limbs still collide."
+}

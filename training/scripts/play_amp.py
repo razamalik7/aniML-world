@@ -16,10 +16,31 @@ loads without errors.
 
 from __future__ import annotations
 
+# CRITICAL (ported from play_loco.py): h5py and Isaac Sim ship incompatible
+# hdf5.dll files. Importing real h5py breaks Isaac Sim's generic_mo_io.dll;
+# not stubbing it lets isaaclab_tasks' eager h5py import load the conflicting
+# DLL. Install a stub so the import succeeds without the real DLL. Playback
+# never uses HDF5 dataset I/O. Must run before any isaaclab import.
+import sys
+import types as _types
+import importlib.machinery as _machinery
+_h5py_stub = _types.ModuleType("h5py")
+_h5py_stub.__spec__ = _machinery.ModuleSpec("h5py", loader=None)
+_h5py_stub.__version__ = "3.16.0-stubbed"
+class _H5pyAttrError:
+    def __getattr__(self, name):
+        raise AttributeError(f"h5py.{name} not available (stubbed for Isaac Sim DLL conflict)")
+_h5py_stub.__getattr__ = _H5pyAttrError().__getattr__
+_h5py_stub.File = _H5pyAttrError().__getattr__
+_h5py_stub.Group = type("Group", (), {})
+sys.modules["h5py"] = _h5py_stub
+_errors_stub = _types.ModuleType("h5py._errors")
+_errors_stub.__spec__ = _machinery.ModuleSpec("h5py._errors", loader=None)
+sys.modules["h5py._errors"] = _errors_stub
+
 import argparse
 import os
 import re
-import sys
 from pathlib import Path
 
 

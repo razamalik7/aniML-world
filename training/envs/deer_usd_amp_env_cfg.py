@@ -37,25 +37,47 @@ from isaaclab.managers import TerminationTermCfg as DoneTerm
 from training.envs.deer_usd_rough_env_cfg import DeerUsdWalkEnvCfg
 
 
-# The 15 URDF joint names in the same canonical order used by the motion
-# converter (tools/convert_unity_anim_to_npy.py). amp-rsl-rl matches dataset
-# joints against this list positionally, so ordering must stay in sync with
-# the .npy file.
+# The 21 URDF v2 joint names in canonical order. Was 15 in URDF v1; +6 joints
+# in v2 (4 hip-abduction frame joints + spine yaw + neck yaw). Several of the
+# old joints (pelvis_to_chest, pelvis_to_HR_thigh, etc.) were renamed to make
+# room for the new abduction/yaw frame bones in their parent slot.
+#
+# AMP is no longer the active training path (we switched to pure reward-shaping
+# in URDF v2 onward), but this list still serves as the canonical joint
+# enumeration consumed by various tools.
+# MUST mirror deer_walk.npy / deer_run.npy's 15 joints IN THE SAME ORDER --
+# the discriminator compares these observation columns directly against the
+# dataset's columns, so both the SET and the ORDER have to line up.
+#
+# The v2 rig added 6 joints (spine yaw, 4x hip abduction, neck yaw) that the
+# reference motion has NO data for. Including them made the AMP obs
+# 21*2+6 = 48 while the dataset is 15*2+6 = 36 -> "Sizes of tensors must
+# match ... Expected size 96 but got size 72" in amp_ppo's torch.cat.
+# Those 6 joints are still actuated by the policy; they're simply not
+# style-matched (the reference can't say anything about them).
+#
+# Comments give the corresponding OLD dataset joint name.
 DEER_URDF_JOINT_NAMES: list[str] = [
-    "pelvis_to_chest",
-    "pelvis_to_HR_thigh",
+    # Spine
+    "chest_yaw_to_chest",       # dataset: pelvis_to_chest
+    # Hind right
+    "HR_hipabd_to_HR_thigh",    # dataset: pelvis_to_HR_thigh
     "HR_thigh_to_HR_shin",
     "HR_shin_to_HR_foot",
-    "pelvis_to_HL_thigh",
+    # Hind left
+    "HL_hipabd_to_HL_thigh",    # dataset: pelvis_to_HL_thigh
     "HL_thigh_to_HL_shin",
     "HL_shin_to_HL_foot",
-    "chest_to_FR_thigh",
+    # Front right
+    "FR_hipabd_to_FR_thigh",    # dataset: chest_to_FR_thigh
     "FR_thigh_to_FR_shin",
     "FR_shin_to_FR_foot",
-    "chest_to_FL_thigh",
+    # Front left
+    "FL_hipabd_to_FL_thigh",    # dataset: chest_to_FL_thigh
     "FL_thigh_to_FL_shin",
     "FL_shin_to_FL_foot",
-    "chest_to_neck",
+    # Neck + skull
+    "neck_yaw_to_neck",         # dataset: chest_to_neck
     "neck_to_skull",
 ]
 
@@ -71,16 +93,25 @@ class AMPObservationsCfg(ObsGroup):
     No noise/offsets here — the discriminator sees clean state.
     """
 
+    # preserve_order=True is ESSENTIAL: without it SceneEntityCfg resolves the
+    # names to indices in the ASSET's internal joint order, not the order
+    # listed above -- which would silently feed the discriminator our joints
+    # shuffled relative to the dataset's columns (no error, just garbage
+    # style learning). Keep it on both terms.
     joint_pos = ObsTerm(
         func=mdp_obs.joint_pos,
         params={
-            "asset_cfg": SceneEntityCfg("robot", joint_names=DEER_URDF_JOINT_NAMES),
+            "asset_cfg": SceneEntityCfg(
+                "robot", joint_names=DEER_URDF_JOINT_NAMES, preserve_order=True
+            ),
         },
     )
     joint_vel = ObsTerm(
         func=mdp_obs.joint_vel,
         params={
-            "asset_cfg": SceneEntityCfg("robot", joint_names=DEER_URDF_JOINT_NAMES),
+            "asset_cfg": SceneEntityCfg(
+                "robot", joint_names=DEER_URDF_JOINT_NAMES, preserve_order=True
+            ),
         },
     )
     base_lin_vel = ObsTerm(func=mdp_obs.base_lin_vel)
@@ -573,6 +604,340 @@ class DeerUsdWalkAMPEnvCfgV12(DeerUsdWalkAMPEnvCfg):
         self.commands.base_velocity.ranges.lin_vel_x = (0.3, 2.5)
         self.commands.base_velocity.ranges.lin_vel_y = (-0.3, 0.3)
         self.commands.base_velocity.ranges.ang_vel_z = (-0.7, 0.7)
+
+
+@configclass
+class DeerUsdWalkAMPEnvCfgV26(DeerUsdWalkAMPEnvCfg):
+    """Run 39: V25 + lateral cmds. Full 3-DOF locomotion target."""
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+
+        from training.envs.deer_rewards import (
+            track_forward_vel_anatomical_exp,
+            track_yaw_rate_anatomical_exp,
+            track_lateral_vel_anatomical_exp,
+            forward_velocity_linear_anatomical,
+            reset_from_amp_motion,
+            pelvis_too_low,
+        )
+        import isaaclab.envs.mdp as mdp_rewards
+
+        self.rewards.dof_torques_l2.weight = 0.0
+        self.rewards.dof_acc_l2.weight = 0.0
+        self.rewards.action_rate_l2.weight = -0.005
+
+        self.commands.base_velocity.ranges.lin_vel_x = (0.3, 1.0)
+        self.commands.base_velocity.ranges.lin_vel_y = (-0.2, 0.2)  # NEW
+        self.commands.base_velocity.ranges.ang_vel_z = (-0.3, 0.3)
+        self.commands.base_velocity.rel_standing_envs = 0.0
+
+        for attr in ("ramp_vel_xy", "ramp_vel_yaw"):
+            if hasattr(self.curriculum, attr):
+                setattr(self.curriculum, attr, None)
+        for attr in ("track_lin_vel_xy_exp", "track_ang_vel_z_exp"):
+            if hasattr(self.rewards, attr):
+                delattr(self.rewards, attr)
+
+        self.rewards.track_forward_vel = RewTerm(
+            func=track_forward_vel_anatomical_exp,
+            weight=1.5,
+            params={"command_name": "base_velocity", "std": 0.3},
+        )
+        self.rewards.track_lateral_vel = RewTerm(
+            func=track_lateral_vel_anatomical_exp,
+            weight=0.5,
+            params={"command_name": "base_velocity", "std": 0.3},
+        )
+        self.rewards.track_yaw_rate = RewTerm(
+            func=track_yaw_rate_anatomical_exp,
+            weight=1.0,
+            params={"command_name": "base_velocity", "std": 0.5},
+        )
+        self.rewards.forward_velocity_linear = RewTerm(
+            func=forward_velocity_linear_anatomical,
+            weight=8.0,
+            params={"command_name": "base_velocity", "clip_max": 1.0},
+        )
+        self.rewards.base_height = RewTerm(
+            func=mdp_rewards.base_height_l2,
+            weight=-30.0,
+            params={"target_height": 0.85},
+        )
+
+        if hasattr(self.events, "reset_robot_joints"):
+            self.events.reset_robot_joints = None
+        self.events.reset_base = EventTerm(
+            func=reset_from_amp_motion,
+            mode="reset",
+            params={
+                "asset_cfg": SceneEntityCfg("robot"),
+                "base_height_m": 0.93,
+                "pose_jitter": 0.05,
+                "vel_jitter": 0.1,
+            },
+        )
+        self.terminations.pelvis_too_low = DoneTerm(
+            func=pelvis_too_low,
+            params={
+                "asset_cfg": SceneEntityCfg("robot"),
+                "min_height": 0.55,
+            },
+        )
+
+
+@configclass
+class DeerUsdWalkAMPEnvCfgV27(DeerUsdWalkAMPEnvCfgV26):
+    """Run 40: V26 + push events for recovery learning.
+
+    Drives toward emergent disturbance-recovery behavior — the kind of
+    "things we don't have animations for" the user wants in the Unity
+    multi-agent ecosystem game. Random root-velocity impulses every
+    8-12 s stress the policy without making the task unsolvable
+    (deer's resting walk only needs to absorb a fraction of a second
+    of unintended velocity).
+
+    Mild magnitudes for first push run — if recovery rate is high we
+    can ramp up later. ±0.4 m/s in plane, ±0.3 m/s vertical, ±0.4
+    rad/s yaw is roughly a child-sized shove.
+    """
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+
+        import isaaclab.envs.mdp as mdp_events
+
+        self.events.push_robot = EventTerm(
+            func=mdp_events.push_by_setting_velocity,
+            mode="interval",
+            interval_range_s=(8.0, 12.0),
+            params={
+                "velocity_range": {
+                    "x": (-0.4, 0.4),
+                    "y": (-0.4, 0.4),
+                    "z": (-0.3, 0.3),
+                    "roll": (-0.4, 0.4),
+                    "pitch": (-0.4, 0.4),
+                    "yaw": (-0.4, 0.4),
+                },
+            },
+        )
+
+
+@configclass
+class DeerUsdWalkAMPEnvCfgV28(DeerUsdWalkAMPEnvCfgV27):
+    """Run 41 (revised): same V27 push magnitudes, just renamed for r41.
+
+    First attempt jumped pushes to ±0.6 m/s — caused 99.4% pelvis_too_low,
+    ep_len collapsed 891 -> 192. The policy can't absorb a 50% harder
+    push mid-stride without gradient updates first. Kept V27's exact
+    ±0.4 m/s pushes; the only r41 change is in the agent config
+    (entropy_coef 0.002 -> 0.001 to keep deflating noise_std). If that
+    deflation succeeds without regression, r42 can try harder pushes.
+    """
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        # Inherits V27's ±0.4 m/s push_robot. No env-level changes.
+
+
+@configclass
+class DeerUsdWalkAMPEnvCfgV30(DeerUsdWalkAMPEnvCfgV28):
+    """Run 43: V28 + stride mechanics rewards.
+
+    Diagnosis: prior runs converged to a "shuffle" gait — joint motion
+    matches the AMP reference clip but feet SKATE on the ground while
+    the body translates. AMP discriminator only sees joint motion, not
+    foot-contact phasing, so the policy can satisfy both rewards by
+    sliding feet.
+
+    Adds two rewards from Isaac Lab's quadruped library:
+      - feet_air_time: reward each foot for spending >= threshold time
+        in the air per stride (forces real swing-phase motion).
+      - feet_slide: penalize foot horizontal velocity WHILE in contact
+        (directly punishes skating).
+
+    Both use the existing 'contact_forces' sensor on HL/HR/FL/FR_foot.
+    No terrain — fix gait on flat first.
+    """
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+
+        from isaaclab_tasks.manager_based.locomotion.velocity.mdp.rewards import (
+            feet_air_time,
+            feet_slide,
+        )
+
+        foot_names = ["HL_foot", "HR_foot", "FL_foot", "FR_foot"]
+        foot_sensor_cfg = SceneEntityCfg("contact_forces", body_names=foot_names)
+        foot_asset_cfg = SceneEntityCfg("robot", body_names=foot_names)
+
+        # r43 v1: weight 1.0/threshold 0.25/slide -0.5 -> deer recovered
+        # to upright but per-step feet_slide barely moved (-0.000332 ->
+        # -0.000291 over 1350 iters). Local optimum too deep for those
+        # weights. Bump everything ~5x and lengthen required air-time.
+        self.rewards.feet_air_time = RewTerm(
+            func=feet_air_time,
+            weight=5.0,
+            params={
+                "command_name": "base_velocity",
+                "sensor_cfg": foot_sensor_cfg,
+                "threshold": 0.35,    # longer mandatory swing per stride
+            },
+        )
+        self.rewards.feet_slide = RewTerm(
+            func=feet_slide,
+            weight=-3.0,             # 6x prior weight
+            params={
+                "sensor_cfg": foot_sensor_cfg,
+                "asset_cfg": foot_asset_cfg,
+            },
+        )
+
+
+@configclass
+class DeerUsdWalkAMPEnvCfgV31(DeerUsdWalkAMPEnvCfgV30):
+    """Run 44: V30 + diagonal-pair alternation (trot) reward.
+
+    User-observed diagnosis after r43b playback: deer learned to bunny-
+    hop (all 4 feet together) — feet_air_time rewarded foot LIFT but
+    didn't say anything about WHICH feet. This adds a trot-pattern
+    reward that explicitly rewards diagonal alternation:
+        FL + HR (one pair, in sync)
+        FR + HL (other pair, in sync, opposite phase to first)
+
+    Conservative weight (0.4) — landscape already has 8 reward terms.
+    Per-step max contribution is +0.4 (trot) / -0.8 (chaotic), per-
+    episode contribution roughly +/-300. Comparable to feet_slide
+    (-1.10) and feet_air_time (-0.33) magnitudes from r43b.
+    """
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+
+        from training.envs.deer_rewards import trot_phase_reward
+
+        # Order MUST be [FL, HR, FR, HL] to match the reward function's
+        # diagonal-pair indexing. SceneEntityCfg.body_names preserves
+        # the order you give it (Isaac Lab resolves names via the
+        # articulation's body_names list).
+        diag_order = ["FL_foot", "HR_foot", "FR_foot", "HL_foot"]
+        diag_sensor_cfg = SceneEntityCfg(
+            "contact_forces", body_names=diag_order, preserve_order=True,
+        )
+
+        self.rewards.trot_phase = RewTerm(
+            func=trot_phase_reward,
+            weight=0.4,
+            params={
+                "sensor_cfg": diag_sensor_cfg,
+                "threshold": 5.0,
+            },
+        )
+
+
+@configclass
+class DeerUsdWalkAMPEnvCfgV32(DeerUsdWalkAMPEnvCfgV30):
+    """Run 45: V30 + trot_phase_reward_v2 (pronk-penalizing).
+
+    For from-scratch training. Reward formulation actively penalizes
+    pronking (all-4-same-state), so the deer can't converge to bunny-
+    hop as a local optimum the way it did in r43b/r44.
+
+    Weight sized higher than r44's 0.4 (which was capped because mid-
+    fall asymmetric states gave NEGATIVE reward there). v2 has bounded
+    [-0.5, +1] range with PRONK explicitly negative, so we can afford
+    higher weight without poisoning the gradient with random falls.
+    """
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+
+        from training.envs.deer_rewards import trot_phase_reward_v2
+
+        diag_order = ["FL_foot", "HR_foot", "FR_foot", "HL_foot"]
+        diag_sensor_cfg = SceneEntityCfg(
+            "contact_forces", body_names=diag_order, preserve_order=True,
+        )
+
+        # Drop the v1 trot_phase that V31 added (this is V32 inheriting V30,
+        # so v1 isn't here, but be defensive in case someone bumps the chain).
+        if hasattr(self.rewards, "trot_phase"):
+            delattr(self.rewards, "trot_phase")
+
+        self.rewards.trot_phase_v2 = RewTerm(
+            func=trot_phase_reward_v2,
+            weight=1.0,
+            params={
+                "sensor_cfg": diag_sensor_cfg,
+                "threshold": 5.0,
+                "pronk_penalty": 0.5,
+            },
+        )
+
+
+@configclass
+class DeerUsdWalkAMPEnvCfgV33(DeerUsdWalkAMPEnvCfgV32):
+    """Run 46: V32 + stronger anti-twitch pressure.
+
+    User feedback on r45 playback: back legs spasming. Diagnosis:
+    noise_std at 1.58 still high (the 0.005 entropy needed for
+    from-scratch exploration kept it inflated), and action_rate_l2
+    weight only -0.005 -> minimal pressure against rapid action
+    changes. Bumping action_rate_l2 4x to actively suppress twitches
+    while a lower entropy_coef in the agent config lets std collapse
+    toward its sweet spot.
+    """
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        # Stronger anti-twitch.
+        self.rewards.action_rate_l2.weight = -0.02
+
+
+@configclass
+class DeerUsdWalkAMPEnvCfgV29(DeerUsdWalkAMPEnvCfgV28):
+    """Run 42 (revised): V28 + ULTRA-mild rough terrain.
+
+    First attempt with ±0.5–2 cm bumps at hscale 0.1 m caused reward
+    collapse 144 -> 10 (recovery to ~19 over 440 iters far too slow).
+    The 10-cm grid spacing produced sharp step-edges that confused the
+    policy.
+
+    Revised: noise (0.002, 0.008) m == ±2–8 mm bumps with hscale 0.4 m
+    (40-cm grid) so transitions are gentle. Total step magnitude is
+    smaller than the deer's foot radius — should feel like rough
+    pavement, not steps. If r42b recovers to reward >100, r43 can
+    progressively raise to 1-2 cm.
+    """
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+
+        import isaaclab.terrains as terrain_gen
+        from isaaclab.terrains.terrain_generator_cfg import TerrainGeneratorCfg
+
+        ultra_mild = TerrainGeneratorCfg(
+            size=(8.0, 8.0),
+            border_width=10.0,
+            num_rows=10,
+            num_cols=20,
+            horizontal_scale=0.4,            # 40-cm grid (smoother)
+            vertical_scale=0.002,            # 2-mm vertical resolution
+            slope_threshold=0.75,
+            use_cache=False,
+            sub_terrains={
+                "ultra_mild": terrain_gen.HfRandomUniformTerrainCfg(
+                    proportion=1.0,
+                    noise_range=(0.002, 0.008),  # ±2-8 mm bumps
+                    noise_step=0.002,
+                    border_width=0.5,            # must be >= horizontal_scale
+                ),
+            },
+        )
+        self.scene.terrain.terrain_type = "generator"
+        self.scene.terrain.terrain_generator = ultra_mild
 
 
 @configclass
@@ -1642,3 +2007,89 @@ class DeerUsdWalkAMPEnvCfgV10(DeerUsdWalkAMPEnvCfg):
         self.rewards.action_rate_l2.weight = -0.001
         self.rewards.dof_torques_l2.weight = -3.0e-6
         # dof_acc_l2 stays at -2.5e-8 (inherited from base)
+
+
+@configclass
+class DeerUsdWalkAMPEnvCfgV34(DeerUsdWalkAMPEnvCfgV32):
+    """r47b: FAITHFUL PORT of r45 (V32) onto the CURRENT 25-DOF rig.
+
+    r45 was the best run of the April AMP lineage by human review: upright,
+    real steps (foot lift 0.184 vs r38's 0.134), tallest posture
+    (pelvis 0.945), trained from scratch, entropy 0.005 (inside the safe
+    band). It is r38 + the whole anti-skate/anti-pronk stack.
+
+    Everything from V32 is kept as-is. Only what the rig CHANGE forces is
+    modified, so this run isolates "does the current rig help or hurt r45?"
+    """
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+
+        from isaaclab_tasks.manager_based.locomotion.velocity.mdp.rewards import (
+            feet_air_time,
+            feet_slide,
+        )
+        from training.envs.deer_rewards import (
+            trot_phase_reward_v2,
+            hipabd_zero_l2,
+        )
+
+        # ---- CRITICAL PORT FIX -------------------------------------------
+        # On r45's pre-v2 rig, *_foot WAS the hoof (ground contact body).
+        # The v4 rig SPLIT it: *_foot is now the cannon/metacarpus, which
+        # must NOT touch the ground, and *_toe is the hoof. Copying r45
+        # verbatim would wire ALL THREE stride rewards to the cannon:
+        #   feet_air_time  -> rewards a body that is always airborne (free)
+        #   feet_slide     -> penalizes sliding that essentially never happens
+        #   trot_phase_v2  -> reads contacts that rarely fire
+        # i.e. every anti-skate reward silently becomes a no-op and we get
+        # r38-style skating back while the config LOOKS correct. Remap to toe.
+        toe_names = ["HL_toe", "HR_toe", "FL_toe", "FR_toe"]
+        toe_sensor_cfg = SceneEntityCfg("contact_forces", body_names=toe_names)
+        toe_asset_cfg = SceneEntityCfg("robot", body_names=toe_names)
+
+        self.rewards.feet_air_time = RewTerm(
+            func=feet_air_time,
+            weight=5.0,
+            params={
+                "command_name": "base_velocity",
+                "sensor_cfg": toe_sensor_cfg,
+                "threshold": 0.35,
+            },
+        )
+        self.rewards.feet_slide = RewTerm(
+            func=feet_slide,
+            weight=-3.0,
+            params={"sensor_cfg": toe_sensor_cfg, "asset_cfg": toe_asset_cfg},
+        )
+
+        diag_order = ["FL_toe", "HR_toe", "FR_toe", "HL_toe"]
+        self.rewards.trot_phase_v2 = RewTerm(
+            func=trot_phase_reward_v2,
+            weight=1.0,
+            params={
+                "sensor_cfg": SceneEntityCfg(
+                    "contact_forces", body_names=diag_order, preserve_order=True,
+                ),
+                "threshold": 5.0,
+                "pronk_penalty": 0.5,
+            },
+        )
+
+        # ---- 25-DOF DECISION POINT ---------------------------------------
+        # r45's rig had 15 joints. Ours has 25. The extra 10 (spine yaw,
+        # 4x hip abduction, neck yaw, 4x toes) have NO reference data, so the
+        # AMP discriminator cannot style-match them -- they are driven only by
+        # task reward. Going 25-DOF is deliberate: the missing spine yaw / hip
+        # abduction / neck yaw are EXACTLY the DOFs whose absence made r45 look
+        # rigid (no torso bend, no lateral hip motion, no head turn).
+        # Regularization is intentionally LIGHT: enough to bound flailing, not
+        # enough to lock out the lateral motion that motivated 25 DOF.
+        #
+        # >>> IF THIS RUN FAILS, FIRST CHECK WHETHER THE FAILURE IMPLICATES
+        # >>> THESE 10 UNSUPERVISED JOINTS (flailing toes/abduction/yaw). If so,
+        # >>> the fallback is restricting the action space to the 15 AMP joints
+        # >>> (or 21 = keep yaw+abduction, freeze toes).
+        self.rewards.hipabd_zero = RewTerm(
+            func=hipabd_zero_l2, weight=-0.05, params={},
+        )

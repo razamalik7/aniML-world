@@ -85,6 +85,63 @@ gym.register(
     },
 )
 
+# ---------------------------------------------------------------------------
+# Pure reward-shaping locomotion tasks (URDF v2 21-DOF, post-AMP).
+# Three-stage curriculum: discover trot -> 3DOF + pushes -> rough terrain.
+# ---------------------------------------------------------------------------
+gym.register(
+    id="AniML-Deer-USD-Loco-Stage1-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_loco_env_cfg:DeerUsdLocoStage1Cfg",
+        "rsl_rl_cfg_entry_point": "training.agents.deer_usd_loco_cfg:DeerUsdLocoStage1PPORunnerCfg",
+    },
+)
+gym.register(
+    id="AniML-Deer-USD-Loco-Stage2-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_loco_env_cfg:DeerUsdLocoStage2Cfg",
+        "rsl_rl_cfg_entry_point": "training.agents.deer_usd_loco_cfg:DeerUsdLocoStage2PPORunnerCfg",
+    },
+)
+gym.register(
+    id="AniML-Deer-USD-Loco-Stage3-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_loco_env_cfg:DeerUsdLocoStage3Cfg",
+        "rsl_rl_cfg_entry_point": "training.agents.deer_usd_loco_cfg:DeerUsdLocoStage3PPORunnerCfg",
+    },
+)
+
+# v5.0 stable-base pivot: Stage3 terrain + control, naturalness rewards zeroed.
+# Reuses Stage3's PPO runner cfg (same obs/action dims, same network).
+gym.register(
+    id="AniML-Deer-USD-Loco-Stable-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_loco_env_cfg:DeerUsdLocoStableCfg",
+        "rsl_rl_cfg_entry_point": "training.agents.deer_usd_loco_cfg:DeerUsdLocoStablePPORunnerCfg",
+    },
+)
+
+# v5.2 fresh-from-scratch stable base (forward-only, Stage1 recipe, naturalness
+# rewards stripped). Trained WITHOUT warm-start to avoid inheriting the
+# naturalness policy's reward-dependent gait (which destabilized v5.0/v5.1).
+gym.register(
+    id="AniML-Deer-USD-Loco-Stable-Flat-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_loco_env_cfg:DeerUsdLocoStableFlatCfg",
+        "rsl_rl_cfg_entry_point": "training.agents.deer_usd_loco_cfg:DeerUsdLocoStableFlatPPORunnerCfg",
+    },
+)
+
 # AMP (Adversarial Motion Priors) walk task. Uses amp-rsl-rl's
 # AMPOnPolicyRunner; launch via training/scripts/train_amp.py (NOT Isaac Lab's
 # default rsl_rl train.py, which doesn't know about AMP_PPO).
@@ -453,3 +510,139 @@ gym.register(
         "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_TURN_CFG",
     },
 )
+
+# Run 39: V26 = V25 + lateral cmds (lin_vel_y -0.2..0.2). Full 3-DOF
+# locomotion. Pair with FULL_LOCO_CFG (entropy_coef 0.002 to deflate
+# noise_std). Warm-start from r38 turn checkpoint.
+gym.register(
+    id="AniML-Deer-USD-Walk-AMP-v30",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_amp_env_cfg:DeerUsdWalkAMPEnvCfgV26",
+        "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_FULL_LOCO_CFG",
+    },
+)
+
+# Run 40: V27 = V26 + push_robot interval events (8-12s) for recovery
+# learning. Mild ±0.4 m/s impulses simulate light shoves; pushes
+# emergent disturbance-recovery behavior the Unity ecosystem game wants.
+gym.register(
+    id="AniML-Deer-USD-Walk-AMP-v31",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_amp_env_cfg:DeerUsdWalkAMPEnvCfgV27",
+        "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_PUSH_CFG",
+    },
+)
+
+# Run 41: V28 = V27 + stronger ±0.6 m/s pushes + entropy 0.001.
+gym.register(
+    id="AniML-Deer-USD-Walk-AMP-v32",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_amp_env_cfg:DeerUsdWalkAMPEnvCfgV28",
+        "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_PUSH2_CFG",
+    },
+)
+
+# Run 42: V29 = V28 + mild heightfield terrain (±0.5–2 cm bumps).
+# First terrain pass — push policy off the flat-plane assumption.
+gym.register(
+    id="AniML-Deer-USD-Walk-AMP-v33",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_amp_env_cfg:DeerUsdWalkAMPEnvCfgV29",
+        "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_TERRAIN1_CFG",
+    },
+)
+
+# Run 43: V30 = V28 + feet_air_time + feet_slide. Fix the shuffle/skate
+# gait by adding stride mechanics rewards. Pair with STRIDE_CFG. Warm-
+# start from r41b (animl_deer_amp_push2 model_14993).
+gym.register(
+    id="AniML-Deer-USD-Walk-AMP-v34",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_amp_env_cfg:DeerUsdWalkAMPEnvCfgV30",
+        "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_STRIDE_CFG",
+    },
+)
+
+# Run 44: V31 = V30 + trot_phase reward. Diagonal-pair alternation
+# reward to break the bunny-hop / pronk gait.
+gym.register(
+    id="AniML-Deer-USD-Walk-AMP-v35",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_amp_env_cfg:DeerUsdWalkAMPEnvCfgV31",
+        "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_TROT_CFG",
+    },
+)
+
+# Run 45: V32 = V30 + trot_phase_v2 (pronk-penalizing). From-scratch
+# training to avoid the bunny-hop local optimum r43b/r44 baked in.
+gym.register(
+    id="AniML-Deer-USD-Walk-AMP-v36",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_amp_env_cfg:DeerUsdWalkAMPEnvCfgV32",
+        "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_FROMSCRATCH_TROT_CFG",
+    },
+)
+
+# Run 46: V33 = V32 + 4x stronger action_rate_l2. Pair with TROT_ANNEAL_CFG
+# (entropy_coef 10x lower). Cleans up r45's spasming gait.
+gym.register(
+    id="AniML-Deer-USD-Walk-AMP-v37",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_amp_env_cfg:DeerUsdWalkAMPEnvCfgV33",
+        "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_TROT_ANNEAL_CFG",
+    },
+)
+
+
+# Run 47b (r45 PORT): V34 = r45's V32 with the three stride-mechanics rewards
+# remapped from *_foot (cannon on the v4 rig) to *_toe (the actual hoof), plus
+# light hip-abduction regularization for the 10 DOFs AMP cannot supervise.
+# Fresh, entropy 0.005. Purpose: replicate r45 on the current 25-DOF COM-fixed
+# rig, changing only what the rig change forces.
+gym.register(
+    id="AniML-Deer-USD-Walk-AMP-v38",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_amp_env_cfg:DeerUsdWalkAMPEnvCfgV34",
+        "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_R45PORT_CFG",
+    },
+)
+
+
+# Run 48 (CANDIDATE, NOT LAUNCHED): same env as r47b (V34) but trained against
+# the procedurally rebuilt, physically-grounded reference clip. Tests whether
+# the reference data -- not the reward stack -- is the binding constraint.
+gym.register(
+    id="AniML-Deer-USD-Walk-AMP-v39",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "training.envs.deer_usd_amp_env_cfg:DeerUsdWalkAMPEnvCfgV34",
+        "amp_rsl_rl_cfg_entry_point": "training.agents.deer_usd_amp_cfg:DEER_USD_AMP_PROCREF_CFG",
+    },
+)
+
+
+# ===========================================================================
+# Tier-3 (Poly Art / Malbers rig) tasks — the NEW generation. Kept entirely in
+# its own subpackage (training/polyart/) so the rebuilt 38-DOF rig's configs
+# never mix with the legacy deer_usd_* ones above. See training/polyart/.
+# ===========================================================================
+from training.polyart import tasks as _polyart_tasks  # noqa: E402,F401

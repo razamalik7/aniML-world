@@ -69,3 +69,30 @@ Thumbs.db
 venv/
 env/
 ENV/
+
+# ---------------------------------------------------------------------------
+# Experiment plumbing (2026-10). Launch configs live in experiments/launch/;
+# these are the per-run logs and the queue scripts that sequenced them.
+# ---------------------------------------------------------------------------
+.last_*
+.run_*.sh
+.recollect.sh
+.collect_all.sh
+.arm_collect.sh
+.exp_recollect.txt
+.exp_run_map.txt
+# Rendered rollouts and raw rollout data: regenerable from checkpoints, too heavy for
+# git. README media lives in docs/media/ as GIFs.
+docs/*.mp4
+docs/*.npz
+docs/_vf/
+*.bak
+*.npy.bak*
+assets/deer_polyart_urdf.pre_antler/
+# Saved third-party paper (reference only, not ours to redistribute)
+npj.txt
+npj.html
+# Local USD backups
+*.pre_v2.usd
+*.pre_comfix*.usd
+.track_runs.sh

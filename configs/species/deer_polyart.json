@@ -1,0 +1,703 @@
+{
+  "species": "deer",
+  "rig_family": "malbers_forest",
+  "model_fbx": "C:/Users/nars7/My project/Assets/Malbers Animations/Animals Packs/01 Forest Pack/Deer/Models/Poly Art/Deer.FBX",
+  "anim_fbxs": [
+    "C:/Users/nars7/My project/Assets/Malbers Animations/Animals Packs/01 Forest Pack/Deer/Anims/Deer Walk.FBX",
+    "C:/Users/nars7/My project/Assets/Malbers Animations/Animals Packs/01 Forest Pack/Deer/Anims/Deer Trot.FBX",
+    "C:/Users/nars7/My project/Assets/Malbers Animations/Animals Packs/01 Forest Pack/Deer/Anims/Deer Run.FBX"
+  ],
+  "note": "FINALIZED 2026-07-23 (human-approved). Single source of truth for URDF builder + reference extractor.",
+  "merge_into_parent": [
+    "CG",
+    "L Ear",
+    "R Ear",
+    "Jaw",
+    "Eye L",
+    "Eye R"
+  ],
+  "weld_unskinned": [
+    {
+      "mesh": "Antlers 02",
+      "bone": "Head",
+      "note": "Stag rack. Deer.FBX ships 5 UNSKINNED antler variants; Deer.prefab activates 'Antlers 02'. The skin-weight mesh extraction skips unskinned objects, so build_urdf welds this one rigidly to the Head link (visual + collision). Deer Female (doe) has all antlers off — omit this field for the doe."
+    }
+  ],
+  "joints": {
+    "CG": {
+      "role": "base_helper",
+      "parent": null,
+      "axis": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "clip_agreement": 0.0,
+      "range_deg": 0.0,
+      "purity": 1.0,
+      "offaxis_deg": 0.0,
+      "dof_recommended": 1,
+      "coverage_verts": 0,
+      "include": true,
+      "dof": 0,
+      "kind": "merge_geometry",
+      "merge_into": "Pelvis"
+    },
+    "Pelvis": {
+      "role": "base",
+      "parent": "CG",
+      "axis": [
+        -0.954,
+        0.294,
+        0.064
+      ],
+      "clip_agreement": 0.795,
+      "range_deg": 32.0,
+      "purity": 0.881,
+      "offaxis_deg": 14.9,
+      "dof_recommended": 1,
+      "coverage_verts": 78,
+      "include": true,
+      "dof": 0,
+      "kind": "base_link"
+    },
+    "Spine": {
+      "role": "spine",
+      "parent": "Pelvis",
+      "axis": [
+        -0.294,
+        -0.933,
+        -0.208
+      ],
+      "clip_agreement": 0.837,
+      "range_deg": 39.7,
+      "purity": 0.813,
+      "offaxis_deg": 18.7,
+      "dof_recommended": 2,
+      "coverage_verts": 56,
+      "include": true,
+      "dof": 2,
+      "kind": "joint",
+      "phase1_active": true
+    },
+    "Spine1": {
+      "role": "spine",
+      "parent": "Spine",
+      "axis": [
+        -0.021,
+        -0.88,
+        0.474
+      ],
+      "clip_agreement": 0.755,
+      "range_deg": 30.4,
+      "purity": 0.945,
+      "offaxis_deg": 6.9,
+      "dof_recommended": 1,
+      "coverage_verts": 113,
+      "include": true,
+      "dof": 1,
+      "kind": "joint",
+      "phase1_active": true
+    },
+    "Spine2": {
+      "role": "spine",
+      "parent": "Spine1",
+      "axis": [
+        0.056,
+        -0.883,
+        0.466
+      ],
+      "clip_agreement": 0.753,
+      "range_deg": 36.1,
+      "purity": 0.927,
+      "offaxis_deg": 11.9,
+      "dof_recommended": 1,
+      "coverage_verts": 85,
+      "include": true,
+      "dof": 1,
+      "kind": "joint",
+      "phase1_active": true
+    },
+    "Neck": {
+      "role": "neck",
+      "parent": "Spine2",
+      "axis": [
+        0.311,
+        -0.631,
+        -0.71
+      ],
+      "clip_agreement": 0.837,
+      "range_deg": 42.9,
+      "purity": 0.854,
+      "offaxis_deg": 14.3,
+      "dof_recommended": 2,
+      "coverage_verts": 140,
+      "include": true,
+      "dof": 2,
+      "kind": "joint",
+      "phase1_active": true
+    },
+    "Neck1": {
+      "role": "neck",
+      "parent": "Neck",
+      "axis": [
+        -0.245,
+        -0.349,
+        0.905
+      ],
+      "clip_agreement": 0.416,
+      "range_deg": 56.3,
+      "purity": 0.877,
+      "offaxis_deg": 18.3,
+      "dof_recommended": 2,
+      "coverage_verts": 78,
+      "include": true,
+      "dof": 2,
+      "kind": "joint",
+      "phase1_active": true
+    },
+    "Head": {
+      "role": "head",
+      "parent": "Neck1",
+      "axis": [
+        -0.398,
+        -0.171,
+        -0.901
+      ],
+      "clip_agreement": 0.731,
+      "range_deg": 28.7,
+      "purity": 0.713,
+      "offaxis_deg": 17.8,
+      "dof_recommended": 2,
+      "coverage_verts": 437,
+      "include": true,
+      "dof": 2,
+      "kind": "joint",
+      "phase1_active": true
+    },
+    "L Ear": {
+      "role": "cosmetic",
+      "parent": "Head",
+      "axis": [
+        0.31,
+        0.917,
+        0.251
+      ],
+      "clip_agreement": 0.846,
+      "range_deg": 37.6,
+      "purity": 0.982,
+      "offaxis_deg": 8.3,
+      "dof_recommended": 1,
+      "coverage_verts": 47,
+      "include": true,
+      "dof": 1,
+      "kind": "joint",
+      "phase1_active": false
+    },
+    "R Ear": {
+      "role": "cosmetic",
+      "parent": "Head",
+      "axis": [
+        -0.302,
+        -0.947,
+        0.113
+      ],
+      "clip_agreement": 0.825,
+      "range_deg": 37.2,
+      "purity": 0.981,
+      "offaxis_deg": 8.3,
+      "dof_recommended": 1,
+      "coverage_verts": 47,
+      "include": true,
+      "dof": 1,
+      "kind": "joint",
+      "phase1_active": false
+    },
+    "Jaw": {
+      "role": "cosmetic",
+      "parent": "Head",
+      "axis": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "clip_agreement": 1.0,
+      "range_deg": 0.0,
+      "purity": 1.0,
+      "offaxis_deg": 0.0,
+      "dof_recommended": 1,
+      "coverage_verts": 89,
+      "include": true,
+      "dof": 1,
+      "kind": "joint",
+      "phase1_active": false
+    },
+    "Eye L": {
+      "role": "cosmetic",
+      "parent": "Head",
+      "axis": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "clip_agreement": 1.0,
+      "range_deg": 0.0,
+      "purity": 1.0,
+      "offaxis_deg": 0.0,
+      "dof_recommended": 1,
+      "coverage_verts": 48,
+      "include": true,
+      "reason": "render-mesh only (no physical actuation)",
+      "dof": 0,
+      "kind": "merge_geometry",
+      "merge_into": "Head"
+    },
+    "Eye R": {
+      "role": "cosmetic",
+      "parent": "Head",
+      "axis": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "clip_agreement": 1.0,
+      "range_deg": 0.0,
+      "purity": 1.0,
+      "offaxis_deg": 0.0,
+      "dof_recommended": 1,
+      "coverage_verts": 48,
+      "include": true,
+      "reason": "render-mesh only (no physical actuation)",
+      "dof": 0,
+      "kind": "merge_geometry",
+      "merge_into": "Head"
+    },
+    "L Clavicle": {
+      "role": "front_shoulder",
+      "parent": "Spine2",
+      "axis": [
+        -0.003,
+        0.999,
+        0.042
+      ],
+      "clip_agreement": 0.986,
+      "range_deg": 44.2,
+      "purity": 0.964,
+      "offaxis_deg": 14.0,
+      "dof_recommended": 1,
+      "coverage_verts": 65,
+      "include": true,
+      "dof": 1,
+      "kind": "joint",
+      "phase1_active": true
+    },
+    "L UpperArm": {
+      "role": "front_upper",
+      "parent": "L Clavicle",
+      "axis": [
+        -0.074,
+        0.073,
+        -0.995
+      ],
+      "clip_agreement": 0.774,
+      "range_deg": 63.0,
+      "purity": 0.689,
+      "offaxis_deg": 43.6,
+      "dof_recommended": 2,
+      "coverage_verts": 31,
+      "include": true,
+      "dof": 2,
+      "kind": "joint",
+      "phase1_active": true
+    },
+    "L Forearm": {
+      "role": "front_lower",
+      "parent": "L UpperArm",
+      "axis": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "clip_agreement": 1.0,
+      "range_deg": 94.3,
+      "purity": 1.0,
+      "offaxis_deg": 0.0,
+      "dof_recommended": 1,
+      "coverage_verts": 41,
+      "include": true,
+      "dof": 1,
+      "kind": "joint",
+      "phase1_active": true
+    },
+    "L Hand": {
+      "role": "front_ankle",
+      "parent": "L Forearm",
+      "axis": [
+        -0.002,
+        -0.079,
+        -0.997
+      ],
+      "clip_agreement": 0.995,
+      "range_deg": 110.5,
+      "purity": 0.928,
+      "offaxis_deg": 36.5,
+      "dof_recommended": 1,
+      "coverage_verts": 10,
+      "include": true,
+      "dof": 1,
+      "kind": "joint",
+      "phase1_active": true
+    },
+    "L Finger0": {
+      "role": "front_toe",
+      "parent": "L Hand",
+      "axis": [
+        0.002,
+        0.003,
+        1.0
+      ],
+      "clip_agreement": 1.0,
+      "range_deg": 67.8,
+      "purity": 0.999,
+      "offaxis_deg": 3.2,
+      "dof_recommended": 1,
+      "coverage_verts": 23,
+      "include": true,
+      "dof": 1,
+      "kind": "joint",
+      "phase1_active": true
+    },
+    "R Clavicle": {
+      "role": "front_shoulder",
+      "parent": "Spine2",
+      "axis": [
+        0.014,
+        -0.998,
+        -0.054
+      ],
+      "clip_agreement": 0.997,
+      "range_deg": 54.4,
+      "purity": 0.963,
+      "offaxis_deg": 13.2,
+      "dof_recommended": 1,
+      "coverage_verts": 61,
+      "include": true,
+      "dof": 1,
+      "kind": "joint",
+      "phase1_active": true
+    },
+    "R UpperArm": {
+      "role": "front_upper",
+      "parent": "R Clavicle",
+      "axis": [
+        0.094,
+        0.279,
+        -0.956
+      ],
+      "clip_agreement": 0.698,
+      "range_deg": 62.2,
+      "purity": 0.732,
+      "offaxis_deg": 46.4,
+      "dof_recommended": 2,
+      "coverage_verts": 31,
+      "include": true,
+      "dof": 2,
+      "kind": "joint",
+      "phase1_active": true
+    },
+    "R Forearm": {
+      "role": "front_lower",
+      "parent": "R UpperArm",
+      "axis": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "clip_agreement": 1.0,
+      "range_deg": 92.0,
+      "purity": 1.0,
+      "offaxis_deg": 0.0,
+      "dof_recommended": 1,
+      "coverage_verts": 39,
+      "include": true,
+      "dof": 1,
+      "kind": "joint",
+      "phase1_active": true
+    },
+    "R Hand": {
+      "role": "front_ankle",
+      "parent": "R Forearm",
+      "axis": [
+        0.182,
+        0.027,
+        -0.983
+      ],
+      "clip_agreement": 0.982,
+      "range_deg": 113.0,
+      "purity": 0.868,
+      "offaxis_deg": 43.4,
+      "dof_recommended": 2,
+      "coverage_verts": 12,
+      "include": true,
+      "dof": 1,
+      "kind": "joint",
+      "phase1_active": true
+    },
+    "R Finger0": {
+      "role": "front_toe",
+      "parent": "R Hand",
+      "axis": [
+        0.004,
+        0.001,
+        1.0
+      ],
+      "clip_agreement": 1.0,
+      "range_deg": 77.2,
+      "purity": 0.999,
+      "offaxis_deg": 2.4,
+      "dof_recommended": 1,
+      "coverage_verts": 23,
+      "include": true,
+      "dof": 1,
+      "kind": "joint",
+      "phase1_active": true
+    },
+    "L Thigh": {
+      "role": "hind_upper",
+      "parent": "Pelvis",
+      "axis": [
+        -0.677,
+        -0.01,
+        0.736
+      ],
+      "clip_agreement": 0.936,
+      "range_deg": 58.3,
+      "purity": 0.884,
+      "offaxis_deg": 20.9,
+      "dof_recommended": 2,
+      "coverage_verts": 56,
+      "include": true,
+      "dof": 2,
+      "kind": "joint",
+      "phase1_active": true
+    },
+    "L Calf": {
+      "role": "hind_lower",
+      "parent": "L Thigh",
+      "axis": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "clip_agreement": 1.0,
+      "range_deg": 56.2,
+      "purity": 1.0,
+      "offaxis_deg": 0.0,
+      "dof_recommended": 1,
+      "coverage_verts": 41,
+      "include": true,
+      "dof": 1,
+      "kind": "joint",
+      "phase1_active": true
+    },
+    "L HorseLink": {
+      "role": "hind_hock",
+      "parent": "L Calf",
+      "axis": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "clip_agreement": 1.0,
+      "range_deg": 89.8,
+      "purity": 1.0,
+      "offaxis_deg": 0.0,
+      "dof_recommended": 1,
+      "coverage_verts": 17,
+      "include": true,
+      "dof": 1,
+      "kind": "joint",
+      "phase1_active": true
+    },
+    "L Foot": {
+      "role": "hind_ankle",
+      "parent": "L HorseLink",
+      "axis": [
+        -0.014,
+        0.08,
+        0.997
+      ],
+      "clip_agreement": 0.998,
+      "range_deg": 94.3,
+      "purity": 0.985,
+      "offaxis_deg": 21.6,
+      "dof_recommended": 1,
+      "coverage_verts": 19,
+      "include": true,
+      "dof": 1,
+      "kind": "joint",
+      "phase1_active": true
+    },
+    "L Toe0": {
+      "role": "hind_toe",
+      "parent": "L Foot",
+      "axis": [
+        -0.066,
+        -0.04,
+        -0.997
+      ],
+      "clip_agreement": 0.995,
+      "range_deg": 57.8,
+      "purity": 0.966,
+      "offaxis_deg": 4.5,
+      "dof_recommended": 1,
+      "coverage_verts": 17,
+      "include": true,
+      "dof": 1,
+      "kind": "joint",
+      "phase1_active": true
+    },
+    "R Thigh": {
+      "role": "hind_upper",
+      "parent": "Pelvis",
+      "axis": [
+        0.26,
+        -0.039,
+        0.965
+      ],
+      "clip_agreement": 0.834,
+      "range_deg": 70.1,
+      "purity": 0.804,
+      "offaxis_deg": 25.0,
+      "dof_recommended": 2,
+      "coverage_verts": 58,
+      "include": true,
+      "dof": 2,
+      "kind": "joint",
+      "phase1_active": true
+    },
+    "R Calf": {
+      "role": "hind_lower",
+      "parent": "R Thigh",
+      "axis": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "clip_agreement": 1.0,
+      "range_deg": 73.1,
+      "purity": 1.0,
+      "offaxis_deg": 0.0,
+      "dof_recommended": 1,
+      "coverage_verts": 41,
+      "include": true,
+      "dof": 1,
+      "kind": "joint",
+      "phase1_active": true
+    },
+    "R HorseLink": {
+      "role": "hind_hock",
+      "parent": "R Calf",
+      "axis": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "clip_agreement": 1.0,
+      "range_deg": 103.2,
+      "purity": 1.0,
+      "offaxis_deg": 0.0,
+      "dof_recommended": 1,
+      "coverage_verts": 17,
+      "include": true,
+      "dof": 1,
+      "kind": "joint",
+      "phase1_active": true
+    },
+    "R Foot": {
+      "role": "hind_ankle",
+      "parent": "R HorseLink",
+      "axis": [
+        0.071,
+        -0.011,
+        -0.997
+      ],
+      "clip_agreement": 0.995,
+      "range_deg": 95.3,
+      "purity": 0.96,
+      "offaxis_deg": 32.5,
+      "dof_recommended": 1,
+      "coverage_verts": 18,
+      "include": true,
+      "dof": 1,
+      "kind": "joint",
+      "phase1_active": true
+    },
+    "R Toe0": {
+      "role": "hind_toe",
+      "parent": "R Foot",
+      "axis": [
+        -0.019,
+        -0.034,
+        0.999
+      ],
+      "clip_agreement": 0.997,
+      "range_deg": 71.3,
+      "purity": 0.971,
+      "offaxis_deg": 12.6,
+      "dof_recommended": 1,
+      "coverage_verts": 18,
+      "include": true,
+      "dof": 1,
+      "kind": "joint",
+      "phase1_active": true
+    },
+    "Tail": {
+      "role": "tail",
+      "parent": "Pelvis",
+      "axis": [
+        -0.689,
+        0.664,
+        0.292
+      ],
+      "clip_agreement": 0.769,
+      "range_deg": 45.1,
+      "purity": 0.843,
+      "offaxis_deg": 25.0,
+      "dof_recommended": 2,
+      "coverage_verts": 19,
+      "include": true,
+      "dof": 1,
+      "kind": "joint",
+      "phase1_active": false
+    }
+  },
+  "dof_spec": {
+    "total_dof": 38,
+    "phase1_active_dof": 34,
+    "two_dof_joints": [
+      "L Thigh",
+      "R Thigh",
+      "L UpperArm",
+      "R UpperArm",
+      "Spine",
+      "Neck",
+      "Neck1",
+      "Head"
+    ],
+    "merge_into_head": [
+      "Eye L",
+      "Eye R"
+    ],
+    "merge_into_base": [
+      "CG"
+    ],
+    "phase1_locked_at_reference": [
+      "Jaw",
+      "L Ear",
+      "R Ear",
+      "Tail"
+    ],
+    "note": "38 physical DOF. Eyes' geometry merges into Head (render mesh drives eyes in Unity). Jaw/Ears/Tail are ACTUATED but phase-1-locked (unlock later for learned eating/alert). 2-DOF = two stacked revolutes; intermediate links get small inertia."
+  }
+}

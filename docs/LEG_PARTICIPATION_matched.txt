@@ -1,0 +1,200 @@
+EXPERT mean range of motion per limb (degrees):
+  L-hind      55.6
+  R-hind      58.0
+  L-front     64.7
+  R-front     63.9
+
+duty = fraction of frames the HOOF is loaded (>5 N)
+ROM  = mean per-joint 5-95 percentile spread over that limb's joints
+
+exp1
+  commanded  vx +1.14  vy +0.00  yaw +0.0 deg/s (spread 0.0)
+  leg        share   meanN   d@5N  d@20N     ROM   /exp  verdict
+  L-hind      0.21     108   0.31   0.28   59.9d   1.08  working
+  R-hind      0.51     260   0.57   0.47   83.8d   1.44  working
+  L-front     0.07      36   0.19   0.09   73.7d   1.14  swings, carries nothing
+  R-front     0.21     105   0.53   0.36   69.5d   1.09  working
+  LOAD BALANCE  worst leg 0.07 (fair share 0.25)   evenness 0.85 (1.0 = all four equal)   lightest = L-front
+  SLIP (0=planted) L-hind 1.39  R-hind 0.13  L-front 0.75  R-front 0.89   at 1.10 m/s, reference walk 0.04-0.12
+  front/hind by LOAD 0.38   by MOTION 0.88   grazing contacts 28%
+  -> motion retained -- this is a WEIGHT shift, not a dead limb
+
+exp1b
+  commanded  vx +1.12  vy +0.00  yaw +0.0 deg/s (spread 0.0)
+  leg        share   meanN   d@5N  d@20N     ROM   /exp  verdict
+  L-hind      0.22     111   0.34   0.29   62.3d   1.12  working
+  R-hind      0.50     258   0.51   0.44   84.6d   1.46  working
+  L-front     0.04      22   0.20   0.12   73.4d   1.13  swings, carries nothing
+  R-front     0.24     122   0.60   0.42   75.5d   1.18  working
+  LOAD BALANCE  worst leg 0.04 (fair share 0.25)   evenness 0.83 (1.0 = all four equal)   lightest = L-front
+  SLIP (0=planted) L-hind 0.01  R-hind 1.03  L-front 0.63  R-front 0.16   at 1.13 m/s, reference walk 0.04-0.12
+  front/hind by LOAD 0.39   by MOTION 0.90   grazing contacts 25%
+  -> motion retained -- this is a WEIGHT shift, not a dead limb
+
+exp2
+  commanded  vx +1.16  vy +0.00  yaw +0.0 deg/s (spread 0.0)
+  leg        share   meanN   d@5N  d@20N     ROM   /exp  verdict
+  L-hind      0.25      84   0.38   0.34   85.2d   1.53  working
+  R-hind      0.42     139   0.38   0.28   92.6d   1.60  working
+  L-front     0.11      35   0.33   0.18  108.1d   1.67  working
+  R-front     0.23      77   0.54   0.41   85.1d   1.33  working
+  LOAD BALANCE  worst leg 0.11 (fair share 0.25)   evenness 0.93 (1.0 = all four equal)   lightest = L-front
+  SLIP (0=planted) L-hind 2.39  R-hind 0.28  L-front 0.49  R-front 1.05   at 0.37 m/s, reference walk 0.04-0.12
+  front/hind by LOAD 0.50   by MOTION 0.96   grazing contacts 27%
+  -> motion retained -- this is a WEIGHT shift, not a dead limb
+
+exp3
+  commanded  vx +1.20  vy +0.00  yaw +0.0 deg/s (spread 0.0)
+  leg        share   meanN   d@5N  d@20N     ROM   /exp  verdict
+  L-hind      0.38     140   0.27   0.21   72.0d   1.29  working
+  R-hind      0.15      56   0.20   0.15   78.9d   1.36  working
+  L-front     0.06      21   0.23   0.14   72.5d   1.12  swings, carries nothing
+  R-front     0.41     148   0.38   0.26   80.6d   1.26  working
+  LOAD BALANCE  worst leg 0.06 (fair share 0.25)   evenness 0.86 (1.0 = all four equal)   lightest = L-front
+  SLIP (0=planted) L-hind 0.13  R-hind 0.93  L-front 1.17  R-front 0.65   at 2.01 m/s, reference trot 0.35-0.42
+  front/hind by LOAD 0.86   by MOTION 0.90   grazing contacts 28%
+  -> motion retained -- this is a WEIGHT shift, not a dead limb
+
+exp3b
+  commanded  vx +1.14  vy +0.00  yaw +0.0 deg/s (spread 0.0)
+  leg        share   meanN   d@5N  d@20N     ROM   /exp  verdict
+  L-hind      0.58     397   0.46   0.45   48.5d   0.87  working
+  R-hind      0.08      56   0.08   0.07   44.9d   0.77  working
+  L-front     0.01       8   0.14   0.05   41.8d   0.65  swings, carries nothing
+  R-front     0.32     218   0.57   0.40   49.1d   0.77  working
+  LOAD BALANCE  worst leg 0.01 (fair share 0.25)   evenness 0.68 (1.0 = all four equal)   lightest = L-front
+  SLIP (0=planted) L-hind 0.03  R-hind 1.26  L-front 2.34  R-front 0.79   at 1.03 m/s, reference walk 0.04-0.12
+  front/hind by LOAD 0.50   by MOTION 0.86   grazing contacts 27%
+  -> motion retained -- this is a WEIGHT shift, not a dead limb
+
+exp4
+  commanded  vx +1.14  vy +0.00  yaw +0.0 deg/s (spread 0.0)
+  leg        share   meanN   d@5N  d@20N     ROM   /exp  verdict
+  L-hind      0.16      46   0.19   0.12   97.1d   1.75  working
+  R-hind      0.51     152   0.35   0.24  109.0d   1.88  working
+  L-front     0.11      34   0.18   0.10  122.3d   1.89  working
+  R-front     0.22      66   0.30   0.21  114.5d   1.79  working
+  LOAD BALANCE  worst leg 0.11 (fair share 0.25)   evenness 0.88 (1.0 = all four equal)   lightest = L-front
+  SLIP (0=planted) L-hind 0.36  R-hind 0.50  L-front 0.87  R-front 0.95   at 3.26 m/s, reference trot 0.35-0.42
+  front/hind by LOAD 0.50   by MOTION 1.02   grazing contacts 36%
+  -> motion retained -- this is a WEIGHT shift, not a dead limb
+
+A1
+  commanded  vx +1.21  vy +0.00  yaw +0.0 deg/s (spread 0.0)
+  leg        share   meanN   d@5N  d@20N     ROM   /exp  verdict
+  L-hind      0.33      81   0.28   0.25   73.7d   1.33  working
+  R-hind      0.29      69   0.30   0.22   77.5d   1.34  working
+  L-front     0.03       6   0.24   0.06   71.7d   1.11  swings, carries nothing
+  R-front     0.35      86   0.42   0.28   77.3d   1.21  working
+  LOAD BALANCE  worst leg 0.03 (fair share 0.25)   evenness 0.86 (1.0 = all four equal)   lightest = L-front
+  SLIP (0=planted) L-hind 0.21  R-hind 0.37  L-front 0.63  R-front 0.26   at 1.29 m/s, reference walk 0.04-0.12
+  front/hind by LOAD 0.62   by MOTION 0.87   grazing contacts 36%
+  -> motion retained -- this is a WEIGHT shift, not a dead limb
+
+A2
+  commanded  vx +1.15  vy +0.00  yaw +0.0 deg/s (spread 0.0)
+  leg        share   meanN   d@5N  d@20N     ROM   /exp  verdict
+  L-hind      0.55     348   0.42   0.41   53.4d   0.96  working
+  R-hind      0.11      71   0.11   0.09   56.2d   0.97  working
+  L-front     0.01       9   0.17   0.07   48.0d   0.74  swings, carries nothing
+  R-front     0.32     206   0.70   0.43   53.8d   0.84  working
+  LOAD BALANCE  worst leg 0.01 (fair share 0.25)   evenness 0.72 (1.0 = all four equal)   lightest = L-front
+  SLIP (0=planted) L-hind 0.12  R-hind 0.98  L-front 1.99  R-front 0.46   at 1.22 m/s, reference walk 0.04-0.12
+  front/hind by LOAD 0.51   by MOTION 0.82   grazing contacts 29%
+  -> motion retained -- this is a WEIGHT shift, not a dead limb
+
+C2
+  commanded  vx +1.16  vy +0.00  yaw +0.0 deg/s (spread 0.0)
+  leg        share   meanN   d@5N  d@20N     ROM   /exp  verdict
+  L-hind      0.00       1   0.01   0.01   50.3d   0.91  swings, carries nothing
+  R-hind      0.98     433   0.41   0.39   85.9d   1.48  working
+  L-front     0.00       2   0.01   0.01   66.5d   1.03  swings, carries nothing
+  R-front     0.01       5   0.05   0.03   66.3d   1.04  swings, carries nothing
+  LOAD BALANCE  worst leg 0.00 (fair share 0.25)   evenness 0.08 (1.0 = all four equal)   lightest = L-hind
+  SLIP (0=planted) L-hind 1.47  R-hind 0.08  L-front 0.97  R-front 0.94   at 1.85 m/s, reference walk 0.04-0.12
+  front/hind by LOAD 0.02   by MOTION 0.87   grazing contacts 29%
+  -> motion retained -- this is a WEIGHT shift, not a dead limb
+
+C3
+  commanded  vx +1.28  vy +0.00  yaw +0.0 deg/s (spread 0.0)
+  leg        share   meanN   d@5N  d@20N     ROM   /exp  verdict
+  L-hind      0.03      10   0.08   0.06   53.0d   0.95  swings, carries nothing
+  R-hind      0.87     316   0.38   0.34   89.5d   1.54  working
+  L-front     0.05      17   0.11   0.05   78.1d   1.21  swings, carries nothing
+  R-front     0.05      19   0.19   0.09   69.3d   1.08  swings, carries nothing
+  LOAD BALANCE  worst leg 0.03 (fair share 0.25)   evenness 0.37 (1.0 = all four equal)   lightest = L-hind
+  SLIP (0=planted) L-hind 1.05  R-hind 0.10  L-front 0.94  R-front 1.15   at 1.86 m/s, reference walk 0.04-0.12
+  front/hind by LOAD 0.11   by MOTION 0.92   grazing contacts 34%
+  -> motion retained -- this is a WEIGHT shift, not a dead limb
+
+C3b
+  commanded  vx +1.13  vy +0.00  yaw +0.0 deg/s (spread 0.0)
+  leg        share   meanN   d@5N  d@20N     ROM   /exp  verdict
+  L-hind      0.01       6   0.04   0.03   46.5d   0.84  swings, carries nothing
+  R-hind      0.91     440   0.47   0.43   86.0d   1.48  working
+  L-front     0.05      22   0.12   0.09   70.0d   1.08  swings, carries nothing
+  R-front     0.04      17   0.20   0.08   62.3d   0.98  swings, carries nothing
+  LOAD BALANCE  worst leg 0.01 (fair share 0.25)   evenness 0.29 (1.0 = all four equal)   lightest = L-hind
+  SLIP (0=planted) L-hind 1.30  R-hind 0.10  L-front 0.98  R-front 1.02   at 1.98 m/s, reference walk 0.04-0.12
+  front/hind by LOAD 0.09   by MOTION 0.89   grazing contacts 31%
+  -> motion retained -- this is a WEIGHT shift, not a dead limb
+
+D1
+  commanded  vx +1.19  vy +0.00  yaw +0.0 deg/s (spread 0.0)
+  leg        share   meanN   d@5N  d@20N     ROM   /exp  verdict
+  L-hind      0.30      60   0.41   0.38   39.6d   0.71  working
+  R-hind      0.15      30   0.20   0.11   39.3d   0.68  working
+  L-front     0.03       5   0.37   0.03   40.2d   0.62  swings, carries nothing
+  R-front     0.52     106   0.48   0.44   32.3d   0.51  working
+  LOAD BALANCE  worst leg 0.03 (fair share 0.25)   evenness 0.78 (1.0 = all four equal)   lightest = L-front
+  SLIP (0=planted) L-hind 0.33  R-hind 0.38  L-front 0.94  R-front 0.59   at 1.10 m/s, reference walk 0.04-0.12
+  front/hind by LOAD 1.23   by MOTION 0.81   grazing contacts 38%
+  -> motion retained -- this is a WEIGHT shift, not a dead limb
+
+D2
+  commanded  vx +1.15  vy +0.00  yaw +0.0 deg/s (spread 0.0)
+  leg        share   meanN   d@5N  d@20N     ROM   /exp  verdict
+  L-hind      0.45     138   0.42   0.39   59.8d   1.07  working
+  R-hind      0.28      87   0.22   0.17   73.4d   1.26  working
+  L-front     0.07      23   0.27   0.06   75.2d   1.16  swings, carries nothing
+  R-front     0.19      60   0.39   0.32   61.4d   0.96  working
+  LOAD BALANCE  worst leg 0.07 (fair share 0.25)   evenness 0.89 (1.0 = all four equal)   lightest = L-front
+  SLIP (0=planted) L-hind 0.28  R-hind 0.46  L-front 0.72  R-front 0.47   at 1.42 m/s, reference walk 0.04-0.12
+  front/hind by LOAD 0.37   by MOTION 0.91   grazing contacts 32%
+  -> motion retained -- this is a WEIGHT shift, not a dead limb
+
+B
+  commanded  vx +1.19  vy +0.00  yaw +0.0 deg/s (spread 0.0)
+  leg        share   meanN   d@5N  d@20N     ROM   /exp  verdict
+  L-hind      0.03      15   0.09   0.07   42.8d   0.77  swings, carries nothing
+  R-hind      0.71     427   0.60   0.45   57.4d   0.99  working
+  L-front     0.24     145   0.13   0.11   49.8d   0.77  working
+  R-front     0.02      12   0.10   0.05   38.3d   0.60  swings, carries nothing
+  LOAD BALANCE  worst leg 0.02 (fair share 0.25)   evenness 0.55 (1.0 = all four equal)   lightest = R-front
+  SLIP (0=planted) L-hind 1.10  R-hind 0.07  L-front 0.90  R-front 1.59   at 1.43 m/s, reference walk 0.04-0.12
+  front/hind by LOAD 0.35   by MOTION 0.78   grazing contacts 26%
+  -> motion retained -- this is a WEIGHT shift, not a dead limb
+
+G
+  commanded  vx +1.12  vy +0.00  yaw +0.0 deg/s (spread 0.0)
+  leg        share   meanN   d@5N  d@20N     ROM   /exp  verdict
+  L-hind      0.54     300   0.42   0.39   49.7d   0.89  working
+  R-hind      0.21     117   0.22   0.16   66.3d   1.14  working
+  L-front     0.02      13   0.13   0.05   76.3d   1.18  swings, carries nothing
+  R-front     0.22     123   0.28   0.25   69.1d   1.08  working
+  LOAD BALANCE  worst leg 0.02 (fair share 0.25)   evenness 0.78 (1.0 = all four equal)   lightest = L-front
+  SLIP (0=planted) L-hind 1.71  R-hind 0.04  L-front 0.70  R-front 1.29   at 0.96 m/s, reference walk 0.04-0.12
+  front/hind by LOAD 0.33   by MOTION 1.11   grazing contacts 27%
+  -> motion retained -- this is a WEIGHT shift, not a dead limb
+
+F1
+  commanded  vx +1.13  vy +0.00  yaw +0.0 deg/s (spread 0.0)
+  leg        share   meanN   d@5N  d@20N     ROM   /exp  verdict
+  L-hind      0.23     137   0.13   0.13   66.1d   1.19  working
+  R-hind      0.74     449   0.40   0.38   75.1d   1.30  working
+  L-front     0.01       6   0.04   0.02   60.4d   0.93  swings, carries nothing
+  R-front     0.02      12   0.09   0.05   60.1d   0.94  swings, carries nothing
+  LOAD BALANCE  worst leg 0.01 (fair share 0.25)   evenness 0.49 (1.0 = all four equal)   lightest = L-front
+  SLIP (0=planted) L-hind 0.03  R-hind 1.40  L-front 0.82  R-front 0.97   at 1.77 m/s, reference walk 0.04-0.12
+  front/hind by LOAD 0.03   by MOTION 0.75   grazing contacts 27%
+  -> motion retained -- this is a WEIGHT shift, not a dead limb

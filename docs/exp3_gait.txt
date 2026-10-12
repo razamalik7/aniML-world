@@ -1,0 +1,63 @@
+source: docs/exp3_rollout.npz
+frames=400 envs=4 fps=50
+targets: duty (0.55, 0.8), liftoffs/s (0.6, 1.6), leg activity (12.0, 24.0) deg
+
+==============================================================================
+exp3_rollout  env 0
+==============================================================================
+  travel 13.27 m in 8.00s = 1.659 m/s   straightness 0.97   pelvis z mean 0.90 min 0.76
+  contact source: PhysX contact forces (>20 N = bearing load)
+
+  leg         duty       lift/s       activity     
+  L-hind      0.24 LOW     2.38 HIGH     19.8d ok  
+  R-hind      0.24 LOW     2.62 HIGH     19.2d ok  
+  L-front     0.19 LOW     3.25 HIGH     19.2d ok  
+  R-front     0.34 LOW     2.75 HIGH     16.3d ok  
+
+  duty in walk range: NO    step rate balanced across legs: NO  (spread 0.88/s)
+  VERDICT: NOT a walk gait
+
+  JOINT-RANGE CONFORMANCE (% of samples outside the reference's range):
+    R_Clavicle_to_R_UpperArm_dof0 ref[  -38.2,   2.9] policy[  -32.7,  34.6]    83% <== OUT OF STYLE
+    R_Forearm_to_R_Hand          ref[  -47.0,  51.3] policy[  -34.0, 102.5]    74% <== OUT OF STYLE
+    R_HorseLink_to_R_Foot        ref[  -17.0,  78.0] policy[  -60.1,  91.2]    74% <== OUT OF STYLE
+    R_Hand_to_R_Finger0          ref[  -55.2,  13.5] policy[  -93.5,  16.4]    68% <== OUT OF STYLE
+    L_Hand_to_L_Finger0          ref[  -11.2,  47.6] policy[  -42.7,  82.7]    66% <== OUT OF STYLE
+    R_Thigh_dof0_to_R_Thigh      ref[  -10.6,   8.1] policy[  -18.4,  24.7]    53% <== OUT OF STYLE
+    11/22 leg joints spend >25% of the time outside the reference range  <-- will look wrong
+
+  footfall (#=bearing load, .=swing), one column per frame:
+    L-hind   |...............#...#....##....##....#....##...#...##...##...#....#....#...#....#....#...##..........|
+    R-hind   |..###..##...#......#..##.....##....#.....#...........................##...##..##.........#...##.....|
+    L-front  |.#.#.##......#.............#.....##...##....##...#...#........##...#....................#..........#|
+    R-front  |..#........#..##...#...##....##....#....##...##...##...#...##...##...##..##...##...##..###...##...##|
+
+==============================================================================
+exp3_rollout  env 1
+==============================================================================
+  travel 11.46 m in 8.00s = 1.433 m/s   straightness 0.98   pelvis z mean 0.90 min 0.76
+  contact source: PhysX contact forces (>20 N = bearing load)
+
+  leg         duty       lift/s       activity     
+  L-hind      0.25 LOW     2.88 HIGH     18.1d ok  
+  R-hind      0.28 LOW     3.88 HIGH     16.8d ok  
+  L-front     0.18 LOW     2.88 HIGH     18.0d ok  
+  R-front     0.33 LOW     3.12 HIGH     26.7d HIGH
+
+  duty in walk range: NO    step rate balanced across legs: NO  (spread 1.00/s)
+  VERDICT: NOT a walk gait
+
+  JOINT-RANGE CONFORMANCE (% of samples outside the reference's range):
+    L_HorseLink_to_L_Foot        ref[  -65.7,  16.3] policy[ -133.2, -18.1]    91% <== OUT OF STYLE
+    L_Hand_to_L_Finger0          ref[  -11.2,  47.6] policy[  -63.0,  29.1]    84% <== OUT OF STYLE
+    R_Clavicle_to_R_UpperArm_dof0 ref[  -38.2,   2.9] policy[   -8.9,  45.3]    58% <== OUT OF STYLE
+    R_HorseLink_to_R_Foot        ref[  -17.0,  78.0] policy[  -69.3,  49.7]    46% <== OUT OF STYLE
+    R_Forearm_to_R_Hand          ref[  -47.0,  51.3] policy[  -76.2,  97.2]    43% <== OUT OF STYLE
+    L_Thigh_dof0_to_L_Thigh      ref[   -0.5,   9.5] policy[  -18.6,  14.5]    36% <== OUT OF STYLE
+    8/22 leg joints spend >25% of the time outside the reference range  <-- will look wrong
+
+  footfall (#=bearing load, .=swing), one column per frame:
+    L-hind   |.##.........##..##...##...##...#.......#...##...#.....#.....#...#.....#.........#...#.....#....###..|
+    R-hind   |..##...##..#.........#...........##...#....#....##...##....#....##.......##...###..##....#....###...|
+    L-front  |.#.........#..##...##...###...#.......#....##..............#....#....#....#....#....#....#.....#....|
+    R-front  |...........#...##...####.##...##..#...##...##...##....#....##.#.##...##...##...#....##..##.....##...|

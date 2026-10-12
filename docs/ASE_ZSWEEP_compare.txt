@@ -1,0 +1,34 @@
+
+=== exp4 (6 latents, 300 frames @ 50 fps) ===
+  pose separation   raw  31.4d   phase-aligned  30.0d   (min pair  23.1d)
+  95% of the raw separation survives phase alignment
+  forward speed     0.45 - 3.85 m/s (spread 3.40)
+  stride rate       1.35 - 2.80 Hz   duty 0.16 - 0.33
+
+=== C3 (6 latents, 300 frames @ 50 fps) ===
+  pose separation   raw  18.6d   phase-aligned  17.6d   (min pair   8.9d)
+  94% of the raw separation survives phase alignment
+  forward speed     2.55 - 3.37 m/s (spread 0.82)
+  stride rate       1.35 - 1.95 Hz   duty 0.06 - 0.16
+
+=== C3b (6 latents, 300 frames @ 50 fps) ===
+  pose separation   raw  19.6d   phase-aligned  17.7d   (min pair  12.9d)
+  90% of the raw separation survives phase alignment
+  forward speed     2.16 - 3.66 m/s (spread 1.50)
+  stride rate       1.25 - 2.20 Hz   duty 0.07 - 0.17
+
+=== F1 (6 latents, 300 frames @ 50 fps) ===
+  pose separation   raw  21.5d   phase-aligned  19.8d   (min pair  10.3d)
+  92% of the raw separation survives phase alignment
+  forward speed     1.42 - 2.76 m/s (spread 1.35)
+  stride rate       1.20 - 2.05 Hz   duty 0.13 - 0.20
+
+======================================================================
+run          aligned  min pair  spd spread
+exp4           30.0d     23.1d       3.40
+F1             19.8d     10.3d       1.35
+C3b            17.7d     12.9d       1.50
+C3             17.6d      8.9d       0.82
+
+Higher phase-aligned separation = genuinely distinct skills.
+High MI with LOW separation is the failure the diversity objective exists to prevent.

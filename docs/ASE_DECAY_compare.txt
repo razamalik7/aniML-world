@@ -1,0 +1,48 @@
+
+=== exp4 (6 latents, 300 frames @ 50 fps) ===
+  pose separation   raw  31.4d   phase-aligned  30.0d   (min pair  23.1d)
+  95% of the raw separation survives phase alignment
+  forward speed     0.45 - 3.85 m/s (spread 3.40)
+  stride rate       1.35 - 2.80 Hz   duty 0.16 - 0.33
+
+=== C3at1500 (6 latents, 300 frames @ 50 fps) ===
+  pose separation   raw  26.4d   phase-aligned  24.3d   (min pair  19.2d)
+  92% of the raw separation survives phase alignment
+  forward speed     1.52 - 4.21 m/s (spread 2.69)
+  stride rate       1.00 - 2.20 Hz   duty 0.03 - 0.20
+
+=== C3 (6 latents, 300 frames @ 50 fps) ===
+  pose separation   raw  18.6d   phase-aligned  17.6d   (min pair   8.9d)
+  94% of the raw separation survives phase alignment
+  forward speed     2.55 - 3.37 m/s (spread 0.82)
+  stride rate       1.35 - 1.95 Hz   duty 0.06 - 0.16
+
+=== F1at1500 (6 latents, 300 frames @ 50 fps) ===
+  pose separation   raw  35.5d   phase-aligned  34.5d   (min pair  24.1d)
+  97% of the raw separation survives phase alignment
+  forward speed     0.70 - 2.98 m/s (spread 2.28)
+  stride rate       1.40 - 4.55 Hz   duty 0.14 - 0.28
+
+=== F1 (6 latents, 300 frames @ 50 fps) ===
+  pose separation   raw  21.5d   phase-aligned  19.8d   (min pair  10.3d)
+  92% of the raw separation survives phase alignment
+  forward speed     1.42 - 2.76 m/s (spread 1.35)
+  stride rate       1.20 - 2.05 Hz   duty 0.13 - 0.20
+
+=== C3b (6 latents, 300 frames @ 50 fps) ===
+  pose separation   raw  19.6d   phase-aligned  17.7d   (min pair  12.9d)
+  90% of the raw separation survives phase alignment
+  forward speed     2.16 - 3.66 m/s (spread 1.50)
+  stride rate       1.25 - 2.20 Hz   duty 0.07 - 0.17
+
+======================================================================
+run          aligned  min pair  spd spread
+F1at1500       34.5d     24.1d       2.28
+exp4           30.0d     23.1d       3.40
+C3at1500       24.3d     19.2d       2.69
+F1             19.8d     10.3d       1.35
+C3b            17.7d     12.9d       1.50
+C3             17.6d      8.9d       0.82
+
+Higher phase-aligned separation = genuinely distinct skills.
+High MI with LOW separation is the failure the diversity objective exists to prevent.

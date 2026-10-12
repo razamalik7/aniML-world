@@ -1,5 +1,14 @@
 # VERIFIED RIG DEFECT â€” hind foot/toe collision meshes are mirrored
 
+> **STATUS: FIXED 2026-07-23 (Raza-authorized).** Applied the clean-scope fix —
+> all 4 feet collisions repointed to legacy(==visual) meshes, both hind toes
+> Y-mirrored (`*_toe_collision_fixed.stl`). Patched both the URDF and the loaded
+> `deer_world_base.usd` in place (no re-import). Checker now exits 0 (3 failures
+> -> 0, spread 33cm -> 2.7cm). Stance-pose front/hind hoof gap 69cm -> 3.5cm.
+> See `NIGHT_LOG_2026-07-23.md` §6 and `docs/collision_fix_stance_compare.png`.
+> Backups: `configuration/deer_world_base.usd.pre_footfix.bak`,
+> `assets/deer_urdf/deer_world.pre_footfix.urdf`.
+
 **Found 2026-07-23 (CV workstream, incidentally). Affects LIVE locomotion
 training. Nothing was changed â€” this is for the locomotion owner to decide on.**
 

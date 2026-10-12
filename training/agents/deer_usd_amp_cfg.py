@@ -68,6 +68,12 @@ DEER_USD_AMP_WALK_CFG: dict[str, Any] = {
     # algorithm, values = list of observation group names from the env.
     # The AMP runner needs "policy", "critic", and "amp".
     "obs_groups": {
+        # rsl_rl >= 4 (amp-rsl-rl 2.x) constructs the actor with obs_set
+        # "actor"; rsl_rl 3.x used "policy". MLPModel does obs_groups[obs_set],
+        # so the missing "actor" key raised KeyError. Provide BOTH names so
+        # either library branch resolves. All three read the env's "policy"
+        # observation group; "amp" reads the AMP group the discriminator uses.
+        "actor":  ["policy"],
         "policy": ["policy"],
         "critic": ["policy"],
         "amp":    ["amp"],
@@ -85,6 +91,40 @@ DEER_USD_AMP_WALK_CFG: dict[str, Any] = {
         "critic_hidden_dims": [512, 256, 128],
         "activation": "elu",
     },
+
+    # ---------------- actor / critic (rsl_rl >= 4 style) ----------------
+    # amp-rsl-rl 2.x branches on RSL_RL_V4_PLUS. We run rsl_rl 5.x, so it
+    # takes THIS branch and reads train_cfg["actor"] / ["critic"]; the
+    # legacy "policy" section above is only used on rsl_rl 3.x. Keep both so
+    # the config works on either. Values mirror "policy" exactly (same
+    # 512-256-128 elu nets, same init noise) so r38 semantics are preserved.
+    #
+    # GOTCHA: the runner filters these dicts to keys accepted by
+    # MLPModel.__init__ (obs/obs_groups/obs_set/output_dim are supplied
+    # positionally; only hidden_dims / activation / obs_normalization /
+    # distribution_cfg survive). Unknown keys are DROPPED SILENTLY -- so
+    # init_noise_std must live inside distribution_cfg, not at this level,
+    # or the actor would quietly fall back to default noise.
+    "actor": {
+        "class_name": "MLPModel",
+        "hidden_dims": [512, 256, 128],
+        "activation": "elu",
+        "distribution_cfg": {
+            "class_name": "GaussianDistribution",
+            "init_std": 1.0,        # == old policy.init_noise_std
+            "std_type": "scalar",
+        },
+    },
+    "critic": {
+        "class_name": "MLPModel",
+        "hidden_dims": [512, 256, 128],
+        "activation": "elu",
+    },
+
+    # Native replacement for train_amp.py's --task_reward_ratio monkey-patch
+    # (amp-rsl-rl 2.x): reward = (1-style_weight)*task + style_weight*style.
+    # 0.5 reproduces the old hardcoded 50/50 blend r38 trained with.
+    "style_weight": 0.5,
 
     # ---------------- PPO + AMP algorithm ----------------
     "algorithm": {
@@ -523,6 +563,124 @@ DEER_USD_AMP_TURN_CFG: dict[str, Any] = {
 }
 
 
+# r39: V26 (V25 + lateral cmd lin_vel_y -0.2..0.2). Full 3-DOF locomotion.
+# r36-r38 inherited entropy_coef=0.01 and noise_std ballooned from 1.0 to
+# 3.82 over ~9000 iters (per CLAUDE.md, 0.01 destroys learned gaits). Drop
+# to 0.002 so the bloated std starts decaying instead of growing further.
+# rsl_rl v3 preserves the checkpoint's std_param on resume, but lowering
+# entropy_coef makes future updates pull it back down.
+DEER_USD_AMP_FULL_LOCO_CFG: dict[str, Any] = {
+    **DEER_USD_AMP_WALK_RUN_CFG,
+    "experiment_name": "animl_deer_amp_full_loco",
+    "seed": 66,
+}
+DEER_USD_AMP_FULL_LOCO_CFG["algorithm"] = {
+    **DEER_USD_AMP_WALK_RUN_CFG["algorithm"],
+    "entropy_coef": 0.002,
+}
+
+
+# r40: V27 (V26 + interval push events). Recovery-from-disturbance training.
+# Keep entropy_coef=0.002 so noise_std continues deflating from r39's 2.57.
+DEER_USD_AMP_PUSH_CFG: dict[str, Any] = {
+    **DEER_USD_AMP_WALK_RUN_CFG,
+    "experiment_name": "animl_deer_amp_push",
+    "seed": 67,
+}
+DEER_USD_AMP_PUSH_CFG["algorithm"] = {
+    **DEER_USD_AMP_WALK_RUN_CFG["algorithm"],
+    "entropy_coef": 0.002,
+}
+
+
+# r41: V28 (V27 + stronger ±0.6 m/s pushes). entropy_coef 0.001 to keep
+# deflating noise_std from r40's 2.12. Warm-start r40.
+DEER_USD_AMP_PUSH2_CFG: dict[str, Any] = {
+    **DEER_USD_AMP_WALK_RUN_CFG,
+    "experiment_name": "animl_deer_amp_push2",
+    "seed": 68,
+}
+DEER_USD_AMP_PUSH2_CFG["algorithm"] = {
+    **DEER_USD_AMP_WALK_RUN_CFG["algorithm"],
+    "entropy_coef": 0.001,
+}
+
+
+# r42: V29 (V28 + mild rough terrain). First step toward terrain-
+# adaptive emergent behavior. Keep entropy_coef 0.001.
+DEER_USD_AMP_TERRAIN1_CFG: dict[str, Any] = {
+    **DEER_USD_AMP_WALK_RUN_CFG,
+    "experiment_name": "animl_deer_amp_terrain1",
+    "seed": 69,
+}
+DEER_USD_AMP_TERRAIN1_CFG["algorithm"] = {
+    **DEER_USD_AMP_WALK_RUN_CFG["algorithm"],
+    "entropy_coef": 0.001,
+}
+
+
+# r43: V30 (V28 + feet_air_time + feet_slide rewards). Targets the
+# "shuffle / skating" gait pattern by adding explicit stride mechanics:
+# air-time bonus per stride + slide penalty on contact. Warm-start r41b.
+# v2: weights bumped 5x (slide -0.5->-3.0, air_time +1.0->+5.0, threshold
+# 0.25->0.35s). Entropy_coef pumped 0.001->0.002 to give the policy more
+# exploration room to escape the deep shuffle local optimum.
+DEER_USD_AMP_STRIDE_CFG: dict[str, Any] = {
+    **DEER_USD_AMP_WALK_RUN_CFG,
+    "experiment_name": "animl_deer_amp_stride",
+    "seed": 70,
+}
+DEER_USD_AMP_STRIDE_CFG["algorithm"] = {
+    **DEER_USD_AMP_WALK_RUN_CFG["algorithm"],
+    "entropy_coef": 0.002,
+}
+
+
+# r44: V31 (V30 + trot_phase reward). Targets bunny-hop -> trot
+# transition by adding diagonal-pair alternation reward.
+DEER_USD_AMP_TROT_CFG: dict[str, Any] = {
+    **DEER_USD_AMP_WALK_RUN_CFG,
+    "experiment_name": "animl_deer_amp_trot",
+    "seed": 71,
+}
+DEER_USD_AMP_TROT_CFG["algorithm"] = {
+    **DEER_USD_AMP_WALK_RUN_CFG["algorithm"],
+    "entropy_coef": 0.002,
+}
+
+
+# r45: V32 (V30 + trot_phase_v2 with pronk penalty). Plan-B from-scratch
+# training so the policy never gets to encode bunny-hop as a local
+# optimum. Higher init_noise_std + entropy_coef for fresh exploration.
+DEER_USD_AMP_FROMSCRATCH_TROT_CFG: dict[str, Any] = {
+    **DEER_USD_AMP_WALK_RUN_CFG,
+    "experiment_name": "animl_deer_amp_fromscratch_trot",
+    "seed": 72,
+    "max_iterations": 4000,
+}
+DEER_USD_AMP_FROMSCRATCH_TROT_CFG["policy"] = {
+    **DEER_USD_AMP_WALK_RUN_CFG["policy"],
+    "init_noise_std": 1.0,    # standard fresh-init exploration
+}
+DEER_USD_AMP_FROMSCRATCH_TROT_CFG["algorithm"] = {
+    **DEER_USD_AMP_WALK_RUN_CFG["algorithm"],
+    "entropy_coef": 0.005,    # higher early entropy to prevent premature convergence
+}
+
+
+# r46: V33 (V32 + stronger action_rate_l2). Anneal pass to clean up
+# the spasming r45 gait. entropy_coef 10x lower so std collapses.
+DEER_USD_AMP_TROT_ANNEAL_CFG: dict[str, Any] = {
+    **DEER_USD_AMP_WALK_RUN_CFG,
+    "experiment_name": "animl_deer_amp_trot_anneal",
+    "seed": 73,
+}
+DEER_USD_AMP_TROT_ANNEAL_CFG["algorithm"] = {
+    **DEER_USD_AMP_WALK_RUN_CFG["algorithm"],
+    "entropy_coef": 0.0005,    # 10x lower than r45 to deflate std
+}
+
+
 try:
     from isaaclab.utils import configclass
 
@@ -548,3 +706,53 @@ try:
 
 except ImportError:  # isaaclab not available in this process
     DeerUsdWalkAMPRunnerCfg = None  # type: ignore[assignment]
+
+
+# r47b: PORT OF r45 to the current 25-DOF rig (env V34).
+# Agent params copied from r45 (FROMSCRATCH_TROT) verbatim: entropy 0.005
+# (inside CLAUDE.md's safe 0.002-0.005 band), style_weight 0.5, lr 1e-3,
+# walk+run datasets, FROM SCRATCH.
+# NOTE: r45's cfg set init_noise_std inside "policy", which rsl_rl >=4
+# IGNORES (it reads actor.distribution_cfg.init_std). Our base actor already
+# has init_std 1.0, which is what r45 intended, so fresh-init matches.
+DEER_USD_AMP_R45PORT_CFG: dict[str, Any] = {
+    **DEER_USD_AMP_WALK_RUN_CFG,
+    "experiment_name": "animl_deer_amp_r45port",
+    "seed": 80,
+    "max_iterations": 4000,
+}
+DEER_USD_AMP_R45PORT_CFG["algorithm"] = {
+    **DEER_USD_AMP_WALK_RUN_CFG["algorithm"],
+    "entropy_coef": 0.005,
+}
+
+
+# r48 (CANDIDATE, not launched): identical to the r45-port agent config except
+# it trains against the PROCEDURALLY REBUILT reference clip instead of the
+# shipped one. Purpose: test the night's central conclusion -- that the
+# reference data, not the reward stack, is what caps this project.
+#
+# Shipped deer_walk vs assets/motions/deer_walk_proc.npy:
+#   joints out of range   2 (fetlock, 0.90 rad)  ->  0
+#   min hoof height       +0.271 (floats)        ->  -0.063 (grounded)
+#   stance fraction       17%                    ->  61%
+#   root_z range          0.0000 (flat)          ->  0.0300
+# r47b showed feet_slide/feet_air_time are INERT against a reference that never
+# makes contact, so this is the change that should let them finally bite.
+DEER_USD_AMP_PROCREF_CFG: dict[str, Any] = {
+    **DEER_USD_AMP_WALK_RUN_CFG,
+    "experiment_name": "animl_deer_amp_procref",
+    "seed": 81,
+    "max_iterations": 4000,
+}
+DEER_USD_AMP_PROCREF_CFG["algorithm"] = {
+    **DEER_USD_AMP_WALK_RUN_CFG["algorithm"],
+    "entropy_coef": 0.005,
+}
+# ONLY the procedural clip. deer_run is deliberately excluded: it has its own
+# unresolved hind-fetlock defect (NIGHT_LOG section 2c/3c) and would reintroduce
+# ungrounded feet, defeating the point of the experiment.
+DEER_USD_AMP_PROCREF_CFG["dataset"] = {
+    **DEER_USD_AMP_WALK_RUN_CFG["dataset"],
+    "datasets": {"deer_walk_proc": 1.0},
+}
