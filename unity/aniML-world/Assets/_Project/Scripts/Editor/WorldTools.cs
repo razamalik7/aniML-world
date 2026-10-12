@@ -406,17 +406,17 @@ namespace AniML.EditorTools
             {
                 var p = Fresh();
                 var grade = p.Add<UnityEngine.Rendering.Universal.ColorAdjustments>(false);
-                grade.saturation.Override(12f);
-                grade.contrast.Override(8f);
+                grade.saturation.Override(24f);
+                grade.contrast.Override(12f);
                 // Warmth comes from the color filter alone — WhiteBalance's
-                // LMS math NaNs on extreme HDR snow in batch captures.
-                grade.colorFilter.Override(new Color(1.0f, 0.93f, 0.84f));
-                // Near-neutral shadow tone: saturated blue shadows + boosted
-                // saturation turned shadowed snowfields electric blue.
+                // LMS math NaNs on extreme HDR snow in batch captures. Bold
+                // on purpose: a grade you can't tell apart in a side-by-side
+                // is not a grade worth choosing between.
+                grade.colorFilter.Override(new Color(1.0f, 0.90f, 0.76f));
                 var split = p.Add<UnityEngine.Rendering.Universal.SplitToning>(false);
-                split.shadows.Override(new Color(0.46f, 0.52f, 0.60f));
-                split.highlights.Override(new Color(1.0f, 0.88f, 0.70f));
-                split.balance.Override(-12f);
+                split.shadows.Override(new Color(0.38f, 0.48f, 0.66f));
+                split.highlights.Override(new Color(1.0f, 0.82f, 0.58f));
+                split.balance.Override(-22f);
                 if (vol != null) vol.profile = p;
                 RenderSettings.fogColor = new Color(0.78f, 0.72f, 0.62f);
                 RenderSettings.fogDensity = 0.0007f;
@@ -454,10 +454,10 @@ namespace AniML.EditorTools
             {
                 var p = Fresh();
                 var grade = p.Add<UnityEngine.Rendering.Universal.ColorAdjustments>(false);
-                grade.saturation.Override(0f);
-                grade.contrast.Override(5f);
+                grade.saturation.Override(-2f);
+                grade.contrast.Override(6f);
                 var wb = p.Add<UnityEngine.Rendering.Universal.WhiteBalance>(false);
-                wb.temperature.Override(-8f);
+                wb.temperature.Override(-12f);
                 if (vol != null) vol.profile = p;
                 RenderSettings.fogColor = new Color(0.62f, 0.70f, 0.80f);
                 RenderSettings.fogDensity = 0.0006f;

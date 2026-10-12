@@ -210,7 +210,19 @@ Each major generation feature (per-seed recipes, landmass shapes, connectivity,
 flow-derived rivers) has a switch on the `WorldSettings` asset and landed as its own
 commit, so any one of them can be turned off or reverted without touching the others.
 
-<!-- World screenshots go here: docs/media/world_*.png -->
+<p align="center">
+  <img src="docs/media/world_vista.jpg" width="720" alt="Generated island at golden hour">
+</p>
+
+<table>
+  <tr>
+    <td align="center" width="50%" valign="top"><img src="docs/media/world_whale.jpg" width="380"><br><sub>Whale skeleton, placed on a beach and turned to face the shoreline</sub></td>
+    <td align="center" width="50%" valign="top"><img src="docs/media/world_arch.jpg" width="380"><br><sub>A red-rock arch on the canyon rim</sub></td>
+  </tr>
+</table>
+
+<p align="center"><em>Seed 12345, default profile. Rendered headless from the generator,
+no hand placement.</em></p>
 
 ## Next
 
