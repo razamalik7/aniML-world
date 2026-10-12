@@ -1,8 +1,8 @@
 # CLAUDE.md — aniML World
 
 Quick-reference for Claude sessions. Most of the domain context lives in
-`.cursor/rules/*.mdc` (auto-loaded) and `ARCHITECTURE.md` / `PROGRESS.md` /
-`AMP_PLAN.md` / `NIGHT_SUMMARY.md`. Read those for the full picture.
+`.cursor/rules/*.mdc` (auto-loaded) and `ARCHITECTURE.md` (ecosystem design). Older plans
+and session logs are in `archive/`.
 This file covers gotchas discovered during AMP training iterations.
 
 ## Running training
@@ -16,7 +16,9 @@ This file covers gotchas discovered during AMP training iterations.
 
 ## Dependencies (applied in Isaac Lab's Python)
 
-- `rsl-rl-lib==3.0.0` pinned — amp-rsl-rl 1.2.0 needs legacy `ActorCritic` import; 4.x/5.x removed it. Isaac Lab ships 5.0.1, downgrade is safe (Isaac Lab itself only uses `VecEnv` from rsl_rl).
+- ~~`rsl-rl-lib==3.0.0` pinned — amp-rsl-rl 1.2.0 needs legacy `ActorCritic`~~ **STALE (fixed 2026-07-22).** That pin applied to amp-rsl-rl **1.2.0** only. **amp-rsl-rl 2.2.3 requires just `rsl-rl-lib>=3.0.0` and runs fine on the shipped 5.0.1 — NO downgrade needed, AMP and loco coexist.** Believing the old pin cost us a long detour; don't reintroduce it.
+  - Porting 1.2.0 → 2.2.3 needed 3 repo-side changes (all done): (1) add `actor`/`critic` config sections — 2.x branches on `RSL_RL_V4_PLUS` and reads `train_cfg["actor"]`/`["critic"]` (`MLPModel`, keys `hidden_dims`/`activation`/`obs_normalization`/`distribution_cfg`; **unknown keys are silently dropped**, so `init_noise_std` must live in `distribution_cfg` as `init_std`); (2) add an `"actor"` key to `obs_groups` (rsl_rl ≥4 renamed the actor obs set `policy` → `actor`; missing it = `KeyError: 'actor'` from `mlp_model.py`); (3) the hardcoded 0.5/0.5 task/style blend is now the native **`style_weight`** config key — the `--task_reward_ratio` monkey-patch in `train_amp.py` is obsolete.
+- **AMP obs must match the reference dataset exactly.** `DEER_URDF_JOINT_NAMES` must list only the **15** joints in `deer_walk.npy`/`deer_run.npy`, in the same order, with `preserve_order=True` on the `SceneEntityCfg`. The v2 rig's 6 extra joints (spine yaw, 4× hip abduction, neck yaw) have no reference data; including them gave AMP obs 48 vs dataset 36 → `torch.cat` size 96-vs-72 error. Without `preserve_order` the columns silently shuffle (no error, garbage style learning).
 - Install into Isaac Lab's Python: `cd /c/isaac-lab/IsaacLab/_isaac_sim && ./python.bat -m pip install <pkg>`.
 
 ## URDF body frame is NOT Isaac Lab's convention
@@ -68,7 +70,7 @@ New AMP task workflow:
 - Style reward collapses to ~0 + policy stops improving → discriminator saturated; lower AMP reward_scale or add entropy.
 - ep_len pegged at max + err_vel_xy below threshold + style very low → deer is sliding on ground, not walking. Check with `play_amp.py`; re-enable termination if killed.
 - Leg-activity reward tiny (~2/episode) despite leg tracking looking ok → policy found rigid-lever hop. Bump leg_activity weight to match task reward magnitudes.
-- **Style_r stuck at ~0.002 across many warm-starts** → check the .npy's `root_position` axis convention. After `Rx(-90°)` spawn rotation, the deer faces world -Y, so the .npy must put `root_position` along world -Y (matches `bake_reset_states.py`). Body-frame velocity should land at body -Z. The original converter wrote +X by mistake — see r15 entry in SESSION_LOG.md.
+- **Style_r stuck at ~0.002 across many warm-starts** → check the .npy's `root_position` axis convention. After `Rx(-90°)` spawn rotation, the deer faces world -Y, so the .npy must put `root_position` along world -Y (matches `bake_reset_states.py`). Body-frame velocity should land at body -Z. The original converter wrote +X by mistake — see r15 entry in archive/logs/SESSION_LOG.md.
 
 ## PhysX silent-death pattern (Isaac Sim 5.1 + RTX 50-series)
 
@@ -85,3 +87,30 @@ When killing training, `Get-Process kit | Stop-Process` is NOT enough — the pa
 ## Playback (`play_amp.py`) currently broken
 
 As of r15 (2026-04-26), playback dies silently in env init with the `terrain_importer + FabricManager mismatched prototypes` warnings as the last log line. Both viewer and `--headless` modes affected. Training works fine on the same machine state. Not yet diagnosed; possibly related to `runner.load()` reshape from 8000-env trained checkpoint to 4-env playback, or a viewport-init code path that runs even in headless. Metric-based validation (style_r, ep_len, etc.) is reliable.
+
+## Long-horizon runs need TWO independent failsafes (learned the hard way 2026-07-30)
+
+A queue script and an event-based monitor are **the same failsafe**, not two. Both key off
+the queue emitting output. When `.run_queue19.sh` hung, it printed nothing, the monitor
+had nothing to fire on, and the silence was indistinguishable from healthy progress. The
+D2b smoke had passed cleanly and the full run simply never started; it sat idle until
+Raza asked.
+
+The bug itself is worth remembering too:
+
+    wait_idle () { while nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader                    | grep -qE "[1-9][0-9]? ?%|100 ?%"; do sleep 60; done; }
+
+This machine idles at **1-2%** from desktop compositing, so `"2 %"` matches `[1-9]` and
+the wait never ends. Every earlier queue carried the same bug and survived only because
+the GPU happened to read exactly `0 %` at the moment it looked.
+
+Rules:
+1. **Never gate on GPU utilisation.** Test whether the training PROCESS is alive:
+   `Get-Process python | Where WorkingSet64 -gt 800MB`. Gate on the thing itself, not a
+   noisy proxy for it.
+2. **Run a WATCHDOG alongside the event monitor.** The event monitor reports things that
+   happen; the watchdog reports things that STOP happening. It must assert progress
+   positively -- log bytes growing, or a trainer alive -- and alarm on their absence.
+   Silence is not evidence of health.
+3. **Poll the state yourself periodically on multi-hour work.** Do not outsource all
+   liveness detection to the automation being monitored.

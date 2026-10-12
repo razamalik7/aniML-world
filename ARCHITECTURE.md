@@ -1,5 +1,10 @@
 # aniML World — Architecture Reference
 
+> **Note (2026-10):** Section 1 (version pins, WSL2/Docker setup) predates the current
+> native-Windows Isaac Sim 5.1 / Isaac Lab setup and is out of date. The ecosystem design
+> sections are current.
+
+
 > Master reference for all AI models working on this project.
 > This file is the single source of truth for version pins, tensor layouts, API patterns, and architectural decisions.
 
