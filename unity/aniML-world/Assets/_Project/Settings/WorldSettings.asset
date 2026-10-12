@@ -1,0 +1,73 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55fe9556773714a449b4d2475f17cebd, type: 3}
+  m_Name: WorldSettings
+  m_EditorClassIdentifier: AniML.Runtime::AniML.World.WorldSettings
+  Profile: 0
+  RecipeVariance: 1
+  LandmassVariety: 1
+  EnsureConnectivity: 1
+  FlowDerivedRivers: 1
+  WorldSize: 1024
+  ChunkSize: 64
+  QuadSize: 2
+  Seed: 12345
+  HeightAmplitude: 90
+  HeightFeatureSize: 300
+  Octaves: 5
+  Lacunarity: 2
+  Persistence: 0.48
+  HeightExponent: 1.7
+  IslandFalloffPower: 2.6
+  EdgeSinkDepth: 22
+  MountainAmplitude: 135
+  MountainFeatureSize: 260
+  MountainMaskFeatureSize: 750
+  MountainMaskThreshold: 0.47
+  MoistureDecayDistance: 260
+  MoistureFeatureSize: 260
+  MoistureNoiseAmount: 0.22
+  BaseMoisture: 0.22
+  WindDirection: {x: 1, y: 0.25}
+  RainShadowStrength: 0.35
+  LatitudeTempRange: 0.45
+  AltitudeLapse: 0.0042
+  ForestCount: 11
+  ForestRadiusRange: {x: 70, y: 180}
+  ForestDensityCutoff: 0.16
+  RockinessFeatureSize: 480
+  RockinessThreshold: 0.5
+  RockRoughAmplitude: 10
+  RockRoughFeatureSize: 42
+  WarpStrength: 55
+  WarpFeatureSize: 420
+  SeaLevel: 0
+  RiverCount: 3
+  RiverDepth: 3
+  RiverMinWidth: 4
+  RiverMaxWidth: 11
+  DeepWaterBed: {r: 0.18, g: 0.32, b: 0.34, a: 1}
+  Sand: {r: 0.87, g: 0.76, b: 0.48, a: 1}
+  GrassDry: {r: 0.56, g: 0.6, b: 0.28, a: 1}
+  GrassLush: {r: 0.33, g: 0.58, b: 0.24, a: 1}
+  Forest: {r: 0.26, g: 0.48, b: 0.22, a: 1}
+  Rock: {r: 0.52, g: 0.48, b: 0.44, a: 1}
+  Snow: {r: 0.94, g: 0.95, b: 0.97, a: 1}
+  RiverMud: {r: 0.55, g: 0.48, b: 0.34, a: 1}
+  CanyonRockLight: {r: 0.8, g: 0.42, b: 0.22, a: 1}
+  CanyonRockDark: {r: 0.58, g: 0.26, b: 0.15, a: 1}
+  Scrub: {r: 0.63, g: 0.58, b: 0.33, a: 1}
+  Wetland: {r: 0.3, g: 0.46, b: 0.31, a: 1}
+  AlpineMeadow: {r: 0.47, g: 0.6, b: 0.4, a: 1}
+  SandBandTop: 2.5
+  GrassBandTop: 34
+  RockBandTop: 62

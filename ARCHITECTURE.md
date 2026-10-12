@@ -778,3 +778,215 @@ After generating the URDF, import in Isaac Sim:
 - **Joint Drive Type** = None (Isaac Lab's actuator model handles this)
 - **Self Collision** = checked
 - Save the resulting USD — this is your training asset
+
+---
+
+## 19. Player Possession (Animal Takeover)
+
+*Added 2026-07-23 (Unity planning session). Design feature: the player can take
+direct control of any animal in the world.*
+
+### Why it is nearly free under this architecture
+
+1. **Policies are command-conditioned.** The observation vector carries a
+   velocity command slot (vx, vy, yaw-rate — see §2) that training randomizes.
+   Possession = routing player input (WASD / stick) into that slot instead of
+   the decision layer's output. The locomotion policy executes the command with
+   learned legs — no new training needed for basic possession.
+2. **Perception symmetry.** Other animals observe the possessed animal through
+   the same nearest-K agent slots as any animal (position, velocity, species).
+   They cannot tell a human is steering; predator/prey reactions to the
+   possessed animal are the same learned behaviors — emergent, unscripted.
+
+### Unity-side integration
+
+- `PlayerBrain` is just another `ICreatureBrain` implementation on the creature
+  seam (unity/aniML-world: `CreatureController` + brain/motor split). Possess =
+  swap decision layer; release = swap back. Motor (the policy) is untouched.
+- The possessed animal is **pinned to the full-physics body tier** (see §8/§13
+  body-fidelity LOD) regardless of camera logic, plus a third-person follow
+  camera mode alongside the god camera.
+
+### Known issue: players are out-of-distribution command generators
+
+Training samples smooth-ish random commands; players do instant reversals,
+wiggle, and sprint into obstacles. Mitigations, cheap → expensive:
+1. **Command envelope filter** (day one): clamp/smooth player input to the
+   magnitude and rate-of-change ranges seen in training.
+2. **Player-like command curriculum** (later, training-side): add jerky
+   reversals and stop-start patterns to command sampling so policies are
+   robust to human steering.
+
+### Compute doctrine this slots into (2026-07-23 analysis)
+
+Policy inference is negligible (tiny MLPs, batched: ~0.4 MFLOPs/animal/tick —
+every animal in the world can run its brain every tick). The scarce resource is
+**CPU articulated physics** (~0.1–0.3 ms/animal, PhysX). Body tiers:
+full articulation near camera (~25–40 animals) → kinematic "policy puppets"
+(policy-driven joints, no contact solve, feet IK) for the mid-field hundreds →
+macro parcel state beyond (§13). Minds everywhere, always; expensive bodies
+only where the player is looking. The possessed animal always gets a full body.
+
+**Collision-fidelity doctrine (2026-07-23):** near-tier animals keep FULL
+collision fidelity — vertex-weighted convex hulls (same pipeline as training)
++ self-collision ON + full solver iterations. Self-collision is enabled in
+training, so runtime-on is *plant fidelity*, not a luxury. Visible clipping is
+a hard product no-go (user standard). Collision simplification is allowed only
+as a distance tier (mid-ring+), and only if the articulation stress harness
+shows the budget requires it. Scale capacity via island parallelism, the
+adaptive physics-ms governor, and control-rate LOD — not by cutting collision
+quality where the player can see it.
+
+---
+
+## 20. Physics Substrate Strategy (researched 2026-07-23)
+
+### Why no game engine has GPU rigid-body physics (verified)
+
+1. **CUDA/console lock:** PhysX GPU pipeline is CUDA-only (Windows/Linux,
+   NVIDIA); PS5/Xbox are AMD. Core gameplay physics can't exclude consoles.
+2. **Callback architecture:** gameplay code needs synchronous mid-frame
+   raycasts/triggers/contact callbacks; even NVIDIA's own GPU-rigid-body
+   design kept islands, triggers, CCD, callbacks, and scene queries on CPU.
+3. **Determinism & networking:** GPU float reduction order breaks cross-run/
+   cross-vendor determinism; Chaos was built *for* networked CPU physics.
+4. **Demand:** GPU wins appear at thousands of active bodies; games ship
+   5–20 visible ragdolls and fake crowds with animation. The market split on
+   the callback/latency boundary — robotics sims went GPU, games stayed CPU.
+
+### Options matrix conclusion (mid-2026)
+
+- Unreal/Chaos: CPU-only, NO reduced-coordinate articulation, slower than
+  PhysX on Epic's own 64-ragdoll benchmark. Switching engines buys nothing.
+- PhysX 5 embed in Unity: SDK is BSD-3 open source (incl. GPU kernels,
+  Apr 2025) but both C# binding projects are ARCHIVED (MagicPhysX 6/2025,
+  Embark physx-rs 5/2026). CPU embed feasible-but-costly; GPU embed ruled out
+  (CUDA → no consoles, dead bindings).
+- Jolt: healthiest C# bindings but maintainer declined Featherstone;
+  maximal-coordinate ragdolls = worst solver match to training. Ruled out.
+- Newton (NVIDIA+DeepMind+Disney, Warp/MJWarp, v1.4.0 7/2026): GPU, very
+  active, Python-only — a TRAINING-side engine, not embeddable in Unity.
+- **MuJoCo: official Apache-2.0 Unity plugin steps `mj_step` inside Unity's
+  process**; island-threaded CPU solver (islands ≈ one animal each); core
+  extremely active (3.10.0, 6/2026). Plugin self-described "not fully mature."
+
+### The convergence play (adopted as strategic direction, gated)
+
+Isaac Lab 3.0 (experimental) integrates **Newton/MJWarp as a training
+backend** with validated Newton↔PhysX policy transfer. If it matures:
+train on the MuJoCo solver family (GPU, via Newton) → run the SAME solver
+family in Unity (CPU MuJoCo plugin). One move closes most of the sim-to-sim
+solver gap AND lifts the throughput ceiling via island threading.
+
+**Deep-dive findings (2026-07-23, second research pass):**
+- Isaac Lab 3.0's Newton backend is **beta** (Beta 2, 6/2026): manager-based
+  workflow + contact sensors supported, same USD assets, but breaking changes
+  (quaternions WXYZ→XYZW, wp.array data, joint reordering), limited sensors,
+  no AMP demonstrated on it, no GA date. amp-rsl-rl's rsl-rl 3.x pin IS
+  compatible with Isaac Lab 3.0 (which pins rsl-rl 3.1.2).
+- **mjlab (Zakka et al., Berkeley) may be the better training-side host**:
+  Isaac Lab's manager API rebuilt on MuJoCo-Warp, MJCF-native (single source
+  of truth with the Unity runtime), rsl-rl, AMP proven adjacent (beyondAMP),
+  Unitree ships an official RL repo on it. Young framework, NVIDIA GPU req.
+- Our port costs regardless of host: MJCF re-audit of the deer asset
+  (collision meshes again), RSI re-bake (joint remap + quat convention),
+  contact retune (MuJoCo soft contacts vs PhysX rigid), policies retrain from
+  scratch. GOOD news: DCMotor explicit actuators compute PD in Isaac Lab
+  Python — our actuator code is engine-agnostic.
+- **Unity plugin reality check (the weaker link):** Unity raycasts/triggers
+  CANNOT see MuJoCo bodies (DIY kinematic-collider mirroring needed);
+  spawn/despawn triggers full scene recompile (mitigate: pre-allocated animal
+  pool); the plugin's mj_step is effectively single-threaded-solver today
+  (island threading is not wired up — would need patching); ~50 physical
+  animals plausible, 200 UNPROVEN; no console story; no shipped game uses it.
+
+**Phased plan (revised):**
+- **Phase A (now, unchanged):** build on Unity ArticulationBody. Stress
+  harness measures the real ceiling.
+- **Phase B spikes (cheap, independent):**
+  (1) Runtime spike: one deer MJCF in the Unity MuJoCo plugin — per-animal
+  step cost, pooling pattern, collider-mirroring friction. ~1-2 days.
+  (2) Training spike (coordinates with training workstream): trial-port the
+  walk env to mjlab + AMP via the beyondAMP pattern. After current lineage
+  resolves.
+- **Phase C (only on green spikes):** converge on the MuJoCo family —
+  preferred route mjlab → MJCF → Unity plugin (single asset format end to
+  end). Do NOT bet the project on two betas at once (Isaac-Lab-Newton +
+  immature plugin simultaneously).
+- **Watch:** Unity swappable physics backends (~6.5, namechecks MuJoCo);
+  Isaac Lab 3.0 GA; MuJoCo plugin mjSpec support (would fix spawn cost).
+
+**Precedent note:** no shipped game runs RL-policy articulated characters at
+this scale (TABS/Gang Beasts = scripted ragdolls, no RL). This is frontier.
+
+---
+
+## 21. Terrain Representation Decision (researched 2026-07-23)
+
+**Decision: heightfield stays the world truth. Hybrid carve-stamps for caves
+when needed. Full voxel/marching-cubes/dual-contouring: rejected.**
+
+Scoring vs project factors (world-truth contract, RL locomotion/colliders,
+editing+disasters, erosion/hydrology, solo budget, faceted style):
+pure heightfield 28/30, heightfield+stamps hybrid 27/30, voxel+MC 16/30,
+SDF+DC 16/30.
+
+Decisive arguments:
+1. **Single-valued sim contract**: everything (scatter, sim, spawning,
+   moisture) asks "what's at (x,z)" — voxels make that question ambiguous
+   (cave under meadow), a sim-wide refactor, not a terrain swap.
+2. **The authenticity toolkit is heightfield-native**: priority-flood,
+   flow accumulation, thermal/hydraulic erosion, and every pro tool
+   (Houdini HeightField Erode, World Machine, Gaea) operate on 2D grids.
+3. **RL alignment**: Isaac Lab terrains are heightfields; PhysX heightfield
+   colliders are cheap for articulated ragdolls; voxel = cooked mesh
+   colliders everywhere + train/deploy representation mismatch.
+4. **Shipped evidence**: BotW is heightfield (TotK added caves as AUTHORED
+   MESHES + custom LOD, not voxels); Witcher 3 = heightmap tiles + cave
+   meshes; Valheim = destructible heightfield + skybox-instanced dungeons;
+   even UE Voxel Plugin's own docs say "height stamps whenever possible."
+   Every shipped smooth-voxel game (Astroneer, NMS, Enshrouded, DRG) had a
+   team or engine-specialist-years, AND dig-anywhere as the core verb —
+   which an ecosystem sim is not. NMS ships a hard cap that silently
+   REVERTS player terrain edits (~15k) — voxel persistence is a cost center
+   even for successful studios.
+
+Escape hatches (adopt only when a feature demands):
+- Gorges w/ overhangs: mesh stamps or bounded second ceiling layer.
+- Animal dens/caves: local analytic carve stamps (capsule/sphere SDF list,
+  pure f(x,y,z)) meshed with MC only inside stamp bounds, entered through
+  terrain holes — or Valheim-style instanced interiors.
+- Craters/sculpting/flatten: native heightfield writes + saved deltas
+  (write the height buffer directly; do NOT replay edit logs — Valheim's
+  shipped mistake).
+Flip condition: only if dig-anywhere becomes a core game verb.
+
+---
+
+## 22. Worldgen v2 Plan (agreed 2026-07-23)
+
+Waves (build order):
+1. **Climate + biomes**: moisture = distance-from-water field; temperature =
+   DIRECTIONAL gradient (latitude-like, north cold / south warm — NOT radial;
+   user rejected Valheim-style spawn-centric rings, and a directional axis
+   breaks island symmetry) − altitude lapse − rain shadow (leeward dry).
+   Whittaker-style (temp × moisture × elevation) table → biome enum consumed
+   by color, splat, scatter, sim. Domain-warp all field inputs. Forests as
+   cluster objects (seeds + cores + tapered edges + clearings), NOT per-tree
+   dice rolls.
+2. **Water network + terrain truth**: priority-flood lakes/ponds (+ watershed
+   labels), flow-accumulation river widths, canyon/gorge carving, estuaries,
+   thermal erosion passes (hydraulic droplets optional later).
+   **Water budget (user wants sources REAL in accounting terms):** weather
+   rain falls into watersheds → catchment storage + groundwater scalar →
+   river level/flow = f(recent catchment rain + groundwater base flow).
+   Springs are where the budget daylights. Drought = deficit → rivers shrink,
+   ponds dry, mud banks widen. State bookkeeping, not fluid physics.
+3. **Natural wonders** (NO man-made structures — hard user rule): singular
+   one-per-world features at hydrology focal points — THE waterfall, THE
+   gorge, THE giant tree, hot springs, sea cliffs on one coast. Poisson
+   spacing tuned to travel time; ridgeline/shore visibility bias.
+4. **Live climate**: time-varying climate as shader uniforms (snowline,
+   dryness tint, wind) + day/night + weather feeding creature behavior.
+   Priorities per user: seasons YES, microclimates YES, wind field YES,
+   underwater life PARKED (far future).
