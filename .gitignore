@@ -80,6 +80,8 @@ unity/aniML-world/Assets/Malbers Animations/
 unity/aniML-world/Assets/Malbers Animations.meta
 unity/aniML-world/Assets/Synty/
 unity/aniML-world/Assets/Synty.meta
+unity/aniML-world/Assets/Malbers Animations/
+unity/aniML-world/Assets/Malbers Animations.meta
 unity/aniML-world/Assets/PolygonNatureBiomes*/
 unity/aniML-world/Assets/PolygonNatureBiomes*.meta
 unity/aniML-world/Assets/Samples/
@@ -119,3 +121,33 @@ npj.html
 *.pre_v2.usd
 *.pre_comfix*.usd
 .track_runs.sh
+
+# ---------------------------------------------------------------------------
+# Licensed source assets (2026-10). The deer models, animations and textures come
+# from paid / asset-store packs (Malbers Forest Pack, ithappy Animals) whose licences
+# do not allow redistribution, and everything below is generated from them. They live
+# on disk for training and are rebuilt by tools/rig_pipeline from a local copy of the
+# pack. These were stripped from the full git history before the repo went public;
+# keep them out.
+# ---------------------------------------------------------------------------
+*.usd
+*.usda
+*.usdc
+*.blend
+*.blend1
+*.stl
+*.obj
+*.dae
+*.fbx
+*.FBX
+*.glb
+*.gltf
+*.npy
+*.npz
+*.pt
+*.exr
+textures/
+# Raw training console output
+train_*.txt
+# Per-machine Claude Code settings
+.claude/
