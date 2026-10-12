@@ -162,14 +162,53 @@ of physical processes, roughly in the order they would act on real terrain:
 - **Climate and life**: moisture from distance to fresh water, temperature from latitude
   and altitude, rain shadows behind ranges, and biome-driven vegetation scatter from those
   fields.
+- **Landmarks**: one of each, sited where the terrain singles them out: a waterfall at the
+  biggest drop on any river, a giant tree in a clearing of the largest forest, a red-rock arch on the
+  canyon rim, a cave in a mossy cliff face, hot springs, a whale skeleton on a beach.
 - **Profiles**: one set of dials produces coherent variants from the same seed, including
-  temperate isles, alpine granite, canyonlands and a volcanic island with a lava flow
-  routed down the real terrain gradient.
+  temperate isles, alpine granite, canyonlands, a swampy delta and a volcanic island with
+  a lava flow routed down the real terrain gradient. Within a profile, each seed also rolls
+  its own recipe: river and forest counts, canyon depth, whether there is a fault, and
+  which optional landmarks appear.
 
 The world also reacts at runtime: weather wets and darkens the ground, snowlines move,
 there are seasons and a day-night cycle, and wildfire can spread. Ambient life (raptors,
 songbirds, bats, fireflies, butterflies) follows biome and time-of-day rules. The terrain
 and water shaders are custom; the environment art uses Synty's POLYGON packs, which are licensed and not included here.
+
+**Built for the animals.** The island is where the animals will live, so it is checked for
+what matters to an animal, not just for how it looks. At generation time a flood fill on a
+4 m grid (passable means slope under 38° and water under half a metre) reports how much of
+the land is reachable and how much of that forms one connected region. Rivers get fords:
+gravel bars that rise to just under an unchanged water surface. The canyon gets one
+crossing, a ramp cut down both walls where the rims are lowest. The same terrain also
+answers the questions the ecosystem sim will ask: `SampleBrowse01` (forage, richest at
+forest edges and in moist meadows, suppressed by cold, bare rock, burn scars and ash),
+`SampleCover01` (concealment from forest, crags and marsh) and `SampleWaterAccess01`
+(reach to drinkable water).
+
+**Checked by render.** As with the deer, the numbers were not enough on their own. Every
+change is baked headless and reviewed as renders of fixed views plus a camera on every
+landmark. Some things only showed up that way:
+
+- Hydraulic erosion left small pits that the lake pass dutifully filled, so ponds perched
+  on hillsides. Pits are now filled, and a basin only becomes a lake if it is broad
+  relative to its depth.
+- Rivers sourced from flow accumulation started inside closed summit bowls, cut an exit
+  trench through the rim, and the lake pass then flooded the bowl, drowning the alpine
+  forest. A source must now drain to the sea on the flow graph.
+- The same change moved the biggest drop on any river, and with it the waterfall, onto
+  the coastline, where it poured into open sea.
+- An asset pack's "Rock_Cliff" meshes turned out to be glacier ice with a refractive
+  shader, so the granite massif rendered as blue crystals.
+- Color grading silently does nothing in headless captures. Three rounds of "graded"
+  comparison renders differed only in fog. Grades are now compared in image space and
+  the difference is checked numerically before anyone judges it.
+
+**Reproducible and reversible.** The same seed and profile always build the same world.
+Each major generation feature (per-seed recipes, landmass shapes, connectivity,
+flow-derived rivers) has a switch on the `WorldSettings` asset and landed as its own
+commit, so any one of them can be turned off or reverted without touching the others.
 
 <!-- World screenshots go here: docs/media/world_*.png -->
 
