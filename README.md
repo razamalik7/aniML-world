@@ -24,18 +24,28 @@ by a policy trained against the reference animation below.</em></p>
 The first few months were mostly about getting a simulated deer to stay on its feet at
 all. These are from an earlier rig, before the current 38-joint build:
 
-| Can't get up | Falls over | Stands up the wrong way | Upright, stiff-legged |
-|:---:|:---:|:---:|:---:|
-| <img src="docs/media/early_sprawl.gif" width="190"> | <img src="docs/media/early_fall.gif" width="190"> | <img src="docs/media/early_rear.gif" width="190"> | <img src="docs/media/early_stiff.gif" width="190"> |
-| Chest on the ground, legs splayed, never rises | Stands for a moment, collapses within two seconds | Gets off the ground by rearing onto its hind legs | Stays up, but shuffles on locked, splayed legs |
+<table>
+  <tr>
+    <td align="center" width="25%" valign="top"><b>Can't get up</b><br><img src="docs/media/early_sprawl.gif" width="180"><br><sub>Chest on the ground, legs splayed, never rises</sub></td>
+    <td align="center" width="25%" valign="top"><b>Falls over</b><br><img src="docs/media/early_fall.gif" width="180"><br><sub>Stands for a moment, collapses within two seconds</sub></td>
+    <td align="center" width="25%" valign="top"><b>Stands up the wrong way</b><br><img src="docs/media/early_rear.gif" width="180"><br><sub>Gets off the ground by rearing onto its hind legs</sub></td>
+    <td align="center" width="25%" valign="top"><b>Upright, stiff-legged</b><br><img src="docs/media/early_stiff.gif" width="180"><br><sub>Stays up, but shuffles on locked, splayed legs</sub></td>
+  </tr>
+</table>
+
 
 Getting from there to a gait took a rebuilt rig and a few dozen more training runs. Four
 points along the way on the current rig:
 
-| Early | Collapse | Upright, no gait | Trotting |
-|:---:|:---:|:---:|:---:|
-| <img src="docs/media/stage1_r4.gif" width="200"> | <img src="docs/media/stage2_r9.gif" width="200"> | <img src="docs/media/stage3_r13.gif" width="200"> | <img src="docs/media/stage4_d2.gif" width="200"> |
-| Scrambles forward in a crouch | Pitches onto its head | Balances, but shuffles instead of stepping | Sequential footfalls, steady rhythm, holds a straight line |
+<table>
+  <tr>
+    <td align="center" width="25%" valign="top"><b>Early</b><br><img src="docs/media/stage1_r4.gif" width="180"><br><sub>Scrambles forward in a crouch</sub></td>
+    <td align="center" width="25%" valign="top"><b>Collapse</b><br><img src="docs/media/stage2_r9.gif" width="180"><br><sub>Pitches onto its head</sub></td>
+    <td align="center" width="25%" valign="top"><b>Upright, no gait</b><br><img src="docs/media/stage3_r13.gif" width="180"><br><sub>Balances, but shuffles instead of stepping</sub></td>
+    <td align="center" width="25%" valign="top"><b>Trotting</b><br><img src="docs/media/stage4_d2.gif" width="180"><br><sub>Sequential footfalls, steady rhythm, holds a straight line</sub></td>
+  </tr>
+</table>
+
 
 Most of the distance between the second and fourth columns was not reward tuning. It was
 finding and fixing problems in the rig and the reference data that the training metrics
