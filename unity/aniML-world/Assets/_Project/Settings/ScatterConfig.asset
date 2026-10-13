@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: AniML.Runtime::AniML.World.ScatterConfig
   Layers:
   - Name: ForestTreesMixed
+    Enabled: 1
     Prefabs:
     - {fileID: 6954770494557141849, guid: 0f2120e89197acc47bfde23175d19f26, type: 3}
     - {fileID: 2146921750331591826, guid: a6dccea81e1455d4491d73f1d0e6d0ce, type: 3}
@@ -47,6 +48,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 1
   - Name: ForestTreesBirch
+    Enabled: 1
     Prefabs:
     - {fileID: 1016392496237815170, guid: f8b47c2401a09be4f87efe27b925b3fd, type: 3}
     - {fileID: 5592075822852266847, guid: 44bbd64fad9366947a1c9b68c15e1261, type: 3}
@@ -80,6 +82,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 1
   - Name: ForestTreesLush
+    Enabled: 1
     Prefabs:
     - {fileID: 399797857411769493, guid: 77786f90b4e04534f8f254066b283f57, type: 3}
     - {fileID: 973736315334076618, guid: e6f4239d87d23bc438c6c367834a247c, type: 3}
@@ -112,6 +115,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 1
   - Name: BeachPalms
+    Enabled: 1
     Prefabs:
     - {fileID: 7157620088548884410, guid: a58fca9546f1ba04e954c4619c3f22f0, type: 3}
     - {fileID: 2350321698655210376, guid: 8524a36fffb567143aadc06379331a5c, type: 3}
@@ -144,6 +148,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 1
   - Name: FruitTrees
+    Enabled: 1
     Prefabs:
     - {fileID: 2452613710419899469, guid: f5ba9e2973c6d8d4cad295b79e2a7f45, type: 3}
     - {fileID: 2154830210199987570, guid: 681cbb809427f574a9f0d40322b45c90, type: 3}
@@ -176,6 +181,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 1
   - Name: Bushes
+    Enabled: 1
     Prefabs:
     - {fileID: 5580235122429883281, guid: e527460148bf17741a2c17dffc4fb54a, type: 3}
     - {fileID: 6906830690193866741, guid: 3595ba075729fec458abd9577f51845e, type: 3}
@@ -209,6 +215,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 1
   - Name: GrassClumps
+    Enabled: 1
     Prefabs:
     - {fileID: 4121712711864935042, guid: 1374e3840cba075419212b4498eec948, type: 3}
     - {fileID: 8006148781275711445, guid: ebfcdc20b68ebc04f96da3e965fec430, type: 3}
@@ -249,6 +256,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 1
   - Name: Wildflowers
+    Enabled: 1
     Prefabs:
     - {fileID: 3757109599224033816, guid: 60467653c9024a94cbe4863e1b401660, type: 3}
     - {fileID: 1557974530457926728, guid: d74b9ad70f26c1c41805b672a71665b0, type: 3}
@@ -287,6 +295,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 1
   - Name: GroundCover
+    Enabled: 1
     Prefabs:
     - {fileID: 6741950074395184577, guid: a1c8b732aaba82b4aa5ce99cd756d345, type: 3}
     - {fileID: 8567074628543705154, guid: c2997bb6f6d25bb418a808309627e831, type: 3}
@@ -319,6 +328,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 1
   - Name: ScrubDeadTrees
+    Enabled: 1
     Prefabs:
     - {fileID: 7527004103962423645, guid: 5ee5b0b0211fbca44807db7e785feb3e, type: 3}
     - {fileID: 7989243879905098700, guid: e13d1e297156f4544ab94d99144112c0, type: 3}
@@ -352,6 +362,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 1
   - Name: CactiSucculents
+    Enabled: 1
     Prefabs:
     - {fileID: 2660068605479700378, guid: 5609edadd6d8f3744b3f17d21a3a507f, type: 3}
     - {fileID: 5816810140879307558, guid: 63fa3c1fc23de0a4dacf315e96c51651, type: 3}
@@ -390,6 +401,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 1
   - Name: WetlandReeds
+    Enabled: 1
     Prefabs:
     - {fileID: 5860169141729745233, guid: f47da7769bcb3e24eaa14df56a71cf01, type: 3}
     - {fileID: 7129942183683350244, guid: d29e0f30c61717f469ec5cab7e74e527, type: 3}
@@ -426,6 +438,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 1
   - Name: WetlandMoss
+    Enabled: 1
     Prefabs:
     - {fileID: 1193204060893072075, guid: 313a83fbf179e71488e4ab48685b2eb0, type: 3}
     - {fileID: 794630703205772257, guid: aac9cbe8c5fd8bb47a0e301f19bf9fdf, type: 3}
@@ -458,6 +471,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 1
   - Name: AlpineCover
+    Enabled: 1
     Prefabs:
     - {fileID: 5965101106065125387, guid: 2ac1e74c140743d488f35e0654bc97f1, type: 3}
     - {fileID: 5172350480675031912, guid: 188122f1b45d72144ba1a5ce3c6e71b6, type: 3}
@@ -496,6 +510,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 1
   - Name: AlpinePines
+    Enabled: 1
     Prefabs:
     - {fileID: 4968422229000841456, guid: 99cae346a36c78b40b225eb44f72c393, type: 3}
     - {fileID: 7456868699675954396, guid: 0585e61d38f41a04da13822d2106bd11, type: 3}
@@ -530,6 +545,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 1
   - Name: BarePines
+    Enabled: 1
     Prefabs:
     - {fileID: 7768758295742766608, guid: 183e64748acff7d4889d1836cb303ca5, type: 3}
     - {fileID: 9014757909462221929, guid: 019953b178c48834aa12b5ec5ebc937d, type: 3}
@@ -561,6 +577,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 1
   - Name: MeadowRocks
+    Enabled: 1
     Prefabs:
     - {fileID: 756244418324746648, guid: 9cc02011d1e1d024e9c4420809cd2623, type: 3}
     - {fileID: 4135293660491200023, guid: 145248c1f7a30134aaf7b4e97e61e587, type: 3}
@@ -595,6 +612,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 0
   - Name: DryRocks
+    Enabled: 1
     Prefabs:
     - {fileID: 8346134035723487926, guid: 87ffc119844394e4aa89c61706dd98ed, type: 3}
     - {fileID: 129919420292634932, guid: 87a12c764da4f8f43bb407650dfd3506, type: 3}
@@ -635,6 +653,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 0
   - Name: CliffRocks
+    Enabled: 1
     Prefabs:
     - {fileID: 6349486475167353718, guid: 15ddc642aad5d7e4489243dd22c050a2, type: 3}
     - {fileID: 733411129065957145, guid: 6d5dadd908e2bff42b4a13969b907286, type: 3}
@@ -667,6 +686,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 0
   - Name: DryGrass
+    Enabled: 1
     Prefabs:
     - {fileID: 6850435770556105135, guid: 66d4f7c006b77084da3929add6d06f24, type: 3}
     - {fileID: 8217716403657413284, guid: 9df62898e2ddbbd4b9df38751d895ba0, type: 3}
@@ -700,6 +720,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 1
   - Name: CragsMeadow
+    Enabled: 1
     Prefabs:
     - {fileID: 5992770638545459823, guid: 5df3ab22a0616e0499aed68e1126c3ad, type: 3}
     - {fileID: 471923123672322053, guid: 5d1b34597db8ee544b1a08a76940206c, type: 3}
@@ -733,6 +754,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 0
   - Name: CragsDry
+    Enabled: 1
     Prefabs:
     - {fileID: 4908858461999486995, guid: fec96bddfd823944eb86aa9be19a1c1f, type: 3}
     - {fileID: 6878023010625097257, guid: ddd704b4d2f142f4d95cb9dcb133c1d5, type: 3}
@@ -766,6 +788,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 0
   - Name: ForestFerns
+    Enabled: 1
     Prefabs:
     - {fileID: 5624935296197060912, guid: 013459274a9887f4f9eb408b260a8ef8, type: 3}
     - {fileID: 2211525763584638518, guid: e494ab93792141d409998a2806e99ef4, type: 3}
@@ -799,6 +822,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 1
   - Name: WetlandTrees
+    Enabled: 1
     Prefabs:
     - {fileID: 4009130224601514683, guid: 3564ac9ba4a7053478213d99be8ba454, type: 3}
     - {fileID: 1340762269283254766, guid: 28d2f32413dd09845bcd7f1908d8417a, type: 3}
@@ -833,6 +857,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 1
   - Name: SwampLogs
+    Enabled: 1
     Prefabs:
     - {fileID: 8602547331754281436, guid: ae96b34ea1e441043889409b1c35c6e4, type: 3}
     - {fileID: 7187488283000024359, guid: 1a9bb309892d41146abd659deb92556f, type: 3}
@@ -864,6 +889,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 1
   - Name: CoastCliffWall
+    Enabled: 1
     Prefabs:
     - {fileID: 5992770638545459823, guid: 5df3ab22a0616e0499aed68e1126c3ad, type: 3}
     - {fileID: 471923123672322053, guid: 5d1b34597db8ee544b1a08a76940206c, type: 3}
@@ -895,6 +921,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 0
   - Name: CliffWallGranite
+    Enabled: 1
     Prefabs:
     - {fileID: 2236629855792467630, guid: 71fb29e5dc238694ea35a6b83afe27db, type: 3}
     - {fileID: 3134720509254622281, guid: 02c6de2ee24bc484a9a181ec28cfc229, type: 3}
@@ -928,6 +955,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 0
   - Name: CliffWallRedRock
+    Enabled: 1
     Prefabs:
     - {fileID: 6141318331400477136, guid: fad113f305fc63d4da9658a5a44ad0fc, type: 3}
     - {fileID: 5722950911684412464, guid: 2931b8caea14ace47876b79e78abac48, type: 3}
@@ -973,6 +1001,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 0
   - Name: CliffWallMossy
+    Enabled: 1
     Prefabs:
     - {fileID: 6411061972673112039, guid: 3928fe46c1997be45a7e169b0eb63625, type: 3}
     - {fileID: 6097588891569378077, guid: 3ca01142054c997498fd413b391cbfcc, type: 3}
@@ -1005,6 +1034,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 0
   - Name: LilyPads
+    Enabled: 1
     Prefabs:
     - {fileID: 5273415882954180623, guid: 854894a029474404089bdb20d31d752c, type: 3}
     - {fileID: 1982595758103005899, guid: 770926f3324bb094d950952af7500b1d, type: 3}
@@ -1038,6 +1068,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 1
   - Name: Seaweed
+    Enabled: 1
     Prefabs:
     - {fileID: 2702504701275938903, guid: a122c8949fbb20348ac372172b6223da, type: 3}
     - {fileID: 2234120102760979727, guid: 6759b104cf188764aabd0ce145a02b25, type: 3}
@@ -1070,6 +1101,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 1
   - Name: Coral
+    Enabled: 1
     Prefabs:
     - {fileID: 1836246449870361477, guid: 4e3d870a7aa0af84cabc33908bf52ba8, type: 3}
     - {fileID: 5018948784153712234, guid: 1a0b26e2dacecb947b41cf32c3265212, type: 3}
@@ -1077,6 +1109,11 @@ MonoBehaviour:
     - {fileID: 8800315331933960625, guid: f66dc79b5009b2247be50e595602d73f, type: 3}
     - {fileID: 2008588039422454060, guid: ae94c81c6bbf3e24da7d8ca4a0ee5aba, type: 3}
     - {fileID: 1538722625193034528, guid: 7edf22e4f8a4e9a49ac3d388031a6227, type: 3}
+    - {fileID: 2665399940333168205, guid: a2c7fb009bdb42c4b9a842ed34cdde43, type: 3}
+    - {fileID: 8304186660166757170, guid: d723b19c8141fd442a25971db98100f7, type: 3}
+    - {fileID: 5106097334512703401, guid: a31381579551ae546ad01b3a66d13a32, type: 3}
+    - {fileID: 1074073387935433415, guid: 544f810892400994991d399dbe25a0f9, type: 3}
+    - {fileID: 3337259793420143139, guid: 9d5af34c6c141ad498daa5546b8b447a, type: 3}
     MinHeight: -3.2
     MaxHeight: -0.9
     MaxSlopeDeg: 26
@@ -1105,6 +1142,7 @@ MonoBehaviour:
     PositionJitter: 0.9
     IsVegetation: 0
   - Name: TideRocks
+    Enabled: 1
     Prefabs:
     - {fileID: 2404807638410859368, guid: 5fc130c65f02ac04bbfb350fbe21d3cc, type: 3}
     - {fileID: 5376390175986146221, guid: a6953db8e1209e74b8141f1e9847b94b, type: 3}
@@ -1137,3 +1175,396 @@ MonoBehaviour:
     ScaleRange: {x: 0.7, y: 1.4}
     PositionJitter: 0.9
     IsVegetation: 0
+  - Name: Variety_SwampTrees
+    Enabled: 1
+    Prefabs:
+    - {fileID: 2149084166913621911, guid: f2c879d6c4ef23f4781ee99ce3de37b2, type: 3}
+    - {fileID: 4912897733191323233, guid: 7b8b0a688867d9c4d887dcb3996ed9d6, type: 3}
+    - {fileID: 9210009852350807242, guid: 87d2c971e946d704595305208241bae9, type: 3}
+    - {fileID: 6718383148851874771, guid: 020fc85939da98446bc8518dc58fdd11, type: 3}
+    - {fileID: 8363043970106710187, guid: 7ead3dd38945dd94fa33046cedda5ce8, type: 3}
+    MinHeight: 0.6
+    MaxHeight: 12
+    MaxSlopeDeg: 20
+    MoistureStart: 0
+    MoistureFull: 0
+    DensityPerSqm: 0.005
+    DriveByForestDensity: 0
+    ForestSuppression: 0
+    AllowedBiomes: 02000000
+    WaterNeed: 0.85
+    CanopyRadius: 4.5
+    PreferRocky: 0
+    MaxWaterDepth: 0.45
+    OnWaterSurface: 0
+    MinWaterDepth: 0.2
+    YOffset: 0
+    MaxTiltDeg: 0
+    CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
+    OverrideMaterial: {fileID: 0}
+    MinTemp01: 0
+    MaxTemp01: 1
+    YStretch: 0.16
+    ScaleRange: {x: 0.85, y: 1.35}
+    PositionJitter: 0.9
+    IsVegetation: 1
+  - Name: Variety_SwampRoots
+    Enabled: 1
+    Prefabs:
+    - {fileID: 9177637282233996581, guid: 0bc8f8ac9c5822444acb49fc1c492748, type: 3}
+    - {fileID: 567461018950380608, guid: 736e8ec23d52f8d44af2b71a4de15af4, type: 3}
+    - {fileID: 8624816090768412630, guid: ea60345cb3cc6c34aaf915a2ad04b8d3, type: 3}
+    - {fileID: 7572385244044845213, guid: 6d0ccc5f98f2f904e963b3bccd9bd0e3, type: 3}
+    - {fileID: 5380109396203651659, guid: 620c78aa7097bbe4787262adf26d1632, type: 3}
+    - {fileID: 6265909065517734516, guid: 1e51aa501add33943910351ac4f4a1eb, type: 3}
+    - {fileID: 5719877589006539779, guid: 866bf38b6490134478ef1b90d512c502, type: 3}
+    MinHeight: 0.4
+    MaxHeight: 10
+    MaxSlopeDeg: 22
+    MoistureStart: 0
+    MoistureFull: 0
+    DensityPerSqm: 0.0025
+    DriveByForestDensity: 0
+    ForestSuppression: 0
+    AllowedBiomes: 02000000
+    WaterNeed: 0.8
+    CanopyRadius: 2
+    PreferRocky: 0
+    MaxWaterDepth: 0.3
+    OnWaterSurface: 0
+    MinWaterDepth: 0.2
+    YOffset: 0
+    MaxTiltDeg: 6
+    CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
+    OverrideMaterial: {fileID: 0}
+    MinTemp01: 0
+    MaxTemp01: 1
+    YStretch: 0
+    ScaleRange: {x: 0.8, y: 1.3}
+    PositionJitter: 0.9
+    IsVegetation: 1
+  - Name: Variety_SwampGrass
+    Enabled: 1
+    Prefabs:
+    - {fileID: 5901704251183814680, guid: 1650aac3cb6355348896b9ab9b7ed8c1, type: 3}
+    - {fileID: 6532359867544712969, guid: d7828ab1712df0149a1729705c93365e, type: 3}
+    - {fileID: 6915181516974612660, guid: 12bd7a149c3943e4990663ee99c85d51, type: 3}
+    - {fileID: 8981097282521029215, guid: 4ad20c485adfc444ea12fbc707014862, type: 3}
+    MinHeight: 0.4
+    MaxHeight: 10
+    MaxSlopeDeg: 22
+    MoistureStart: 0
+    MoistureFull: 0
+    DensityPerSqm: 0.035
+    DriveByForestDensity: 0
+    ForestSuppression: 0
+    AllowedBiomes: 02000000
+    WaterNeed: 0.85
+    CanopyRadius: 0
+    PreferRocky: 0
+    MaxWaterDepth: 0.4
+    OnWaterSurface: 0
+    MinWaterDepth: 0.2
+    YOffset: 0
+    MaxTiltDeg: 0
+    CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
+    OverrideMaterial: {fileID: 0}
+    MinTemp01: 0
+    MaxTemp01: 1
+    YStretch: 0
+    ScaleRange: {x: 0.9, y: 1.5}
+    PositionJitter: 0.9
+    IsVegetation: 1
+  - Name: Variety_BananaGroves
+    Enabled: 1
+    Prefabs:
+    - {fileID: 5096271634889776539, guid: b5479922251fdcb408bac60b939ca688, type: 3}
+    - {fileID: 3726313572465556822, guid: 90236d3d5e34c2343ac685b1d4c77e3b, type: 3}
+    - {fileID: 1382956260051127515, guid: 92015a42d8ca240428be697367d5268c, type: 3}
+    MinHeight: 2
+    MaxHeight: 26
+    MaxSlopeDeg: 22
+    MoistureStart: 0
+    MoistureFull: 0
+    DensityPerSqm: 0.008
+    DriveByForestDensity: 1
+    ForestSuppression: 0
+    AllowedBiomes: 
+    WaterNeed: 0.75
+    CanopyRadius: 2.4
+    PreferRocky: 0
+    MaxWaterDepth: 0
+    OnWaterSurface: 0
+    MinWaterDepth: 0.2
+    YOffset: 0
+    MaxTiltDeg: 0
+    CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
+    OverrideMaterial: {fileID: 0}
+    MinTemp01: 0.66
+    MaxTemp01: 1
+    YStretch: 0.14
+    ScaleRange: {x: 0.85, y: 1.3}
+    PositionJitter: 0.9
+    IsVegetation: 1
+  - Name: Variety_TropicalUnderstory
+    Enabled: 1
+    Prefabs:
+    - {fileID: 89682723387519615, guid: 889d654cb63780640b42cb9c30c6d368, type: 3}
+    - {fileID: 1334760187777763982, guid: 4ca2886ca8c874344a6e08aafdf4d9de, type: 3}
+    - {fileID: 8994261675060231237, guid: a47896d9518ab5747a3fcfdfd6416f36, type: 3}
+    - {fileID: 7899589348871987487, guid: 238339890dcb3b1408b880eedea0c294, type: 3}
+    - {fileID: 9085664221060193640, guid: ba9ccab05041f1b49841d2d6213640e0, type: 3}
+    - {fileID: 5185489324619151580, guid: b8a04493a0bfca84d8e5d85d4e91011c, type: 3}
+    - {fileID: 4546010937354998304, guid: d348e4345879c594384fa5decf172505, type: 3}
+    - {fileID: 2696696122112371711, guid: 887957cac83ae2749b1d416ba53e8ed7, type: 3}
+    - {fileID: 1447006790945918299, guid: f49da30f3a88d7d45b637f7c8dc7f4cc, type: 3}
+    MinHeight: 1.5
+    MaxHeight: 28
+    MaxSlopeDeg: 28
+    MoistureStart: 0
+    MoistureFull: 0
+    DensityPerSqm: 0.014
+    DriveByForestDensity: 0
+    ForestSuppression: 0
+    AllowedBiomes: 0500000002000000
+    WaterNeed: 0.65
+    CanopyRadius: 1.4
+    PreferRocky: 0
+    MaxWaterDepth: 0
+    OnWaterSurface: 0
+    MinWaterDepth: 0.2
+    YOffset: 0
+    MaxTiltDeg: 0
+    CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
+    OverrideMaterial: {fileID: 0}
+    MinTemp01: 0.66
+    MaxTemp01: 1
+    YStretch: 0
+    ScaleRange: {x: 0.8, y: 1.35}
+    PositionJitter: 0.9
+    IsVegetation: 1
+  - Name: Variety_TropicalFloor
+    Enabled: 1
+    Prefabs:
+    - {fileID: 2894058690992046509, guid: 9ee1bddd96e03f64c92b402d1d7f374b, type: 3}
+    - {fileID: 3965361012015552506, guid: fa851e22758927f4abbddeedd98f3af7, type: 3}
+    - {fileID: 8738362394712656782, guid: bc2f59459201db34cbdc6e24a38ff560, type: 3}
+    - {fileID: 3950473727735243139, guid: acf42a4b54b06464aa67fa54408a7ff9, type: 3}
+    - {fileID: 2333043694555210701, guid: 9ca312419e6055b4e9aba92b41ea7fa7, type: 3}
+    - {fileID: 7383078585770048371, guid: f6d807cdc9d6a13419285ced310d33a3, type: 3}
+    - {fileID: 4579494808181569336, guid: 52c40321941daf14490aae285e3d7810, type: 3}
+    - {fileID: 8459705573654062948, guid: b96ac4a5c87d0d7459b98dedad99cf52, type: 3}
+    - {fileID: 5719686825749566545, guid: 745f567864e47194cb8a1e02878681ec, type: 3}
+    - {fileID: 2057268188935056668, guid: bafd1445f32831e4d8a269ae843656ba, type: 3}
+    - {fileID: 3687112374890251842, guid: 0cff0eb218240964ea948bf64e28b7fb, type: 3}
+    - {fileID: 5812159174992098307, guid: 4a8eab6e97ab8ee41814fb1f7b1567ba, type: 3}
+    - {fileID: 4553418138989628863, guid: b2b27aa9181a11641ad116524b066a94, type: 3}
+    - {fileID: 3696949650856750424, guid: 4d44dbb9ade01a441a3b05f7bd0ed32b, type: 3}
+    MinHeight: 1.5
+    MaxHeight: 26
+    MaxSlopeDeg: 28
+    MoistureStart: 0
+    MoistureFull: 0
+    DensityPerSqm: 0.02
+    DriveByForestDensity: 0
+    ForestSuppression: 0
+    AllowedBiomes: 0500000002000000
+    WaterNeed: 0.7
+    CanopyRadius: 0
+    PreferRocky: 0
+    MaxWaterDepth: 0
+    OnWaterSurface: 0
+    MinWaterDepth: 0.2
+    YOffset: 0
+    MaxTiltDeg: 3
+    CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
+    OverrideMaterial: {fileID: 0}
+    MinTemp01: 0.66
+    MaxTemp01: 1
+    YStretch: 0
+    ScaleRange: {x: 0.85, y: 1.4}
+    PositionJitter: 0.9
+    IsVegetation: 1
+  - Name: Variety_CoastalPohutukawa
+    Enabled: 1
+    Prefabs:
+    - {fileID: 6565731153089564795, guid: 9d13b99ba0d33a54dbc8d64d1ce7965d, type: 3}
+    - {fileID: 2754804363269165765, guid: f50eccb0ebdc48f41b7c67ffa0f2ea5b, type: 3}
+    - {fileID: 7030940628132927313, guid: 9853950e0b7c98946b022fa703f4700a, type: 3}
+    - {fileID: 146025179204021752, guid: 08b24fb13261ca34890d8b7e0cd1703f, type: 3}
+    MinHeight: 1.2
+    MaxHeight: 9
+    MaxSlopeDeg: 26
+    MoistureStart: 0
+    MoistureFull: 0
+    DensityPerSqm: 0.0018
+    DriveByForestDensity: 0
+    ForestSuppression: 0
+    AllowedBiomes: 0100000003000000
+    WaterNeed: 0.35
+    CanopyRadius: 4
+    PreferRocky: 0
+    MaxWaterDepth: 0
+    OnWaterSurface: 0
+    MinWaterDepth: 0.2
+    YOffset: 0
+    MaxTiltDeg: 5
+    CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
+    OverrideMaterial: {fileID: 0}
+    MinTemp01: 0.5
+    MaxTemp01: 1
+    YStretch: 0.12
+    ScaleRange: {x: 0.85, y: 1.3}
+    PositionJitter: 0.9
+    IsVegetation: 1
+  - Name: Variety_BeachPalms
+    Enabled: 1
+    Prefabs:
+    - {fileID: 6637453692794491382, guid: e3e443748686859419fbb6a34a53ee16, type: 3}
+    - {fileID: 7952858920795942106, guid: a74cde0425584a743be5389aa13a71f3, type: 3}
+    MinHeight: 0.8
+    MaxHeight: 6
+    MaxSlopeDeg: 22
+    MoistureStart: 0
+    MoistureFull: 0
+    DensityPerSqm: 0.0012
+    DriveByForestDensity: 0
+    ForestSuppression: 0
+    AllowedBiomes: 01000000
+    WaterNeed: -1
+    CanopyRadius: 2.6
+    PreferRocky: 0
+    MaxWaterDepth: 0
+    OnWaterSurface: 0
+    MinWaterDepth: 0.2
+    YOffset: 0
+    MaxTiltDeg: 4
+    CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
+    OverrideMaterial: {fileID: 0}
+    MinTemp01: 0.62
+    MaxTemp01: 1
+    YStretch: 0.2
+    ScaleRange: {x: 0.85, y: 1.3}
+    PositionJitter: 0.9
+    IsVegetation: 1
+  - Name: Variety_BeachWrack
+    Enabled: 1
+    Prefabs:
+    - {fileID: 2068794662578542576, guid: 7a783490c392777438a468ae0c9faa76, type: 3}
+    MinHeight: 0.1
+    MaxHeight: 1.6
+    MaxSlopeDeg: 14
+    MoistureStart: 0
+    MoistureFull: 0
+    DensityPerSqm: 0.004
+    DriveByForestDensity: 0
+    ForestSuppression: 0
+    AllowedBiomes: 01000000
+    WaterNeed: -1
+    CanopyRadius: 0
+    PreferRocky: 0
+    MaxWaterDepth: 0
+    OnWaterSurface: 0
+    MinWaterDepth: 0.2
+    YOffset: 0
+    MaxTiltDeg: 4
+    CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
+    OverrideMaterial: {fileID: 0}
+    MinTemp01: 0
+    MaxTemp01: 1
+    YStretch: 0
+    ScaleRange: {x: 0.8, y: 1.4}
+    PositionJitter: 0.9
+    IsVegetation: 1
+  - Name: Variety_ForestMushrooms
+    Enabled: 1
+    Prefabs:
+    - {fileID: 695319612025307586, guid: 67aae07f4fff17d429874797a101c47c, type: 3}
+    - {fileID: 6444169022458573102, guid: f40f753b9a48b184c9ced5dcb8f6e5b5, type: 3}
+    - {fileID: 7170117340267794464, guid: f94a2fded59a78e4b9c7f7ace17c9652, type: 3}
+    - {fileID: 2182585611302554245, guid: a5277b97dce33a649b85ce6b40977fea, type: 3}
+    - {fileID: 6771964388609471201, guid: fedd3a956bed7954581243895aff638b, type: 3}
+    - {fileID: 5302535744711460047, guid: 7cbe4d5561fe6664abc10275ce1bbf2c, type: 3}
+    - {fileID: 5762225385351476241, guid: 0e9a961200ad2294caba1a1958a4625d, type: 3}
+    - {fileID: 1511162409591480987, guid: 207b689f475fbcc48bf39ca3fecca461, type: 3}
+    - {fileID: 6085449861703954026, guid: 79c52f8723aa35a41ba11b05addad7e9, type: 3}
+    - {fileID: 7158316201231779819, guid: 5a94592405aec68418c8c69881c5a3b0, type: 3}
+    - {fileID: 6357802072710160018, guid: 8353db0dbf1e99b4b810c7fbb79944fa, type: 3}
+    - {fileID: 4588459746972545552, guid: 8935206927463ed4b92ab77408e959e6, type: 3}
+    MinHeight: 2.5
+    MaxHeight: 34
+    MaxSlopeDeg: 26
+    MoistureStart: 0
+    MoistureFull: 0
+    DensityPerSqm: 0.004
+    DriveByForestDensity: 1
+    ForestSuppression: 0
+    AllowedBiomes: 05000000
+    WaterNeed: 0.65
+    CanopyRadius: 0
+    PreferRocky: 0
+    MaxWaterDepth: 0
+    OnWaterSurface: 0
+    MinWaterDepth: 0.2
+    YOffset: 0
+    MaxTiltDeg: 0
+    CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
+    OverrideMaterial: {fileID: 0}
+    MinTemp01: 0
+    MaxTemp01: 1
+    YStretch: 0
+    ScaleRange: {x: 0.8, y: 1.4}
+    PositionJitter: 0.9
+    IsVegetation: 1
+  - Name: Variety_AlpineFlowers
+    Enabled: 1
+    Prefabs:
+    - {fileID: 6747096830409093256, guid: 42c2aba14d57fbd4cb4c6e92b06686ec, type: 3}
+    - {fileID: 223439248198966679, guid: 4868b8a8ec48f8840a5c81a64651b2a1, type: 3}
+    MinHeight: 16
+    MaxHeight: 52
+    MaxSlopeDeg: 28
+    MoistureStart: 0
+    MoistureFull: 0
+    DensityPerSqm: 0.01
+    DriveByForestDensity: 0
+    ForestSuppression: 0
+    AllowedBiomes: 06000000
+    WaterNeed: -1
+    CanopyRadius: 0
+    PreferRocky: 0
+    MaxWaterDepth: 0
+    OnWaterSurface: 0
+    MinWaterDepth: 0.2
+    YOffset: 0
+    MaxTiltDeg: 0
+    CoastalWall: 0
+    InlandWall: 0
+    InlandFamily: 0
+    OverrideMaterial: {fileID: 0}
+    MinTemp01: 0
+    MaxTemp01: 1
+    YStretch: 0
+    ScaleRange: {x: 0.9, y: 1.4}
+    PositionJitter: 0.9
+    IsVegetation: 1

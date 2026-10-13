@@ -170,7 +170,10 @@ namespace AniML.EditorTools
             // Close-ups of every wonder + the primary summit, framed for review.
             var worldComp = Object.FindFirstObjectByType<ProceduralWorld>();
             if (worldComp != null)
+            {
                 CaptureFeatureShots(worldComp, outDir, "");
+                CaptureBiomeShots(worldComp, outDir);
+            }
 
             // Time-of-day variants: golden hour and night under the moon.
             var sky = Object.FindFirstObjectByType<SkySystem>();
@@ -200,6 +203,63 @@ namespace AniML.EditorTools
         /// Shared by verification bakes (no prefix) and art-direction
         /// look comparisons (prefixed per look).
         /// </summary>
+        /// <summary>
+        /// Flora review shots: for each biome, find the heart of its biggest
+        /// patch (the 16 m cell with the most same-biome neighbours) and
+        /// shoot it from a low three-quarter view, so plant variety can be
+        /// judged at the scale an animal would see it.
+        /// </summary>
+        private static void CaptureBiomeShots(ProceduralWorld world, string outDir)
+        {
+            var targets = new (string name, Biome biome, float minTemp)[]
+            {
+                ("wetland", Biome.Wetland, 0f),
+                ("forest", Biome.ForestFloor, 0f),
+                ("warm_forest", Biome.ForestFloor, 0.6f),
+                ("beach", Biome.Beach, 0.5f),
+                ("meadow", Biome.Meadow, 0f),
+                ("alpine_meadow", Biome.AlpineMeadow, 0f),
+            };
+            float half = world.Settings.WorldSize * 0.5f;
+            const float step = 16f;
+            int n = Mathf.FloorToInt(world.Settings.WorldSize / step);
+            foreach (var (name, biome, minTemp) in targets)
+            {
+                var hit = new bool[n, n];
+                for (int z = 0; z < n; z++)
+                    for (int x = 0; x < n; x++)
+                    {
+                        float wx = x * step - half, wz = z * step - half;
+                        hit[x, z] = world.SampleBiome(wx, wz) == biome
+                                    && world.SampleTemperature01(wx, wz) >= minTemp;
+                    }
+                int best = -1, bx = 0, bz = 0;
+                for (int z = 2; z < n - 2; z++)
+                    for (int x = 2; x < n - 2; x++)
+                    {
+                        if (!hit[x, z]) continue;
+                        int score = 0;
+                        for (int dz = -2; dz <= 2; dz++)
+                            for (int dx = -2; dx <= 2; dx++)
+                                if (hit[x + dx, z + dz]) score++;
+                        if (score > best) { best = score; bx = x; bz = z; }
+                    }
+                if (best < 6)
+                {
+                    Debug.Log($"[AniML] Biome shot '{name}': no patch big enough, skipped.");
+                    continue;
+                }
+                float tx = bx * step - half, tz = bz * step - half;
+                var target = new Vector3(tx, world.SampleHeight(tx, tz) + 1.5f, tz);
+                // Forest canopies swallow a low camera: look down from above.
+                bool canopy = biome == Biome.ForestFloor;
+                var eye = target + (canopy ? new Vector3(-30f, 34f, -30f) : new Vector3(-22f, 11f, -22f));
+                eye.y = Mathf.Max(eye.y, world.SampleHeight(eye.x, eye.z) + (canopy ? 28f : 4f));
+                Capture(eye, Quaternion.LookRotation(target - eye), 55f,
+                    Path.Combine(outDir, $"biome_{name}.png"));
+            }
+        }
+
         private static void CaptureFeatureShots(ProceduralWorld worldComp, string outDir, string prefix)
         {
             // No camera ever sits under the terrain: rerouted rivers and
@@ -350,6 +410,12 @@ namespace AniML.EditorTools
                 "SM_Env_Rock_Cliff_10", "SM_Env_Rock_Cliff_16", "SM_Env_Rock_Arch_01");
             Dump("Tropical", TropicalRoot, "SM_Env_Rock_Cave_01", "SM_Env_Rock_Cliff_01");
             Dump("Meadow", MeadowRoot, "SM_Env_Rock_Cliff_01", "SM_Env_Rock_Cliff_02", "SM_Env_Rock_Cliff_03");
+            // Flora variety pass: tree sizes set canopy spacing.
+            Dump("Swamp", SwampRoot, "SM_Env_Tree_Swamp_01", "SM_Env_Tree_Swamp_02", "SM_Env_Tree_Swamp_03",
+                "SM_Env_Tree_Swamp_04", "SM_Env_Tree_Mangrove_01", "Swamp_Tree_Roots_01", "SM_Prop_VineTree_01");
+            Dump("Tropical", TropicalRoot, "SM_Env_Tree_Banana_01", "SM_Env_Tree_Pohutukawa_01",
+                "SM_Env_Tree_Pohutukawa_03", "SM_Env_Bush_Tropical_01", "SM_Env_Seaweed_Beach_01");
+            Dump("Meadow", MeadowRoot, "SM_Env_Tree_Meadow_01", "SM_Env_Grass_Large_01");
         }
 
         /// <summary>
@@ -559,6 +625,159 @@ namespace AniML.EditorTools
 
         /// <summary>Aquatic flora: floating pads on lakes, seaweed and coral
         /// in the sunlit sea shallows.</summary>
+        /// <summary>
+        /// The flora variety pass: Nature Biomes plants we owned but never
+        /// placed. Every layer follows the same climate/biome rules as the
+        /// originals, so variety shows up where it belongs instead of
+        /// everywhere. PolygonGeneric flora is deliberately excluded: it
+        /// shares one flat atlas material (no wind, no colour variation,
+        /// different palette) and would read as a different game.
+        /// Also excluded: MushroomHouse (a built structure), the Background
+        /// tree cards (need an LOD tier first), and the creeper/vine meshes
+        /// (they need a host surface to hang from).
+        /// </summary>
+        private static ScatterLayer[] BuildFloraVarietyLayers() => new[]
+        {
+            // Swamp canopy: buttress-rooted swamp trees in the freshwater
+            // marsh, standing in the shallows like bald cypress.
+            new ScatterLayer
+            {
+                Name = "Variety_SwampTrees",
+                Prefabs = FindPrefabs(SwampRoot, "SM_Env_Tree_Swamp_01", "SM_Env_Tree_Swamp_01_ALT",
+                    "SM_Env_Tree_Swamp_02", "SM_Env_Tree_Swamp_03", "SM_Env_Tree_Swamp_04"),
+                MinHeight = 0.6f, MaxHeight = 12f, MaxSlopeDeg = 20f,
+                AllowedBiomes = { Biome.Wetland }, WaterNeed = 0.85f,
+                MaxWaterDepth = 0.45f,
+                DensityPerSqm = 0.005f, CanopyRadius = 4.5f, YStretch = 0.16f,
+                ScaleRange = new Vector2(0.85f, 1.35f),
+            },
+            // Exposed root tangles and vine-hung snags at the marsh edge.
+            new ScatterLayer
+            {
+                Name = "Variety_SwampRoots",
+                Prefabs = FindPrefabs(SwampRoot, "Swamp_Tree_Root_01", "Swamp_Tree_Root_02",
+                    "Swamp_Tree_Root_03", "Swamp_Tree_Root_04", "Swamp_Tree_Root_05",
+                    "Swamp_Tree_Roots_01", "SM_Prop_VineTree_01"),
+                MinHeight = 0.4f, MaxHeight = 10f, MaxSlopeDeg = 22f,
+                AllowedBiomes = { Biome.Wetland }, WaterNeed = 0.8f,
+                MaxWaterDepth = 0.3f,
+                DensityPerSqm = 0.0025f, CanopyRadius = 2f, MaxTiltDeg = 6f,
+                ScaleRange = new Vector2(0.8f, 1.3f),
+            },
+            new ScatterLayer
+            {
+                Name = "Variety_SwampGrass",
+                Prefabs = FindPrefabs(SwampRoot, "SM_Env_Grass_Swamp_03", "SM_Env_SwampGrass_Medium_01",
+                    "SM_Env_SwampGrass_Small_01", "SM_Env_SwampGrass_Tall_01"),
+                MinHeight = 0.4f, MaxHeight = 10f, MaxSlopeDeg = 22f,
+                AllowedBiomes = { Biome.Wetland }, WaterNeed = 0.85f,
+                MaxWaterDepth = 0.4f,
+                DensityPerSqm = 0.035f,
+                ScaleRange = new Vector2(0.9f, 1.5f),
+            },
+
+            // Warm forests: banana groves join the lush canopy where it is
+            // hot and wet; tropical and palm bushes fill the understory.
+            new ScatterLayer
+            {
+                Name = "Variety_BananaGroves",
+                Prefabs = FindPrefabs(TropicalRoot, "SM_Env_Tree_Banana_01", "SM_Env_Tree_Banana_02",
+                    "SM_Env_Tree_Banana_03"),
+                MinHeight = 2f, MaxHeight = 26f, MaxSlopeDeg = 22f,
+                DriveByForestDensity = true, DensityPerSqm = 0.008f,
+                WaterNeed = 0.75f, MinTemp01 = 0.66f,
+                CanopyRadius = 2.4f, YStretch = 0.14f,
+                ScaleRange = new Vector2(0.85f, 1.3f),
+            },
+            new ScatterLayer
+            {
+                Name = "Variety_TropicalUnderstory",
+                Prefabs = FindPrefabs(TropicalRoot, "SM_Env_Bush_Tropical_01", "SM_Env_Bush_Tropical_02",
+                    "SM_Env_Bush_Tropical_03", "SM_Env_Bush_Tropical_04", "SM_Env_Bush_Palm_01",
+                    "SM_Env_Bush_Palm_01_Flowers_01", "SM_Env_Bush_Palm_02", "SM_Env_Bush_Palm_03",
+                    "SM_Env_Bush_Palm_04"),
+                MinHeight = 1.5f, MaxHeight = 28f, MaxSlopeDeg = 28f,
+                AllowedBiomes = { Biome.ForestFloor, Biome.Wetland },
+                WaterNeed = 0.65f, MinTemp01 = 0.66f,
+                DensityPerSqm = 0.014f, CanopyRadius = 1.4f,
+                ScaleRange = new Vector2(0.8f, 1.35f),
+            },
+            new ScatterLayer
+            {
+                Name = "Variety_TropicalFloor",
+                Prefabs = FindPrefabs(TropicalRoot, "SM_Env_Flower_01", "SM_Env_Flower_02",
+                    "SM_Env_Flower_03", "SM_Env_Flower_Pitcher_01", "SM_Env_Flower_Pitcher_02",
+                    "SM_Env_Flowers_01", "SM_Env_Flowers_02", "SM_Env_Flowers_03",
+                    "SM_Env_Flowers_04", "SM_Env_Flowers_05", "SM_Env_Fern_Part_01",
+                    "SM_Env_Fern_Part_02", "SM_Env_Fern_Part_03", "SM_Env_Fern_Part_04"),
+                MinHeight = 1.5f, MaxHeight = 26f, MaxSlopeDeg = 28f,
+                AllowedBiomes = { Biome.ForestFloor, Biome.Wetland },
+                WaterNeed = 0.7f, MinTemp01 = 0.66f,
+                DensityPerSqm = 0.02f, MaxTiltDeg = 3f,
+                ScaleRange = new Vector2(0.85f, 1.4f),
+            },
+            // Pohutukawa: gnarled crimson-flowering trees that lean over
+            // warm coasts, just above the beach.
+            new ScatterLayer
+            {
+                Name = "Variety_CoastalPohutukawa",
+                Prefabs = FindPrefabs(TropicalRoot, "SM_Env_Tree_Pohutukawa_01", "SM_Env_Tree_Pohutukawa_02",
+                    "SM_Env_Tree_Pohutukawa_03", "SM_Env_Tree_Pohutukawa_04"),
+                MinHeight = 1.2f, MaxHeight = 9f, MaxSlopeDeg = 26f,
+                AllowedBiomes = { Biome.Beach, Biome.Meadow },
+                MinTemp01 = 0.5f, WaterNeed = 0.35f,
+                DensityPerSqm = 0.0018f, CanopyRadius = 4f, YStretch = 0.12f, MaxTiltDeg = 5f,
+                ScaleRange = new Vector2(0.85f, 1.3f),
+            },
+            new ScatterLayer
+            {
+                Name = "Variety_BeachPalms",
+                Prefabs = FindPrefabs(TropicalRoot, "SM_Env_Tree_Palm_04", "SM_Env_Tree_Palm_01_Coconuts_01"),
+                MinHeight = 0.8f, MaxHeight = 6f, MaxSlopeDeg = 22f,
+                AllowedBiomes = { Biome.Beach }, MinTemp01 = 0.62f,
+                DensityPerSqm = 0.0012f, CanopyRadius = 2.6f, YStretch = 0.2f, MaxTiltDeg = 4f,
+                ScaleRange = new Vector2(0.85f, 1.3f),
+            },
+            // Storm-cast seaweed wrack along the tide line.
+            new ScatterLayer
+            {
+                Name = "Variety_BeachWrack",
+                Prefabs = FindPrefabs(TropicalRoot, "SM_Env_Seaweed_Beach_01"),
+                MinHeight = 0.1f, MaxHeight = 1.6f, MaxSlopeDeg = 14f,
+                AllowedBiomes = { Biome.Beach },
+                DensityPerSqm = 0.004f, MaxTiltDeg = 4f,
+                ScaleRange = new Vector2(0.8f, 1.4f),
+            },
+
+            // Temperate: mushrooms on the damp forest floor. (SM_Env_Grass_Large_*
+            // looked like clumps by name but are 34 m flat ground patches: tried,
+            // read as stacked carpet bands, retired.)
+            new ScatterLayer
+            {
+                Name = "Variety_ForestMushrooms",
+                Prefabs = FindPrefabs(MeadowRoot, "SM_Prop_Mushroom_04", "SM_Prop_Mushroom_05",
+                    "SM_Prop_Mushroom_06", "SM_Prop_Mushroom_Group_02", "SM_Prop_Mushroom_Group_03",
+                    "SM_Prop_Mushroom_Group_04", "SM_Prop_Mushroom_Group_05", "SM_Prop_Mushroom_Sparse_01",
+                    "SM_Prop_Mushroom_Sparse_02", "SM_Prop_Mushroom_Sparse_03", "SM_Prop_Mushroom_Sparse_04",
+                    "SM_Prop_Mushroom_Sparse_05"),
+                MinHeight = 2.5f, MaxHeight = 34f, MaxSlopeDeg = 26f,
+                AllowedBiomes = { Biome.ForestFloor }, WaterNeed = 0.65f,
+                DriveByForestDensity = true,
+                DensityPerSqm = 0.004f,
+                ScaleRange = new Vector2(0.8f, 1.4f),
+            },
+            // Alpine flowers in the cold meadows below the rock line.
+            new ScatterLayer
+            {
+                Name = "Variety_AlpineFlowers",
+                Prefabs = FindPrefabs(AlpineRoot, "SM_Env_Flowers_01", "SM_Env_Flowers_01_Alt"),
+                MinHeight = 16f, MaxHeight = 52f, MaxSlopeDeg = 28f,
+                AllowedBiomes = { Biome.AlpineMeadow },
+                DensityPerSqm = 0.01f,
+                ScaleRange = new Vector2(0.9f, 1.4f),
+            },
+        };
+
         private static ScatterLayer[] BuildAquaticLayers() => new[]
         {
             new ScatterLayer
@@ -598,7 +817,9 @@ namespace AniML.EditorTools
             {
                 Name = "Coral",
                 Prefabs = FindPrefabs(TropicalRoot, "SM_Prop_Coral_01", "SM_Prop_Coral_03",
-                    "SM_Prop_Coral_05", "SM_Prop_Coral_07", "SM_Prop_Coral_09", "SM_Prop_Coral_11"),
+                    "SM_Prop_Coral_05", "SM_Prop_Coral_07", "SM_Prop_Coral_09", "SM_Prop_Coral_11",
+                    "SM_Prop_Coral_02", "SM_Prop_Coral_04", "SM_Prop_Coral_06", "SM_Prop_Coral_08",
+                    "SM_Prop_Coral_10"),
                 MinHeight = -3.2f, MaxHeight = -0.9f, MaxSlopeDeg = 26f,
                 AllowedBiomes = { Biome.Ocean },
                 MinTemp01 = 0.55f, YOffset = -0.05f,
@@ -638,6 +859,22 @@ namespace AniML.EditorTools
                 int idx = cfg.Layers.FindIndex(l => l.Name == layer.Name);
                 if (idx >= 0)
                     cfg.Layers[idx] = layer;
+                else
+                    cfg.Layers.Add(layer);
+                dirty = true;
+            }
+            // Layers tried and retired: strip them from existing assets.
+            foreach (var retired in new[] { "Variety_TallGrassStands" })
+                if (cfg.Layers.RemoveAll(l => l.Name == retired) > 0)
+                    dirty = true;
+            foreach (var layer in BuildFloraVarietyLayers())
+            {
+                int idx = cfg.Layers.FindIndex(l => l.Name == layer.Name);
+                if (idx >= 0)
+                {
+                    layer.Enabled = cfg.Layers[idx].Enabled;   // keep the user's switch
+                    cfg.Layers[idx] = layer;
+                }
                 else
                     cfg.Layers.Add(layer);
                 dirty = true;

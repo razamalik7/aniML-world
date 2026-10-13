@@ -112,6 +112,18 @@ namespace AniML.World
             _generated = true;
             Debug.Log($"[AniML] Scatter generated: {totalInstances} instances across {_chunks.Count} chunks "
                       + $"(+{_world.CoastCliffs.Count} coastal, +{_world.InlandCliffs.Count} inland cliff segments).");
+
+            // Per-layer census: proves a layer actually spawns (a typo'd
+            // prefab name or an impossible climate gate shows up as 0).
+            var perLayer = new int[config.Layers.Count];
+            foreach (var chunk in _chunks)
+                foreach (var c in chunk.Instances)
+                    perLayer[c.LayerIndex]++;
+            var census = new System.Text.StringBuilder("[AniML] Scatter census:");
+            for (int li = 0; li < perLayer.Length; li++)
+                if (!config.Layers[li].CoastalWall && !config.Layers[li].InlandWall)
+                    census.Append($" {config.Layers[li].Name}={perLayer[li]}");
+            Debug.Log(census.ToString());
         }
 
         private struct Candidate
@@ -133,7 +145,7 @@ namespace AniML.World
             for (int li = 0; li < config.Layers.Count; li++)
             {
                 var layer = config.Layers[li];
-                if (layer.Prefabs.Count == 0 || layer.DensityPerSqm <= 0f || layer.CoastalWall || layer.InlandWall)
+                if (!layer.Enabled || layer.Prefabs.Count == 0 || layer.DensityPerSqm <= 0f || layer.CoastalWall || layer.InlandWall)
                     continue;
 
                 var rng = new System.Random(HashCell(settings.Seed, cx, cz, li));

@@ -14,6 +14,8 @@ namespace AniML.World
     public sealed class ScatterLayer
     {
         public string Name = "Layer";
+        [Tooltip("Untick to switch this layer off without deleting it (per-layer revert switch).")]
+        public bool Enabled = true;
         public List<GameObject> Prefabs = new();
 
         [Header("Placement rules")]
