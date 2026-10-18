@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "updatedAt": "2026-10-18T22:39:08.943Z",
+  "encryption": "ssh-x25519-aes256gcm",
+  "recipients": [
+    {
+      "label": "local:nars7@aurora",
+      "sshPublicKey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILqb69844fIQrMuJdgqGfWHhBSfC8Q5+mcH4lpcdqA09 nars7@aurora",
+      "fingerprint": "SHA256:jToXMbchkuPTT0H7evyOo8VHvjRyPbozxgfSaKIYI+0",
+      "addedAt": "2026-10-18T22:39:08.923Z"
+    }
+  ]
+}
