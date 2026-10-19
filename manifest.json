@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-18T22:39:08.943Z",
+  "updatedAt": "2026-10-19T17:16:07.298Z",
   "encryption": "ssh-x25519-aes256gcm",
   "recipients": [
     {
@@ -8,6 +8,12 @@
       "sshPublicKey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILqb69844fIQrMuJdgqGfWHhBSfC8Q5+mcH4lpcdqA09 nars7@aurora",
       "fingerprint": "SHA256:jToXMbchkuPTT0H7evyOo8VHvjRyPbozxgfSaKIYI+0",
       "addedAt": "2026-10-18T22:39:08.923Z"
+    },
+    {
+      "label": "github:razamalik7",
+      "sshPublicKey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO8G2poAuColIbISKDS9vhLc2QWF/ztMgWXIS8XWChO3 github:razamalik7",
+      "fingerprint": "SHA256:gIf9nph6gEpo3WyX8unXJxIRvt0Ru5cUXTA/9NhaayA",
+      "addedAt": "2026-10-19T17:16:07.276Z"
     }
   ]
 }
