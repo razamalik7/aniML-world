@@ -1,4 +1,6 @@
 using System.IO;
+using AniML.Creatures;
+using AniML.Sandbox;
 using AniML.World;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -11,12 +13,33 @@ namespace AniML.EditorTools
     /// generate terrain, and capture verification renders (works headless
     /// in batchmode as long as -nographics is NOT used).
     /// </summary>
+    [InitializeOnLoad]
     public static class WorldTools
     {
         private const string ScenePath = "Assets/_Project/Scenes/Sandbox.unity";
         private const string SettingsPath = "Assets/_Project/Settings/WorldSettings.asset";
         private const string MaterialPath = "Assets/_Project/Art/Materials/M_Terrain.mat";
         private const string WaterMaterialPath = "Assets/_Project/Art/Materials/M_Water_Placeholder.mat";
+        private const string AutoVerifyFlagPath = "Temp/animl_run_deer_verification.flag";
+
+        static WorldTools()
+        {
+            if (File.Exists(AutoVerifyFlagPath))
+            {
+                File.Delete(AutoVerifyFlagPath);
+                EditorApplication.delayCall += () =>
+                {
+                    try
+                    {
+                        CaptureDeerVerificationMenu();
+                    }
+                    catch (System.Exception ex)
+                    {
+                        Debug.LogException(ex);
+                    }
+                };
+            }
+        }
 
         [MenuItem("AniML/World/Generate In Sandbox Scene")]
         public static void GenerateInScene()
@@ -138,6 +161,7 @@ namespace AniML.EditorTools
             EnableFoliageWind();
             EnsurePostProcessing();
             EnsureWaterPlane(settings);
+            EnsureDeerHerdInScene(world);
 
             // Warm trilight ambient lifts saturation vs the default grey SH.
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilight;
@@ -148,6 +172,224 @@ namespace AniML.EditorTools
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
             Debug.Log("[AniML] World generated and scene saved.");
+        }
+
+        [MenuItem("AniML/Creatures/Setup PolyArt Deer Herd In Scene")]
+        public static void SetupDeerHerdMenu()
+        {
+            var scene = EditorSceneManager.GetActiveScene();
+            if (!scene.IsValid() || string.IsNullOrEmpty(scene.path))
+                scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+
+            var world = Object.FindAnyObjectByType<ProceduralWorld>();
+            EnsureDeerHerdInScene(world);
+
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+        }
+
+        [MenuItem("AniML/Creatures/Setup & Capture PolyArt Deer Verification")]
+        public static void CaptureDeerVerificationMenu()
+        {
+            GenerateInScene();
+            string outDir = System.Environment.GetEnvironmentVariable("ANIML_SHOT_DIR");
+            if (string.IsNullOrEmpty(outDir))
+                outDir = Path.Combine(Path.GetTempPath(), "animl_world_shots");
+            Directory.CreateDirectory(outDir);
+
+            var world = Object.FindAnyObjectByType<ProceduralWorld>();
+            CaptureDeerHerdShots(world, outDir);
+            Debug.Log($"[AniML] Wrote PolyArt Deer verification renders to {outDir}");
+        }
+
+        public static SandboxSpawner EnsureDeerHerdInScene(ProceduralWorld world)
+        {
+            var deerDef = ProjectBootstrap.EnsureDeerDefinition();
+            var spawner = Object.FindAnyObjectByType<SandboxSpawner>();
+            if (spawner == null)
+            {
+                var go = GameObject.Find("SandboxSpawner") ?? new GameObject("SandboxSpawner");
+                spawner = go.GetComponent<SandboxSpawner>() ?? go.AddComponent<SandboxSpawner>();
+            }
+
+            var so = new SerializedObject(spawner);
+            so.FindProperty("definition").objectReferenceValue = deerDef;
+            so.FindProperty("count").intValue = 16;
+            so.FindProperty("spawnRadius").floatValue = 32f;
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            // Anchor in the scenic central upland wildflower meadow overlooking the forest and sea
+            spawner.transform.position = new Vector3(-18f, 23.5f, 8f);
+            int seed = world != null && world.Settings != null ? world.Settings.Seed + 101 : 1337;
+            spawner.SpawnHerd(world, seed);
+
+            // Apply Malbers PolyArt coat variety across the herd (Common, Common 2, Elk, Fawn)
+            string[] coatPaths =
+            {
+                "Assets/Malbers Animations/Animals Packs/01 Forest Pack/Deer/Materials/Poly Art/Deer Skin Common.mat",
+                "Assets/Malbers Animations/Animals Packs/01 Forest Pack/Deer/Materials/Poly Art/Deer Skin Common 2.mat",
+                "Assets/Malbers Animations/Animals Packs/01 Forest Pack/Deer/Materials/Poly Art/Deer Skin Elk.mat",
+                "Assets/Malbers Animations/Animals Packs/01 Forest Pack/Deer/Materials/Poly Art/Deer Skin Fawn.mat",
+            };
+            var coats = new System.Collections.Generic.List<Material>();
+            foreach (var cp in coatPaths)
+            {
+                var m = AssetDatabase.LoadAssetAtPath<Material>(cp);
+                if (m != null) coats.Add(m);
+            }
+            if (coats.Count > 0)
+            {
+                for (int i = 0; i < spawner.transform.childCount; i++)
+                {
+                    var child = spawner.transform.GetChild(i);
+                    var coat = coats[i % coats.Count];
+                    foreach (var smr in child.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+                    {
+                        if (smr.gameObject.name.StartsWith("Deer"))
+                            smr.sharedMaterial = coat;
+                    }
+                }
+            }
+
+            EditorUtility.SetDirty(spawner);
+
+            // Position Main Camera (and sync GodCamera state) so Edit & Play views open overlooking the herd
+            var mainCam = Camera.main;
+            if (mainCam != null)
+            {
+                Vector3 herdCenter = spawner.transform.position + Vector3.up * 1.2f;
+                Vector3 camPos = spawner.transform.position + new Vector3(-18f, 7.5f, -18f);
+                if (world != null)
+                    camPos.y = Mathf.Max(camPos.y, world.SampleHeight(camPos.x, camPos.z) + 4.8f);
+                mainCam.transform.SetPositionAndRotation(camPos, Quaternion.LookRotation(herdCenter - camPos));
+                EditorUtility.SetDirty(mainCam.transform);
+
+                var godCam = mainCam.GetComponent<AniML.CameraRig.GodCamera>();
+                if (godCam != null)
+                {
+                    var camSo = new SerializedObject(godCam);
+                    camSo.FindProperty("pivot").vector3Value = herdCenter;
+                    camSo.FindProperty("yaw").floatValue = 45f;
+                    camSo.FindProperty("pitch").floatValue = 19f;
+                    camSo.FindProperty("distance").floatValue = 25.5f;
+                    camSo.ApplyModifiedPropertiesWithoutUndo();
+                    EditorUtility.SetDirty(godCam);
+                }
+            }
+
+            Debug.Log($"[AniML] Spawned {spawner.SpawnedCreatures.Count} PolyArt Deer at {spawner.transform.position:F1} (prefab={(deerDef.Prefab != null ? deerDef.Prefab.name : "procedural")}).");
+            return spawner;
+        }
+
+        private static bool IsNearWaterQuad(ProceduralWorld world, Vector3 pos)
+        {
+            if (world == null) return false;
+            const float m = 4.5f;
+            return world.StandingWaterDepth(pos.x, pos.z) > 0.01f ||
+                   world.StandingWaterDepth(pos.x + m, pos.z) > 0.01f ||
+                   world.StandingWaterDepth(pos.x - m, pos.z) > 0.01f ||
+                   world.StandingWaterDepth(pos.x, pos.z + m) > 0.01f ||
+                   world.StandingWaterDepth(pos.x, pos.z - m) > 0.01f;
+        }
+
+        private static void CaptureDeerHerdShots(ProceduralWorld world, string outDir)
+        {
+            var spawner = Object.FindAnyObjectByType<SandboxSpawner>();
+            if (spawner == null || spawner.transform.childCount == 0)
+                return;
+
+            // Pick a striding stag standing in the most open dry clearing (away from shoreline water quads)
+            Transform leadDeer = spawner.transform.GetChild(Mathf.Min(1, spawner.transform.childCount - 1));
+            Transform browsingDeer = spawner.transform.GetChild(0);
+            float bestOpenScore = float.NegativeInfinity;
+            float bestBrowseScore = float.NegativeInfinity;
+            for (int i = 0; i < spawner.transform.childCount; i++)
+            {
+                var child = spawner.transform.GetChild(i);
+                float forest = world != null ? world.ForestDensity01(child.position.x, child.position.z) : 0f;
+                float moist = world != null ? world.SampleMoisture(child.position.x, child.position.z) : 0.3f;
+                float waterPen = IsNearWaterQuad(world, child.position) ? 25f : 0f;
+                float score = -forest * 6f - Mathf.Max(0f, moist - 0.42f) * 8f - waterPen - Vector3.Distance(child.position, spawner.transform.position) * 0.015f;
+                if (i % 3 == 0)
+                {
+                    if (score > bestBrowseScore) { bestBrowseScore = score; browsingDeer = child; }
+                }
+                else
+                {
+                    if (score > bestOpenScore) { bestOpenScore = score; leadDeer = child; }
+                }
+            }
+
+            void ShootDeerCloseUp(Transform subject, string filename)
+            {
+                Vector3 deerPos = subject.position;
+                Vector3 deerFwd = Vector3.ProjectOnPlane(subject.forward, Vector3.up).normalized;
+                if (deerFwd.sqrMagnitude < 1e-4f)
+                    deerFwd = Vector3.forward;
+                Vector3 deerRight = Vector3.Cross(Vector3.up, deerFwd).normalized;
+
+                Vector3 targetClose = deerPos + Vector3.up * 0.72f;
+                Vector3 eyeClose = deerPos + (deerFwd * 1.95f + deerRight * 2.15f) + Vector3.up * 1.25f;
+                if (world != null)
+                    eyeClose.y = Mathf.Max(eyeClose.y, world.SampleHeight(eyeClose.x, eyeClose.z) + 0.85f);
+                Capture(eyeClose, Quaternion.LookRotation(targetClose - eyeClose), 40f,
+                    Path.Combine(outDir, filename));
+            }
+
+            // 1. Initial close-up portrait of the lead PolyArt Deer and a grazing individual
+            ShootDeerCloseUp(leadDeer, "deer_closeup.png");
+            ShootDeerCloseUp(browsingDeer, "deer_browsing.png");
+
+            // 2. Herd overview across the open lakeside wildflower meadow
+            Vector3 herdCenter = spawner.transform.position + Vector3.up * 1.0f;
+            Vector3 eyeHerd = spawner.transform.position + new Vector3(-18f, 7.5f, -18f);
+            if (world != null)
+                eyeHerd.y = Mathf.Max(eyeHerd.y, world.SampleHeight(eyeHerd.x, eyeHerd.z) + 4.8f);
+            Capture(eyeHerd, Quaternion.LookRotation(herdCenter - eyeHerd), 48f,
+                Path.Combine(outDir, "deer_herd_meadow.png"));
+
+            // 3. Step all 16 deer in closed loop for 1.8s (90 ticks @ 50 Hz) to verify live neural locomotion
+            var controllers = spawner.GetComponentsInChildren<CreatureController>();
+            var startPositions = new Vector3[controllers.Length];
+            for (int c = 0; c < controllers.Length; c++)
+                startPositions[c] = controllers[c].transform.position;
+
+            const int rolloutSteps = 90;
+            for (int step = 0; step < rolloutSteps; step++)
+            {
+                foreach (var ctrl in controllers)
+                {
+                    if (ctrl.Brain != null && ctrl.Motor != null)
+                    {
+                        var intent = ctrl.Brain.Think(DeerPolicyLocomotionMotor.PolicyDt);
+                        ctrl.Motor.Apply(in intent, DeerPolicyLocomotionMotor.PolicyDt);
+                    }
+                }
+            }
+
+            int bestStrideIdx = 0;
+            float maxScore = float.NegativeInfinity;
+            for (int c = 0; c < controllers.Length; c++)
+            {
+                float d = Vector3.Distance(startPositions[c], controllers[c].transform.position);
+                float s = d - (IsNearWaterQuad(world, controllers[c].transform.position) ? 10f : 0f);
+                if (s > maxScore)
+                {
+                    maxScore = s;
+                    bestStrideIdx = c;
+                }
+            }
+            float maxDisp = Vector3.Distance(startPositions[bestStrideIdx], controllers[bestStrideIdx].transform.position);
+
+            var stridingDeer = controllers[bestStrideIdx].transform;
+            var leadCtrl = controllers[bestStrideIdx];
+            var leadBrain = stridingDeer.GetComponent<DeerEcologyBrain>();
+            Debug.Log($"[AniML] Closed-loop 50Hz verification rollout ({rolloutSteps} steps / {rolloutSteps * DeerPolicyLocomotionMotor.PolicyDt:F2}s): " +
+                      $"lead='{stridingDeer.name}' moved {maxDisp:F2}m ({startPositions[bestStrideIdx]:F1} -> {stridingDeer.position:F1}), " +
+                      $"speed={(leadCtrl?.Motor != null ? leadCtrl.Motor.CurrentSpeed : 0f):F2} m/s, " +
+                      $"state={(leadBrain != null ? leadBrain.State.ToString() : "n/a")}");
+
+            ShootDeerCloseUp(stridingDeer, "deer_closeup_striding.png");
         }
 
         /// <summary>Batchmode entry: generate + save + render verification shots.</summary>
@@ -167,12 +409,13 @@ namespace AniML.EditorTools
             Capture(new Vector3(30f, 32f, -180f), Quaternion.Euler(9f, -12f, 0f), 60f,
                 Path.Combine(outDir, "world_ground.png"));
 
-            // Close-ups of every wonder + the primary summit, framed for review.
+            // Close-ups of every wonder + the primary summit + the PolyArt Deer herd, framed for review.
             var worldComp = Object.FindFirstObjectByType<ProceduralWorld>();
             if (worldComp != null)
             {
                 CaptureFeatureShots(worldComp, outDir, "");
                 CaptureBiomeShots(worldComp, outDir);
+                CaptureDeerHerdShots(worldComp, outDir);
             }
 
             // Time-of-day variants: golden hour and night under the moon.

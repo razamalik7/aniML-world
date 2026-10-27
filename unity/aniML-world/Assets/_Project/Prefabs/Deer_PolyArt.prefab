@@ -1,0 +1,178 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &1051229228597493904
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 100014, guid: 2efb3c7f410b9a347abe1202bd798394, type: 3}
+      propertyPath: m_Name
+      value: Deer_PolyArt
+      objectReference: {fileID: 0}
+    - target: {fileID: 100046, guid: 2efb3c7f410b9a347abe1202bd798394, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 100082, guid: 2efb3c7f410b9a347abe1202bd798394, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400014, guid: 2efb3c7f410b9a347abe1202bd798394, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 400014, guid: 2efb3c7f410b9a347abe1202bd798394, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 400014, guid: 2efb3c7f410b9a347abe1202bd798394, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 400014, guid: 2efb3c7f410b9a347abe1202bd798394, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400014, guid: 2efb3c7f410b9a347abe1202bd798394, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400014, guid: 2efb3c7f410b9a347abe1202bd798394, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400014, guid: 2efb3c7f410b9a347abe1202bd798394, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 400014, guid: 2efb3c7f410b9a347abe1202bd798394, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400014, guid: 2efb3c7f410b9a347abe1202bd798394, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400014, guid: 2efb3c7f410b9a347abe1202bd798394, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400014, guid: 2efb3c7f410b9a347abe1202bd798394, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400014, guid: 2efb3c7f410b9a347abe1202bd798394, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400014, guid: 2efb3c7f410b9a347abe1202bd798394, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9500000, guid: 2efb3c7f410b9a347abe1202bd798394, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 13700000, guid: 2efb3c7f410b9a347abe1202bd798394, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 13700000, guid: 2efb3c7f410b9a347abe1202bd798394, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: bb7fbfd4ee80788489322fb27868db30, type: 2}
+    - target: {fileID: 13700002, guid: 2efb3c7f410b9a347abe1202bd798394, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 13700004, guid: 2efb3c7f410b9a347abe1202bd798394, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 100014, guid: 2efb3c7f410b9a347abe1202bd798394, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2658542865822623695}
+    - targetCorrespondingSourceObject: {fileID: 100014, guid: 2efb3c7f410b9a347abe1202bd798394, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1971667636436353236}
+    - targetCorrespondingSourceObject: {fileID: 100014, guid: 2efb3c7f410b9a347abe1202bd798394, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5787356236014136271}
+    - targetCorrespondingSourceObject: {fileID: 100014, guid: 2efb3c7f410b9a347abe1202bd798394, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 128414051429264875}
+  m_SourcePrefab: {fileID: 100100000, guid: 2efb3c7f410b9a347abe1202bd798394, type: 3}
+--- !u!1 &1051229228597397054 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 100014, guid: 2efb3c7f410b9a347abe1202bd798394, type: 3}
+  m_PrefabInstance: {fileID: 1051229228597493904}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2658542865822623695
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1051229228597397054}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0f0debc168566c4989b7f19e3b09dd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: AniML.Runtime::AniML.Creatures.DeerRigDriver
+  ModelScale: 0.85
+  StagProbability: 0.55
+--- !u!114 &1971667636436353236
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1051229228597397054}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13d09a840f5120c4d96f4c7d35c0aaa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: AniML.Runtime::AniML.Creatures.DeerPolicyLocomotionMotor
+  PolicyResourcePath: Policies/deer_polyart_d2
+  MaxWadeDepth: 0.55
+  MaxClimbSlopeDeg: 36
+  TerrainAlignSpeed: 8
+--- !u!114 &5787356236014136271
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1051229228597397054}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52cdcc7dd42fb2f43a9ffaa8409a0aa0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: AniML.Runtime::AniML.Creatures.DeerEcologyBrain
+  CruiseSpeed01: 0.42
+  TrotSpeed01: 0.72
+  DecisionInterval: 2.8
+  _state: 1
+  _hunger01: 0.45
+  _thirst01: 0.25
+  _fatigue01: 0.15
+--- !u!114 &128414051429264875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1051229228597397054}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0f0703797fc1304fbb0c7980eb8659a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: AniML.Runtime::AniML.Creatures.CreatureController
+  definition: {fileID: 11400000, guid: c55c5a4a3a8798341bb9baa947e1b994, type: 2}

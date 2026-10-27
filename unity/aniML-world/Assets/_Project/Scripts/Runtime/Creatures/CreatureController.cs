@@ -1,3 +1,4 @@
+using AniML.World;
 using UnityEngine;
 
 namespace AniML.Creatures
@@ -14,14 +15,26 @@ namespace AniML.Creatures
 
         private ICreatureBrain _brain;
         private ICreatureMotor _motor;
+        private ProceduralWorld _world;
 
         public CreatureDefinition Definition => definition;
         public CreatureIntent CurrentIntent { get; private set; } = CreatureIntent.Idle;
+        public ICreatureBrain Brain => _brain;
         public ICreatureMotor Motor => _motor;
+        public ProceduralWorld World => _world != null ? _world : (_world = FindAnyObjectByType<ProceduralWorld>());
+
+        private void Awake()
+        {
+            if (_motor == null && TryGetComponent<ICreatureMotor>(out var attachedMotor))
+                SetMotor(attachedMotor);
+            if (_brain == null && TryGetComponent<ICreatureBrain>(out var attachedBrain))
+                SetBrain(attachedBrain);
+        }
 
         public void Initialize(CreatureDefinition def, ICreatureBrain brain, ICreatureMotor motor)
         {
-            definition = def;
+            if (def != null)
+                definition = def;
             SetMotor(motor);
             SetBrain(brain);
         }

@@ -1,0 +1,913 @@
+{
+  "species": "deer_polyart",
+  "control_hz": 50.0,
+  "sim_dt": 0.005,
+  "decimation": 4,
+  "obs_dim": 122,
+  "action_dim": 34,
+  "joint_count": 38,
+  "observation_slices": {
+    "base_lin_vel_b": [
+      0,
+      3
+    ],
+    "base_ang_vel_b": [
+      3,
+      6
+    ],
+    "projected_gravity_b": [
+      6,
+      9
+    ],
+    "velocity_commands": [
+      9,
+      12
+    ],
+    "joint_pos": [
+      12,
+      50
+    ],
+    "joint_vel": [
+      50,
+      88
+    ],
+    "last_action": [
+      88,
+      122
+    ]
+  },
+  "joint_names_38": [
+    "Pelvis_to_L_Thigh_dof0",
+    "Pelvis_to_R_Thigh_dof0",
+    "Pelvis_to_Spine_dof0",
+    "Pelvis_to_Tail",
+    "L_Thigh_dof0_to_L_Thigh",
+    "R_Thigh_dof0_to_R_Thigh",
+    "Spine_dof0_to_Spine",
+    "L_Thigh_to_L_Calf",
+    "R_Thigh_to_R_Calf",
+    "Spine_to_Spine1",
+    "L_Calf_to_L_HorseLink",
+    "R_Calf_to_R_HorseLink",
+    "Spine1_to_Spine2",
+    "L_HorseLink_to_L_Foot",
+    "R_HorseLink_to_R_Foot",
+    "Spine2_to_L_Clavicle",
+    "Spine2_to_Neck_dof0",
+    "Spine2_to_R_Clavicle",
+    "L_Foot_to_L_Toe0",
+    "R_Foot_to_R_Toe0",
+    "L_Clavicle_to_L_UpperArm_dof0",
+    "Neck_dof0_to_Neck",
+    "R_Clavicle_to_R_UpperArm_dof0",
+    "L_UpperArm_dof0_to_L_UpperArm",
+    "Neck_to_Neck1_dof0",
+    "R_UpperArm_dof0_to_R_UpperArm",
+    "L_UpperArm_to_L_Forearm",
+    "Neck1_dof0_to_Neck1",
+    "R_UpperArm_to_R_Forearm",
+    "L_Forearm_to_L_Hand",
+    "Neck1_to_Head_dof0",
+    "R_Forearm_to_R_Hand",
+    "L_Hand_to_L_Finger0",
+    "Head_dof0_to_Head",
+    "R_Hand_to_R_Finger0",
+    "Head_to_Jaw",
+    "Head_to_L_Ear",
+    "Head_to_R_Ear"
+  ],
+  "action_joint_names_34": [
+    "Pelvis_to_L_Thigh_dof0",
+    "Pelvis_to_R_Thigh_dof0",
+    "Pelvis_to_Spine_dof0",
+    "L_Thigh_dof0_to_L_Thigh",
+    "R_Thigh_dof0_to_R_Thigh",
+    "Spine_dof0_to_Spine",
+    "L_Thigh_to_L_Calf",
+    "R_Thigh_to_R_Calf",
+    "Spine_to_Spine1",
+    "L_Calf_to_L_HorseLink",
+    "R_Calf_to_R_HorseLink",
+    "Spine1_to_Spine2",
+    "L_HorseLink_to_L_Foot",
+    "R_HorseLink_to_R_Foot",
+    "Spine2_to_L_Clavicle",
+    "Spine2_to_Neck_dof0",
+    "Spine2_to_R_Clavicle",
+    "L_Foot_to_L_Toe0",
+    "R_Foot_to_R_Toe0",
+    "L_Clavicle_to_L_UpperArm_dof0",
+    "Neck_dof0_to_Neck",
+    "R_Clavicle_to_R_UpperArm_dof0",
+    "L_UpperArm_dof0_to_L_UpperArm",
+    "Neck_to_Neck1_dof0",
+    "R_UpperArm_dof0_to_R_UpperArm",
+    "L_UpperArm_to_L_Forearm",
+    "Neck1_dof0_to_Neck1",
+    "R_UpperArm_to_R_Forearm",
+    "L_Forearm_to_L_Hand",
+    "Neck1_to_Head_dof0",
+    "R_Forearm_to_R_Hand",
+    "L_Hand_to_L_Finger0",
+    "Head_dof0_to_Head",
+    "R_Hand_to_R_Finger0"
+  ],
+  "action_joint_ids_34": [
+    0,
+    1,
+    2,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34
+  ],
+  "joints": [
+    {
+      "index": 0,
+      "name": "Pelvis_to_L_Thigh_dof0",
+      "unity_bone": "L Thigh",
+      "dof_slot": 0,
+      "is_active": true,
+      "action_index": 0,
+      "lower": -1.2475,
+      "upper": 1.3743,
+      "axis_isaac": [
+        0.329557,
+        0.742791,
+        -0.582798
+      ],
+      "axis_unity_root": [
+        0.742791,
+        0.582798,
+        -0.329557
+      ]
+    },
+    {
+      "index": 1,
+      "name": "Pelvis_to_R_Thigh_dof0",
+      "unity_bone": "R Thigh",
+      "dof_slot": 0,
+      "is_active": true,
+      "action_index": 1,
+      "lower": -1.0829,
+      "upper": 1.0121,
+      "axis_isaac": [
+        0.359215,
+        -0.77961,
+        -0.513004
+      ],
+      "axis_unity_root": [
+        -0.77961,
+        0.513004,
+        -0.359215
+      ]
+    },
+    {
+      "index": 2,
+      "name": "Pelvis_to_Spine_dof0",
+      "unity_bone": "Spine",
+      "dof_slot": 0,
+      "is_active": true,
+      "action_index": 2,
+      "lower": -1.0452,
+      "upper": 0.7294,
+      "axis_isaac": [
+        -0.281459,
+        -0.110894,
+        0.953144
+      ],
+      "axis_unity_root": [
+        -0.110894,
+        -0.953144,
+        0.281459
+      ]
+    },
+    {
+      "index": 3,
+      "name": "Pelvis_to_Tail",
+      "unity_bone": "Tail",
+      "dof_slot": 0,
+      "is_active": false,
+      "action_index": -1,
+      "lower": -0.8026,
+      "upper": 0.7388,
+      "axis_isaac": [
+        0.160296,
+        -0.142198,
+        -0.976773
+      ],
+      "axis_unity_root": [
+        -0.142198,
+        0.976773,
+        -0.160296
+      ]
+    },
+    {
+      "index": 4,
+      "name": "L_Thigh_dof0_to_L_Thigh",
+      "unity_bone": "L Thigh",
+      "dof_slot": 1,
+      "is_active": true,
+      "action_index": 3,
+      "lower": -0.9784,
+      "upper": 0.9876,
+      "axis_isaac": [
+        0.667655,
+        -0.619802,
+        -0.412411
+      ],
+      "axis_unity_root": [
+        -0.619802,
+        0.412411,
+        -0.667655
+      ]
+    },
+    {
+      "index": 5,
+      "name": "R_Thigh_dof0_to_R_Thigh",
+      "unity_bone": "R Thigh",
+      "dof_slot": 1,
+      "is_active": true,
+      "action_index": 4,
+      "lower": -1.0135,
+      "upper": 0.9344,
+      "axis_isaac": [
+        -0.469542,
+        -0.626028,
+        0.62259
+      ],
+      "axis_unity_root": [
+        -0.626028,
+        -0.62259,
+        0.469542
+      ]
+    },
+    {
+      "index": 6,
+      "name": "Spine_dof0_to_Spine",
+      "unity_bone": "Spine",
+      "dof_slot": 1,
+      "is_active": true,
+      "action_index": 5,
+      "lower": -0.6293,
+      "upper": 0.6519,
+      "axis_isaac": [
+        -0.95805,
+        -0.023462,
+        -0.285638
+      ],
+      "axis_unity_root": [
+        -0.023462,
+        0.285638,
+        0.95805
+      ]
+    },
+    {
+      "index": 7,
+      "name": "L_Thigh_to_L_Calf",
+      "unity_bone": "L Calf",
+      "dof_slot": 0,
+      "is_active": true,
+      "action_index": 6,
+      "lower": -0.9798,
+      "upper": 1.7425,
+      "axis_isaac": [
+        -0.034168,
+        0.999338,
+        0.012474
+      ],
+      "axis_unity_root": [
+        0.999338,
+        -0.012474,
+        0.034168
+      ]
+    },
+    {
+      "index": 8,
+      "name": "R_Thigh_to_R_Calf",
+      "unity_bone": "R Calf",
+      "dof_slot": 0,
+      "is_active": true,
+      "action_index": 7,
+      "lower": -0.9798,
+      "upper": 2.0473,
+      "axis_isaac": [
+        0.034165,
+        0.999338,
+        -0.012474
+      ],
+      "axis_unity_root": [
+        0.999338,
+        0.012474,
+        -0.034165
+      ]
+    },
+    {
+      "index": 9,
+      "name": "Spine_to_Spine1",
+      "unity_bone": "Spine1",
+      "dof_slot": 0,
+      "is_active": true,
+      "action_index": 8,
+      "lower": -0.8269,
+      "upper": 0.8269,
+      "axis_isaac": [
+        -0.084423,
+        0.003052,
+        0.996425
+      ],
+      "axis_unity_root": [
+        0.003052,
+        -0.996425,
+        0.084423
+      ]
+    },
+    {
+      "index": 10,
+      "name": "L_Calf_to_L_HorseLink",
+      "unity_bone": "L HorseLink",
+      "dof_slot": 0,
+      "is_active": true,
+      "action_index": 9,
+      "lower": -1.0173,
+      "upper": 2.3619,
+      "axis_isaac": [
+        0.034168,
+        -0.999338,
+        -0.012473
+      ],
+      "axis_unity_root": [
+        -0.999338,
+        0.012473,
+        -0.034168
+      ]
+    },
+    {
+      "index": 11,
+      "name": "R_Calf_to_R_HorseLink",
+      "unity_bone": "R HorseLink",
+      "dof_slot": 0,
+      "is_active": true,
+      "action_index": 10,
+      "lower": -1.2001,
+      "upper": 2.1903,
+      "axis_isaac": [
+        -0.034164,
+        -0.999338,
+        0.012474
+      ],
+      "axis_unity_root": [
+        -0.999338,
+        -0.012474,
+        0.034164
+      ]
+    },
+    {
+      "index": 12,
+      "name": "Spine1_to_Spine2",
+      "unity_bone": "Spine2",
+      "dof_slot": 0,
+      "is_active": true,
+      "action_index": 11,
+      "lower": -1.0473,
+      "upper": 0.9769,
+      "axis_isaac": [
+        0.00115,
+        0.00047,
+        0.999999
+      ],
+      "axis_unity_root": [
+        0.00047,
+        -0.999999,
+        -0.00115
+      ]
+    },
+    {
+      "index": 13,
+      "name": "L_HorseLink_to_L_Foot",
+      "unity_bone": "L Foot",
+      "dof_slot": 0,
+      "is_active": true,
+      "action_index": 12,
+      "lower": -2.2021,
+      "upper": 0.8869,
+      "axis_isaac": [
+        0.007549,
+        -0.999842,
+        -0.016083
+      ],
+      "axis_unity_root": [
+        -0.999842,
+        0.016083,
+        -0.007549
+      ]
+    },
+    {
+      "index": 14,
+      "name": "R_HorseLink_to_R_Foot",
+      "unity_bone": "R Foot",
+      "dof_slot": 0,
+      "is_active": true,
+      "action_index": 13,
+      "lower": -0.9909,
+      "upper": 2.1966,
+      "axis_isaac": [
+        -0.010836,
+        0.999708,
+        0.021583
+      ],
+      "axis_unity_root": [
+        0.999708,
+        -0.021583,
+        0.010836
+      ]
+    },
+    {
+      "index": 15,
+      "name": "Spine2_to_L_Clavicle",
+      "unity_bone": "L Clavicle",
+      "dof_slot": 0,
+      "is_active": true,
+      "action_index": 14,
+      "lower": -0.7523,
+      "upper": 1.1542,
+      "axis_isaac": [
+        0.070038,
+        -0.996984,
+        -0.033426
+      ],
+      "axis_unity_root": [
+        -0.996984,
+        0.033426,
+        -0.070038
+      ]
+    },
+    {
+      "index": 16,
+      "name": "Spine2_to_Neck_dof0",
+      "unity_bone": "Neck",
+      "dof_slot": 0,
+      "is_active": true,
+      "action_index": 15,
+      "lower": -1.4963,
+      "upper": 1.0158,
+      "axis_isaac": [
+        -0.264819,
+        -0.65094,
+        0.711441
+      ],
+      "axis_unity_root": [
+        -0.65094,
+        -0.711441,
+        0.264819
+      ]
+    },
+    {
+      "index": 17,
+      "name": "Spine2_to_R_Clavicle",
+      "unity_bone": "R Clavicle",
+      "dof_slot": 0,
+      "is_active": true,
+      "action_index": 16,
+      "lower": -1.1596,
+      "upper": 0.7819,
+      "axis_isaac": [
+        0.028947,
+        0.999216,
+        -0.027024
+      ],
+      "axis_unity_root": [
+        0.999216,
+        0.027024,
+        -0.028947
+      ]
+    },
+    {
+      "index": 18,
+      "name": "L_Foot_to_L_Toe0",
+      "unity_bone": "L Toe0",
+      "dof_slot": 0,
+      "is_active": true,
+      "action_index": 17,
+      "lower": -0.7852,
+      "upper": 1.5177,
+      "axis_isaac": [
+        -0.059215,
+        0.988272,
+        -0.140756
+      ],
+      "axis_unity_root": [
+        0.988272,
+        0.140756,
+        0.059215
+      ]
+    },
+    {
+      "index": 19,
+      "name": "R_Foot_to_R_Toe0",
+      "unity_bone": "R Toe0",
+      "dof_slot": 0,
+      "is_active": true,
+      "action_index": 18,
+      "lower": -0.853,
+      "upper": 1.3924,
+      "axis_isaac": [
+        0.064441,
+        0.989215,
+        0.131532
+      ],
+      "axis_unity_root": [
+        0.989215,
+        -0.131532,
+        -0.064441
+      ]
+    },
+    {
+      "index": 20,
+      "name": "L_Clavicle_to_L_UpperArm_dof0",
+      "unity_bone": "L UpperArm",
+      "dof_slot": 0,
+      "is_active": true,
+      "action_index": 19,
+      "lower": -1.0092,
+      "upper": 0.8311,
+      "axis_isaac": [
+        0.047165,
+        0.498309,
+        0.865716
+      ],
+      "axis_unity_root": [
+        0.498309,
+        -0.865716,
+        -0.047165
+      ]
+    },
+    {
+      "index": 21,
+      "name": "Neck_dof0_to_Neck",
+      "unity_bone": "Neck",
+      "dof_slot": 1,
+      "is_active": true,
+      "action_index": 20,
+      "lower": -0.5833,
+      "upper": 1.2045,
+      "axis_isaac": [
+        -0.588549,
+        0.693532,
+        0.415479
+      ],
+      "axis_unity_root": [
+        0.693532,
+        -0.415479,
+        0.588549
+      ]
+    },
+    {
+      "index": 22,
+      "name": "R_Clavicle_to_R_UpperArm_dof0",
+      "unity_bone": "R UpperArm",
+      "dof_slot": 0,
+      "is_active": true,
+      "action_index": 21,
+      "lower": -0.9463,
+      "upper": 1.0554,
+      "axis_isaac": [
+        -0.064815,
+        -0.413573,
+        0.908161
+      ],
+      "axis_unity_root": [
+        -0.413573,
+        -0.908161,
+        0.064815
+      ]
+    },
+    {
+      "index": 23,
+      "name": "L_UpperArm_dof0_to_L_UpperArm",
+      "unity_bone": "L UpperArm",
+      "dof_slot": 1,
+      "is_active": true,
+      "action_index": 22,
+      "lower": -0.6109,
+      "upper": 1.7825,
+      "axis_isaac": [
+        0.13616,
+        -0.861798,
+        0.488635
+      ],
+      "axis_unity_root": [
+        -0.861798,
+        -0.488635,
+        -0.13616
+      ]
+    },
+    {
+      "index": 24,
+      "name": "Neck_to_Neck1_dof0",
+      "unity_bone": "Neck1",
+      "dof_slot": 0,
+      "is_active": true,
+      "action_index": 23,
+      "lower": -1.3424,
+      "upper": 1.3797,
+      "axis_isaac": [
+        0.429536,
+        0.040845,
+        0.902126
+      ],
+      "axis_unity_root": [
+        0.040845,
+        -0.902126,
+        -0.429536
+      ]
+    },
+    {
+      "index": 25,
+      "name": "R_UpperArm_dof0_to_R_UpperArm",
+      "unity_bone": "R UpperArm",
+      "dof_slot": 1,
+      "is_active": true,
+      "action_index": 24,
+      "lower": -1.8999,
+      "upper": 0.6721,
+      "axis_isaac": [
+        -0.139271,
+        0.904917,
+        0.402156
+      ],
+      "axis_unity_root": [
+        0.904917,
+        -0.402156,
+        0.139271
+      ]
+    },
+    {
+      "index": 26,
+      "name": "L_UpperArm_to_L_Forearm",
+      "unity_bone": "L Forearm",
+      "dof_slot": 0,
+      "is_active": true,
+      "action_index": 25,
+      "lower": -0.3533,
+      "upper": 2.3958,
+      "axis_isaac": [
+        0.023036,
+        0.999729,
+        -0.003298
+      ],
+      "axis_unity_root": [
+        0.999729,
+        0.003298,
+        -0.023036
+      ]
+    },
+    {
+      "index": 27,
+      "name": "Neck1_dof0_to_Neck1",
+      "unity_bone": "Neck1",
+      "dof_slot": 1,
+      "is_active": true,
+      "action_index": 26,
+      "lower": -0.9773,
+      "upper": 0.9982,
+      "axis_isaac": [
+        -0.889764,
+        0.18987,
+        0.415053
+      ],
+      "axis_unity_root": [
+        0.18987,
+        -0.415053,
+        0.889764
+      ]
+    },
+    {
+      "index": 28,
+      "name": "R_UpperArm_to_R_Forearm",
+      "unity_bone": "R Forearm",
+      "dof_slot": 0,
+      "is_active": true,
+      "action_index": 27,
+      "lower": -0.692,
+      "upper": 2.5206,
+      "axis_isaac": [
+        -0.023038,
+        0.999729,
+        0.003298
+      ],
+      "axis_unity_root": [
+        0.999729,
+        -0.003298,
+        0.023038
+      ]
+    },
+    {
+      "index": 29,
+      "name": "L_Forearm_to_L_Hand",
+      "unity_bone": "L Hand",
+      "dof_slot": 0,
+      "is_active": true,
+      "action_index": 28,
+      "lower": -1.5442,
+      "upper": 2.1867,
+      "axis_isaac": [
+        -0.089895,
+        0.994156,
+        -0.05977
+      ],
+      "axis_unity_root": [
+        0.994156,
+        0.05977,
+        0.089895
+      ]
+    },
+    {
+      "index": 30,
+      "name": "Neck1_to_Head_dof0",
+      "unity_bone": "Head",
+      "dof_slot": 0,
+      "is_active": true,
+      "action_index": 29,
+      "lower": -1.9541,
+      "upper": 2.5521,
+      "axis_isaac": [
+        -0.111846,
+        0.582537,
+        0.805072
+      ],
+      "axis_unity_root": [
+        0.582537,
+        -0.805072,
+        0.111846
+      ]
+    },
+    {
+      "index": 31,
+      "name": "R_Forearm_to_R_Hand",
+      "unity_bone": "R Hand",
+      "dof_slot": 0,
+      "is_active": true,
+      "action_index": 30,
+      "lower": -1.2556,
+      "upper": 1.6953,
+      "axis_isaac": [
+        0.082001,
+        0.864843,
+        -0.4953
+      ],
+      "axis_unity_root": [
+        0.864843,
+        0.4953,
+        -0.082001
+      ]
+    },
+    {
+      "index": 32,
+      "name": "L_Hand_to_L_Finger0",
+      "unity_bone": "L Finger0",
+      "dof_slot": 0,
+      "is_active": true,
+      "action_index": 31,
+      "lower": -0.7454,
+      "upper": 1.4306,
+      "axis_isaac": [
+        0.027113,
+        0.999632,
+        -0.000372
+      ],
+      "axis_unity_root": [
+        0.999632,
+        0.000372,
+        -0.027113
+      ]
+    },
+    {
+      "index": 33,
+      "name": "Head_dof0_to_Head",
+      "unity_bone": "Head",
+      "dof_slot": 1,
+      "is_active": true,
+      "action_index": 32,
+      "lower": -0.667,
+      "upper": 1.656,
+      "axis_isaac": [
+        -0.43292,
+        -0.757796,
+        0.488185
+      ],
+      "axis_unity_root": [
+        -0.757796,
+        -0.488185,
+        0.43292
+      ]
+    },
+    {
+      "index": 34,
+      "name": "R_Hand_to_R_Finger0",
+      "unity_bone": "R Finger0",
+      "dof_slot": 0,
+      "is_active": true,
+      "action_index": 33,
+      "lower": -1.5563,
+      "upper": 0.908,
+      "axis_isaac": [
+        -0.004349,
+        -0.999989,
+        0.001659
+      ],
+      "axis_unity_root": [
+        -0.999989,
+        -0.001659,
+        0.004349
+      ]
+    },
+    {
+      "index": 35,
+      "name": "Head_to_Jaw",
+      "unity_bone": "Jaw",
+      "dof_slot": 0,
+      "is_active": false,
+      "action_index": -1,
+      "lower": -0.4089,
+      "upper": 0.7075,
+      "axis_isaac": [
+        0.000686,
+        0.999992,
+        0.003834
+      ],
+      "axis_unity_root": [
+        0.999992,
+        -0.003834,
+        -0.000686
+      ]
+    },
+    {
+      "index": 36,
+      "name": "Head_to_L_Ear",
+      "unity_bone": "L Ear",
+      "dof_slot": 0,
+      "is_active": false,
+      "action_index": -1,
+      "lower": -0.6621,
+      "upper": 2.3119,
+      "axis_isaac": [
+        -0.073464,
+        -0.443797,
+        0.893111
+      ],
+      "axis_unity_root": [
+        -0.443797,
+        -0.893111,
+        0.073464
+      ]
+    },
+    {
+      "index": 37,
+      "name": "Head_to_R_Ear",
+      "unity_bone": "R Ear",
+      "dof_slot": 0,
+      "is_active": false,
+      "action_index": -1,
+      "lower": -0.8868,
+      "upper": 2.0499,
+      "axis_isaac": [
+        0.188589,
+        -0.428301,
+        -0.883738
+      ],
+      "axis_unity_root": [
+        -0.428301,
+        0.883738,
+        -0.188589
+      ]
+    }
+  ]
+}

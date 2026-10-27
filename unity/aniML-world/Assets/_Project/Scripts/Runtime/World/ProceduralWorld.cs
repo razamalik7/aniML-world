@@ -2659,6 +2659,24 @@ namespace AniML.World
             return Mathf.Exp(-SampleFreshwaterDistance(x, z) / 140f);
         }
 
+        /// <summary>Terrain surface normal at (x, z) via central finite differences.</summary>
+        public Vector3 SampleNormal(float x, float z, float eps = 1.0f)
+        {
+            float hx = SampleHeight(x + eps, z) - SampleHeight(x - eps, z);
+            float hz = SampleHeight(x, z + eps) - SampleHeight(x, z - eps);
+            return new Vector3(-hx, 2f * eps, -hz).normalized;
+        }
+
+        /// <summary>Water surface elevation (Y) at (x, z), accounting for sea level, lakes/ponds, and river channels.</summary>
+        public float SampleWaterSurface(float x, float z)
+        {
+            float h = SampleHeight(x, z);
+            float standing = StandingWaterDepth(x, z);
+            float riverDepth = RiverInfluence01(x, z) * 0.45f;
+            float sea = settings != null ? settings.SeaLevel : 0f;
+            return Mathf.Max(sea, h + Mathf.Max(standing, riverDepth));
+        }
+
         // ---- Rivers ----
 
         /// <summary>

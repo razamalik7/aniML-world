@@ -23,6 +23,12 @@ namespace AniML.EditorTools
         private const string CreaturesDir = "Assets/_Project/Creatures";
         private const string ScenePath = ScenesDir + "/Sandbox.unity";
 
+        private const string PrefabsDir = "Assets/_Project/Prefabs";
+        private const string MalbersDeerFbxPath = "Assets/Malbers Animations/Animals Packs/01 Forest Pack/Deer/Models/Poly Art/Deer.FBX";
+        private const string MalbersDeerSkinMatPath = "Assets/Malbers Animations/Animals Packs/01 Forest Pack/Deer/Materials/Poly Art/Deer Skin Common.mat";
+        private const string MalbersDeerAntlersMatPath = "Assets/Malbers Animations/Animals Packs/01 Forest Pack/Deer/Materials/Poly Art/Antlers.mat";
+        private const string DeerPrefabPath = PrefabsDir + "/Deer_PolyArt.prefab";
+
         [MenuItem("AniML/Bootstrap Project")]
         public static void Run()
         {
@@ -36,7 +42,7 @@ namespace AniML.EditorTools
 
         private static void EnsureFolders()
         {
-            foreach (var dir in new[] { SettingsDir, ScenesDir, ArtDir, CreaturesDir })
+            foreach (var dir in new[] { SettingsDir, ScenesDir, ArtDir, CreaturesDir, PrefabsDir })
             {
                 if (!Directory.Exists(dir))
                 {
@@ -73,20 +79,91 @@ namespace AniML.EditorTools
             return rpAsset;
         }
 
-        private static CreatureDefinition EnsureDeerDefinition()
+        public static CreatureDefinition EnsureDeerDefinition()
         {
+            EnsureFolders();
             var path = CreaturesDir + "/Deer.asset";
             var def = AssetDatabase.LoadAssetAtPath<CreatureDefinition>(path);
             if (def == null)
             {
                 def = ScriptableObject.CreateInstance<CreatureDefinition>();
                 def.SpeciesId = "deer";
-                def.DisplayName = "Deer";
-                def.MaxSpeed = 6f;
-                def.TurnRate = 240f;
+                def.DisplayName = "PolyArt Deer";
+                def.MaxSpeed = 4.2f;
+                def.TurnRate = 220f;
                 AssetDatabase.CreateAsset(def, path);
             }
+
+            var prefab = EnsurePolyArtDeerPrefab(def);
+            if (prefab != null && def.Prefab != prefab)
+            {
+                def.Prefab = prefab;
+                EditorUtility.SetDirty(def);
+                AssetDatabase.SaveAssets();
+            }
+
             return def;
+        }
+
+        public static GameObject EnsurePolyArtDeerPrefab(CreatureDefinition def)
+        {
+            var fbxModel = AssetDatabase.LoadAssetAtPath<GameObject>(MalbersDeerFbxPath);
+            if (fbxModel == null)
+            {
+                Debug.LogWarning($"[AniML] Malbers PolyArt Deer FBX not found at '{MalbersDeerFbxPath}'; using procedural articulated skeleton fallback.");
+                return AssetDatabase.LoadAssetAtPath<GameObject>(DeerPrefabPath);
+            }
+
+            var skinMat = AssetDatabase.LoadAssetAtPath<Material>(MalbersDeerSkinMatPath);
+            var antlersMat = AssetDatabase.LoadAssetAtPath<Material>(MalbersDeerAntlersMatPath);
+
+            var instance = (GameObject)PrefabUtility.InstantiatePrefab(fbxModel);
+            instance.name = "Deer_PolyArt";
+            instance.transform.localScale = Vector3.one * 0.7f;
+
+            foreach (var anim in instance.GetComponentsInChildren<Animator>(true))
+                anim.enabled = false;
+
+            foreach (var smr in instance.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+            {
+                smr.updateWhenOffscreen = true;
+                string n = smr.gameObject.name;
+                if (n.StartsWith("Deer") && skinMat != null)
+                {
+                    smr.sharedMaterial = skinMat;
+                }
+                else if (n.StartsWith("Antlers"))
+                {
+                    if (antlersMat != null)
+                        smr.sharedMaterial = antlersMat;
+                    smr.gameObject.SetActive(n == "Antlers 01");
+                }
+                else if (n.StartsWith("Magic") || n == "Spots")
+                {
+                    smr.gameObject.SetActive(false);
+                }
+            }
+
+            if (instance.GetComponent<DeerRigDriver>() == null)
+                instance.AddComponent<DeerRigDriver>();
+            if (instance.GetComponent<DeerPolicyLocomotionMotor>() == null)
+                instance.AddComponent<DeerPolicyLocomotionMotor>();
+            if (instance.GetComponent<DeerEcologyBrain>() == null)
+                instance.AddComponent<DeerEcologyBrain>();
+
+            var ctrl = instance.GetComponent<CreatureController>();
+            if (ctrl == null)
+                ctrl = instance.AddComponent<CreatureController>();
+            if (def != null)
+            {
+                var so = new SerializedObject(ctrl);
+                so.FindProperty("definition").objectReferenceValue = def;
+                so.ApplyModifiedPropertiesWithoutUndo();
+            }
+
+            var savedPrefab = PrefabUtility.SaveAsPrefabAsset(instance, DeerPrefabPath);
+            Object.DestroyImmediate(instance);
+            return savedPrefab;
         }
 
         private static void BuildSandboxScene(CreatureDefinition deer)

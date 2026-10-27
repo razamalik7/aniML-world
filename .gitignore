@@ -151,3 +151,7 @@ textures/
 train_*.txt
 # Per-machine Claude Code settings
 .claude/
+
+aniML-anim-source/
+assets/blender/
+

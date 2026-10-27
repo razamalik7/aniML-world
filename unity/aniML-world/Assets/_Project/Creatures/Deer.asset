@@ -16,4 +16,4 @@ MonoBehaviour:
   DisplayName: Deer
   MaxSpeed: 6
   TurnRate: 240
-  Prefab: {fileID: 0}
+  Prefab: {fileID: 1051229228597397054, guid: e2c0b9ede3c7f6847b2f3c7648b8080b, type: 3}
